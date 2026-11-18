@@ -49,20 +49,20 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
+### - [x] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
 
 **Description :** Page `diagnostic.html` + `src/diagnostic/main.ts` + `pointer-sample.ts` (extraction d'un échantillon sérialisable). Panneau F1 (propriétés par `pointerId`, support coalesced/predicted, nombre de coalesced du dernier move). Canvas plein écran `touch-action: none`, un trait par `pointerId` coloré selon `pointerType` (rendu direct, sans optimisation). SHA du commit affiché.
 
 **Acceptance criteria :**
 
-- [ ] Toutes les propriétés de F1 s'affichent en direct pour chaque pointeur actif
-- [ ] Deux doigts tracent deux traits distincts simultanément
-- [ ] La page ne défile ni ne zoome pendant le tracé (au minimum `touch-action: none`)
+- [x] Toutes les propriétés de F1 s'affichent en direct pour chaque pointeur actif
+- [x] Deux doigts tracent deux traits distincts simultanément
+- [x] La page ne défile ni ne zoome pendant le tracé (au minimum `touch-action: none`)
 
 **Verification :**
 
-- [ ] `npx vitest run src/diagnostic/pointer-sample.test.ts`
-- [ ] `npm run check`
+- [x] `npx vitest run src/diagnostic/pointer-sample.test.ts`
+- [x] `npm run check`
 - [ ] Manuel après déploiement : iPad + Metapen, iPad au doigt, Pixel au doigt
 
 **Dependencies :** T2

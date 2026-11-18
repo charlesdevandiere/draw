@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Diagnostic — Carnet magique</title>
+    <link rel="stylesheet" href="/src/diagnostic/diagnostic.css" />
+  </head>
+  <body>
+    <canvas id="surface"></canvas>
+    <aside id="panel" aria-live="off">
+      <header>
+        <strong>Diagnostic</strong>
+        <span id="version"></span>
+        <button id="clear" type="button">Effacer</button>
+      </header>
+      <pre id="support"></pre>
+      <pre id="pointers">Posez un stylet ou un doigt sur l'écran.</pre>
+    </aside>
+    <script type="module" src="/src/diagnostic/main.ts"></script>
+  </body>
+</html>

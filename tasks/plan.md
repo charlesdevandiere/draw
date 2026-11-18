@@ -40,7 +40,7 @@ Détail des tâches : `tasks/todo.md`.
 
 - [x] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
 - [x] T2 : Déploiement continu GitHub Pages
-- [ ] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
+- [x] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
 
 ### Checkpoint A (sur appareils)
 

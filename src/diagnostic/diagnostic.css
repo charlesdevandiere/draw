@@ -1,0 +1,65 @@
+:root {
+  color-scheme: light;
+  --bg: #fdfdfb;
+  --ink: #1d1d1f;
+  --panel-bg: rgb(255 255 255 / 0.85);
+  --panel-border: #d0d0d5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+}
+
+#surface {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#panel {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  left: max(8px, env(safe-area-inset-left));
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: 60vh;
+  overflow: auto;
+  padding: 8px 10px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+#panel header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#panel header button {
+  margin-left: auto;
+  min-height: 32px;
+}
+
+#version {
+  font-family: ui-monospace, monospace;
+  opacity: 0.6;
+}
+
+#panel pre {
+  margin: 6px 0 0;
+  font-family: ui-monospace, monospace;
+  white-space: pre-wrap;
+}

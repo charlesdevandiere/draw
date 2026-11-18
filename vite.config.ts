@@ -6,6 +6,7 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         main: 'index.html',
+        diagnostic: 'diagnostic.html',
       },
     },
   },
@@ -19,6 +20,8 @@ export default defineConfig({
       exclude: [
         'src/**/*.test.ts',
         'src/**/main.ts',
+        'src/app-version.ts',
+        'src/vite-env.d.ts',
         'src/diagnostic/environment.ts',
         'src/diagnostic/stroke-renderer.ts',
       ],
