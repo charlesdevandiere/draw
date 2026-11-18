@@ -100,20 +100,20 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T5 : Palm rejection — 3 stratégies (TDD) + sélecteur
+### - [x] T5 : Palm rejection — 3 stratégies (TDD) + sélecteur
 
 **Description :** `src/input/palm-rejection.ts` écrit en TDD (stratégies `none`, `during-stroke` G=500 ms, `pen-session` S=10 s, cas obligatoires de la spec). Câblage dans `main.ts` : sélecteur, champs G/S, contacts ignorés marqués et comptés, indicateur « doigt actif / ignoré ».
 
 **Acceptance criteria :**
 
-- [ ] Tous les cas obligatoires de la spec sont couverts par des tests, couverture ≥ 90 % du module
-- [ ] Changer de stratégie en direct change le comportement sans recharger
-- [ ] Les contacts ignorés sont visibles et comptés par stratégie
+- [x] Tous les cas obligatoires de la spec sont couverts par des tests, couverture ≥ 90 % du module
+- [x] Changer de stratégie en direct change le comportement sans recharger
+- [x] Les contacts ignorés sont visibles et comptés par stratégie
 
 **Verification :**
 
-- [ ] `npx vitest run src/input/palm-rejection.test.ts`
-- [ ] `npm run check`
+- [x] `npx vitest run src/input/palm-rejection.test.ts`
+- [x] `npm run check`
 - [ ] Manuel iPad + Metapen : écrire paume posée avec chaque stratégie
 
 **Dependencies :** T3

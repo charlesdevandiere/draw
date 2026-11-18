@@ -63,3 +63,34 @@ body {
   font-family: ui-monospace, monospace;
   white-space: pre-wrap;
 }
+
+#palm {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+#palm label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+#palm input,
+#palm select {
+  min-height: 32px;
+  font-size: 14px;
+}
+
+#palm input {
+  width: 6em;
+}
+
+#touch-state[data-blocked='true'] {
+  color: #b3261e;
+  font-weight: 600;
+}

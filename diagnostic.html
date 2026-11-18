@@ -21,6 +21,22 @@
         <span id="version"></span>
         <button id="clear" type="button">Effacer</button>
       </header>
+      <fieldset id="palm">
+        <legend>Palm rejection</legend>
+        <label
+          >Stratégie
+          <select id="strategy">
+            <option value="none">Aucune</option>
+            <option value="during-stroke" selected>Pendant le trait</option>
+            <option value="pen-session">Session stylet</option>
+          </select>
+        </label>
+        <label>Grâce G (ms) <input id="grace" type="number" min="0" step="50" value="500" /></label>
+        <label
+          >Session S (s) <input id="session" type="number" min="0" step="1" value="10"
+        /></label>
+        <output id="touch-state"></output>
+      </fieldset>
       <pre id="support"></pre>
       <pre id="pointers">Posez un stylet ou un doigt sur l'écran.</pre>
     </aside>
