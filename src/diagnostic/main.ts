@@ -6,11 +6,22 @@ import {
 } from '../input/palm-rejection';
 import { formatSample, toSample, type PointerSample } from './pointer-sample';
 import { createStrokeRenderer } from './stroke-renderer';
+import {
+  createRateMeter,
+  createRollingWindow,
+  summarize,
+  type RateMeter,
+  type RollingWindow,
+} from './timing-stats';
 
 const COLORS: Record<string, string> = { pen: '#1f5fd6', touch: '#e07a10', mouse: '#2e9d4a' };
 const FALLBACK_COLOR = '#888';
 /** Panels are repainted at most every 100 ms (~10 Hz) so they do not skew the measurements. */
 const PANEL_INTERVAL_MS = 100;
+const RATE_WINDOW_MS = 1000;
+const ROLLING_CAPACITY = 500;
+/** Gaps longer than this between two painted frames are idle time, not frame durations. */
+const MAX_FRAME_GAP_MS = 250;
 /** How often the « doigt ignoré » indicator is re-evaluated while it is on. */
 const TOUCH_STATE_REFRESH_MS = 250;
 
@@ -25,6 +36,7 @@ const pointersOutput = requireElement('#pointers', HTMLPreElement);
 const supportOutput = requireElement('#support', HTMLPreElement);
 const renderer = createStrokeRenderer(canvas);
 const panel = requireElement('#panel', HTMLElement);
+const timingOutput = requireElement('#timing', HTMLPreElement);
 const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
 const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
@@ -49,6 +61,54 @@ const active = new Map<number, ActivePointer>();
 let lastCoalescedCount = 0;
 let panelScheduled = false;
 let touchStateTimer: number | undefined;
+
+interface TypeTiming {
+  /** pointermove events dispatched to the page. */
+  events: RateMeter;
+  /** Samples including coalesced ones (what is drawn when coalesced is on). */
+  samples: RateMeter;
+  coalescedPerMove: RollingWindow;
+}
+
+const timingByType = new Map<string, TypeTiming>();
+const frameDurations = createRollingWindow(ROLLING_CAPACITY);
+const inputLatencies = createRollingWindow(ROLLING_CAPACITY);
+/** timeStamps of drawn events waiting for the next painted frame. */
+let pendingEventTimes: number[] = [];
+let previousFrameTime: number | null = null;
+
+function timingFor(pointerType: string): TypeTiming {
+  let timing = timingByType.get(pointerType);
+  if (!timing) {
+    timing = {
+      events: createRateMeter(RATE_WINDOW_MS),
+      samples: createRateMeter(RATE_WINDOW_MS),
+      coalescedPerMove: createRollingWindow(ROLLING_CAPACITY),
+    };
+    timingByType.set(pointerType, timing);
+  }
+  return timing;
+}
+
+function recordMoveTiming(event: PointerEvent, coalesced: readonly PointerEvent[]): void {
+  const timing = timingFor(event.pointerType);
+  timing.coalescedPerMove.push(coalesced.length);
+  // Rates are per pointer: two fingers interleaved would double (and reorder) the stamps.
+  if (!event.isPrimary) return;
+  timing.events.record(event.timeStamp);
+  for (const sub of coalesced.length > 0 ? coalesced : [event])
+    timing.samples.record(sub.timeStamp);
+}
+
+renderer.onFrame((frameTime) => {
+  if (previousFrameTime !== null && frameTime - previousFrameTime <= MAX_FRAME_GAP_MS) {
+    frameDurations.push(frameTime - previousFrameTime);
+  }
+  previousFrameTime = frameTime;
+  const paintedAt = performance.now();
+  for (const eventTime of pendingEventTimes) inputLatencies.push(paintedAt - eventTime);
+  pendingEventTimes = [];
+});
 
 const ignoredCounts: Record<PalmRejectionStrategy, number> = {
   none: 0,
@@ -110,14 +170,16 @@ function onPointerMove(event: PointerEvent): void {
   const state = active.get(event.pointerId);
   if (!state) return;
   state.sample = toSample(event);
+  const events = hasCoalesced ? event.getCoalescedEvents() : [];
+  lastCoalescedCount = events.length;
+  recordMoveTiming(event, events);
   schedulePanel();
   if (state.ignored) return;
   if (!rejectorAccepts(event, 'move')) {
     markIgnored(event.pointerId, state, event.clientX, event.clientY);
     return;
   }
-  const events = hasCoalesced ? event.getCoalescedEvents() : [];
-  lastCoalescedCount = events.length;
+  pendingEventTimes.push(event.timeStamp);
   const useCoalesced = coalescedToggle.checked && events.length > 0;
   for (const sub of useCoalesced ? events : [event]) {
     renderer.extendStroke(event.pointerId, sub.clientX, sub.clientY);
@@ -152,8 +214,32 @@ function renderTouchState(): void {
   if (blocked) touchStateTimer = window.setTimeout(schedulePanel, TOUCH_STATE_REFRESH_MS);
 }
 
+function formatNumber(value: number | null, digits = 1): string {
+  return value === null ? 'n/d' : value.toFixed(digits);
+}
+
+function renderTiming(): void {
+  const lines: string[] = [];
+  for (const [type, timing] of timingByType) {
+    const coalesced = summarize(timing.coalescedPerMove.values());
+    lines.push(
+      `${type} : ${formatNumber(timing.events.rate(), 0)} Hz sans coalesced, ` +
+        `${formatNumber(timing.samples.rate(), 0)} Hz avec — ` +
+        `coalesced/move moy. ${formatNumber(coalesced.mean)}`,
+    );
+  }
+  const frames = summarize(frameDurations.values());
+  const latency = summarize(inputLatencies.values());
+  lines.push(
+    `intervalle entre frames peintes : moy. ${formatNumber(frames.mean)} ms, p95 ${formatNumber(frames.p95)} ms`,
+    `événement → rendu : moy. ${formatNumber(latency.mean)} ms, p95 ${formatNumber(latency.p95)} ms`,
+  );
+  timingOutput.textContent = lines.join('\n');
+}
+
 function renderPanel(): void {
   panelScheduled = false;
+  renderTiming();
   renderTouchState();
   supportOutput.textContent = [
     `getCoalescedEvents: ${hasCoalesced ? 'oui' : 'non'}`,

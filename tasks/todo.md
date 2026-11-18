@@ -151,19 +151,19 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ## Phase 3 : Mesures complètes et rapport
 
-### - [ ] T7 : Mesures de fluidité (F3)
+### - [x] T7 : Mesures de fluidité (F3)
 
 **Description :** `timing-stats.ts` en TDD (fréquence Hz sur fenêtre glissante, moyenne et p95). Panneau F3 : Hz par `pointerType` avec/sans coalesced, moyenne de coalesced par move, durée de frame, délai événement → rendu.
 
 **Acceptance criteria :**
 
-- [ ] Fonctions pures testées (séries vides, un seul échantillon, p95 sur valeurs connues)
+- [x] Fonctions pures testées (séries vides, un seul échantillon, p95 sur valeurs connues)
 - [ ] Panneau F3 cohérent : ~60 Hz souris/doigt typique, plus pour le stylet si l'appareil l'échantillonne plus vite
 
 **Verification :**
 
-- [ ] `npx vitest run src/diagnostic/timing-stats.test.ts`
-- [ ] `npm run check`
+- [x] `npx vitest run src/diagnostic/timing-stats.test.ts`
+- [x] `npm run check`
 - [ ] Manuel : comparer les valeurs iPad stylet / iPad doigt / Pixel
 
 **Dependencies :** T6
