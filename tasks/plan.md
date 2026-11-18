@@ -37,50 +37,58 @@ T1 Scaffold + outillage
 Détail des tâches : `tasks/todo.md`.
 
 ### Phase 1 : Socle et premier contact avec l'iPad
-- [ ] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
+
+- [x] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
 - [ ] T2 : Déploiement continu GitHub Pages
 - [ ] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
 
 ### Checkpoint A (sur appareils)
+
 - [ ] `https://charlesdevandiere.github.io/draw/diagnostic.html` s'ouvre sur iPad et Pixel
 - [ ] **Verdict préliminaire hypothèse 1** : `pointerType` affiché avec le Metapen
 
 ### Phase 2 : Cœur du diagnostic
+
 - [ ] T4 : PWA installable + hors ligne + version affichée
 - [ ] T5 : Palm rejection (3 stratégies, TDD) + sélecteur et réglages G/S
 - [ ] T6 : Renderer rAF, coalesced on/off, points bruts, effacer
 
 ### Checkpoint B (sur appareils)
+
 - [ ] PWA installée sur les deux appareils, ouverture en mode avion OK
 - [ ] Les 3 stratégies se comportent comme prévu avec le Metapen
 
 ### Phase 3 : Mesures complètes et rapport
+
 - [ ] T7 : Mesures de fluidité (F3)
 - [ ] T8 : Gestes système — protections on/off + incidents (F5)
 - [ ] T9 : Environnement PWA et stockage (F6)
 - [ ] T10 : Statistiques par pointerType + rapport JSON copier/partager (F7)
 
 ### Checkpoint C
+
 - [ ] `npm run check` vert, couverture ≥ 90 % sur les modules purs
 - [ ] Rapport copiable sur les deux appareils
 
 ### Phase 4 : Campagne de mesure
+
 - [ ] T11 : Protocole manuel sur les 3 configurations + `docs/diagnostic/conclusions.md`
 
 ### Checkpoint final
+
 - [ ] Les 8 Success Criteria de `SPEC.md` sont remplis
 - [ ] `CLAUDE.md` mis à jour (commandes, structure, conclusions clés)
 
 ## Risks and Mitigations
 
-| Risque | Impact | Mitigation |
-|---|---|---|
-| Le Metapen n'est pas vu comme `pen` | Élevé (remet en cause F4 et la stratégie de saisie) | Détecté dès T3 ; on continue le diagnostic (le rapport documente le comportement réel) et on replanifie la saisie avant le MVP |
-| Cache du service worker : l'appareil exécute une vieille version | Moyen (mesures attribuées à la mauvaise version) | SHA affiché dans la page et le rapport ; `autoUpdate` ; bouton/indication de rechargement |
-| Mauvais `base` / chemins sous `/draw/` | Moyen (page blanche sur Pages) | Déploiement mis en place dès T2, vérifié avant toute fonctionnalité |
-| Rafraîchir les panneaux perturbe les mesures | Moyen (fréquences/latences faussées) | Écouteurs minimalistes, rendu rAF, panneaux throttlés ~10 Hz |
-| Clipboard API refusée en PWA standalone iOS | Faible | Web Share en premier, `<textarea>` de repli |
-| Gestes système non bloquables (bords d'écran iOS) | Faible pour l'étape 0 | C'est précisément ce qu'on mesure ; consigné dans les conclusions |
+| Risque                                                           | Impact                                              | Mitigation                                                                                                                     |
+| ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Le Metapen n'est pas vu comme `pen`                              | Élevé (remet en cause F4 et la stratégie de saisie) | Détecté dès T3 ; on continue le diagnostic (le rapport documente le comportement réel) et on replanifie la saisie avant le MVP |
+| Cache du service worker : l'appareil exécute une vieille version | Moyen (mesures attribuées à la mauvaise version)    | SHA affiché dans la page et le rapport ; `autoUpdate` ; bouton/indication de rechargement                                      |
+| Mauvais `base` / chemins sous `/draw/`                           | Moyen (page blanche sur Pages)                      | Déploiement mis en place dès T2, vérifié avant toute fonctionnalité                                                            |
+| Rafraîchir les panneaux perturbe les mesures                     | Moyen (fréquences/latences faussées)                | Écouteurs minimalistes, rendu rAF, panneaux throttlés ~10 Hz                                                                   |
+| Clipboard API refusée en PWA standalone iOS                      | Faible                                              | Web Share en premier, `<textarea>` de repli                                                                                    |
+| Gestes système non bloquables (bords d'écran iOS)                | Faible pour l'étape 0                               | C'est précisément ce qu'on mesure ; consigné dans les conclusions                                                              |
 
 ## Décisions (questions résolues)
 

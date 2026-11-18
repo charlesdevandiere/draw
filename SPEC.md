@@ -5,6 +5,7 @@
 ## Objective
 
 **Pourquoi.** Toute l'architecture de saisie du Carnet magique repose sur des hypothèses non vérifiées sur les vrais appareils :
+
 1. le stylet Metapen est vu comme `pointerType: "pen"` par Safari iPadOS ;
 2. on peut ignorer la paume quand le stylet est actif sans que le doigt reste « bloqué » ;
 3. les gestes système (loupe, appui long, double-tap zoom, sélection, pull-to-refresh) sont neutralisables ;
@@ -20,40 +21,48 @@
 ### Fonctionnalités
 
 **F1 — Lecture en direct des Pointer Events**
+
 - Panneau affichant, pour chaque pointeur actif (`pointerId`) : `pointerType`, `isPrimary`, `pressure`, `tangentialPressure`, `tiltX`, `tiltY`, `twist`, `altitudeAngle`/`azimuthAngle` (si présents), `width`, `height`, `buttons`.
 - Nombre de coalesced events du dernier `pointermove`, et support de `getCoalescedEvents()` / `getPredictedEvents()` (détection par fonctionnalité).
 
 **F2 — Surface de tracé**
+
 - Canvas plein écran (hors panneaux), `touch-action: none`, rendu tenant compte de `devicePixelRatio`, rendu dans une boucle `requestAnimationFrame`.
 - Un trait par `pointerId`, couleur selon `pointerType` (pen / touch / mouse), épaisseur fixe.
 - Interrupteur **coalesced on/off** ; option d'affichage des points bruts (un point par échantillon) pour voir la densité.
 - Bouton « Effacer ».
 
 **F3 — Mesures de fluidité**
+
 - Par `pointerType` : fréquence d'échantillonnage en Hz (avec et sans coalesced), nombre moyen de coalesced events par `pointermove`.
 - Durée de frame (moyenne, p95) et délai événement → rendu estimé (`performance.now()` au rendu − `event.timeStamp`).
 
 **F4 — Stratégies de palm rejection (comparables en direct)**
 Sélecteur à 3 positions :
+
 - **Aucune** : tout pointeur dessine.
 - **Pendant le trait** : tant qu'un `pen` est en contact, et pendant une grâce de `G` ms après son `pointerup` (défaut 500 ms), les `touch` sont ignorés.
 - **Session stylet** : dès qu'un `pen` est vu, les `touch` sont ignorés jusqu'à `S` s sans activité stylet (défaut 10 s).
-`G` et `S` sont réglables. Les contacts ignorés sont visualisés (marqueur discret) et comptés. Un indicateur montre l'état courant (« doigt actif » / « doigt ignoré »).
+  `G` et `S` sont réglables. Les contacts ignorés sont visualisés (marqueur discret) et comptés. Un indicateur montre l'état courant (« doigt actif » / « doigt ignoré »).
 
 **F5 — Gestes système**
+
 - Interrupteur **protections anti-gestes on/off** (on par défaut) regroupant : `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, `overscroll-behavior: none`, viewport sans zoom, `preventDefault` sur `contextmenu`, `selectstart`, `dblclick`, `gesturestart` (iOS), `touchstart`/`touchmove` non passifs sur la surface.
 - Compteurs d'**incidents** : `pointercancel` (par `pointerType`), `touchcancel`, `contextmenu`, `selectionchange` avec sélection non vide, `visualViewport.scale ≠ 1`, défilement de la page, rechargement involontaire (compteur en `sessionStorage`).
 
 **F6 — Environnement PWA et stockage**
+
 - Mode d'affichage (`display-mode: standalone` / `navigator.standalone`), `navigator.storage.persisted()`, bouton « Demander la persistance » (`persist()`), `navigator.storage.estimate()`.
 - Infos appareil : `userAgent`, `userAgentData` si dispo, taille d'écran et de viewport, `devicePixelRatio`, `maxTouchPoints`, `matchMedia('(pointer: fine|coarse)')`, `(any-hover)`.
 
 **F7 — Rapport**
+
 - Bouton « Copier le rapport » (Clipboard API) et « Partager » (Web Share API, si dispo) ; repli : rapport affiché dans un `<textarea>` sélectionnable.
 - Contenu JSON : version du rapport, date, infos appareil (F6), et pour chaque `pointerType` vu : nombre d'événements, min/max/valeurs distinctes de `pressure`, min/max de `tiltX`/`tiltY`/`altitudeAngle`, présence de `twist`, `width/height` min/max, fréquences (F3), compteurs d'incidents (F5) avec l'état des protections, compteurs de contacts ignorés par stratégie (F4).
 - Bouton « Réinitialiser les mesures ».
 
 **F8 — PWA et page d'accueil provisoire**
+
 - Manifest + service worker (`vite-plugin-pwa`, precache de tous les assets) : l'app est installable et la page de diagnostic fonctionne hors ligne une fois installée.
 - `index.html` provisoire : titre « Carnet magique », lien vers le diagnostic. `start_url` et `scope` = racine de l'app, pour que la navigation reste en mode standalone.
 - Icônes provisoires (192, 512, maskable, `apple-touch-icon` 180) produites une fois depuis un SVG et commitées.
@@ -201,6 +210,6 @@ export function createPalmRejector(options: PalmRejectionOptions) {
 
 ## Open Questions
 
-1. **Activation de Pages** : il faudra régler une fois *Settings → Pages → Source : GitHub Actions* sur le dépôt (action manuelle de votre côté).
+1. **Activation de Pages** : il faudra régler une fois _Settings → Pages → Source : GitHub Actions_ sur le dépôt (action manuelle de votre côté).
 
 Résolues : dépôt public (GitHub Pages gratuit) ; valeurs par défaut `G = 500 ms` et `S = 10 s` validées.

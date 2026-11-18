@@ -4,19 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État du projet
 
-Dépôt démarré from scratch : seuls `.gitignore`, `LICENSE` (MIT) et la note de cadrage existent. Aucun code, aucune dépendance, aucune commande de build/test n'est encore en place. **Mettre à jour ce fichier dès que le projet Vite est généré** (commandes `npm`, lancement d'un test unitaire isolé, structure).
+Projet Vite + TypeScript (sans framework) généré (tâche T1 de `tasks/todo.md`) ; la page de diagnostic (`SPEC.md`) est en cours. Plan : `tasks/plan.md`, tâches : `tasks/todo.md`.
+
+Commandes :
+
+```
+npm ci                 # installer
+npm run dev            # serveur de dev (exposé sur le réseau local)
+npm run build          # tsc --noEmit && vite build → dist/ (base '/draw/')
+npm run preview        # prévisualiser le build
+npm test               # vitest run (env node)
+npx vitest run src/chemin/fichier.test.ts -t "nom du test"   # un seul test
+npm run lint           # eslint .
+npm run format         # prettier --write .
+npm run check          # lint + format:check + tests avec couverture (seuil 90 %) + build
+```
+
+Structure : `index.html` (accueil provisoire), `vite.config.ts` (base `/draw/`, entrées multi-pages, config Vitest), `src/**/*.ts` et tests `src/**/*.test.ts`. Structure cible détaillée : section « Project Structure » de `SPEC.md`.
 
 La vision produit, le périmètre MVP, les hypothèses à valider et la liste « Not Doing » sont dans **`docs/ideas/carnet-magique.md`** — à lire avant toute décision de fonctionnalité ou d'architecture.
 
 ## Objectif
 
 « Carnet magique » : PWA de dessin pour enfants de 5 ans et plus (dessin libre, coloriages anti-dépassement, modèles de lettres à tracer), sans compte, sans backend, hors ligne. Cibles :
+
 - iPad (Safari iPadOS, PWA installée), au stylet **et** au doigt ;
 - smartphones iOS et Android (Safari / Chrome), au doigt.
 
 PC (souris / tactile) : non ciblé pour la validation, mais le code doit rester standard pour ne pas l'exclure.
 
 **Appareils de référence** — une fonctionnalité n'est terminée que lorsqu'elle est validée sur les trois :
+
 1. iPad 11 + stylet Metapen ;
 2. iPad 11 au doigt ;
 3. Google Pixel 9a au doigt.
