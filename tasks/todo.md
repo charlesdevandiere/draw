@@ -79,7 +79,7 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ## Phase 2 : Cœur du diagnostic
 
-### - [ ] T4 : PWA installable + hors ligne
+### - [x] T4 : PWA installable + hors ligne
 
 **Description :** `vite-plugin-pwa` (`generateSW`, `autoUpdate`, precache complet), manifest (nom, couleurs, `start_url`/`scope` `/draw/`, `display: standalone`), icônes provisoires 192/512/maskable/apple-touch-icon 180 générées une fois depuis un SVG, balises iOS (`apple-mobile-web-app-capable`, etc.). Lien accueil → diagnostic.
 

@@ -49,7 +49,7 @@ Détail des tâches : `tasks/todo.md`.
 
 ### Phase 2 : Cœur du diagnostic
 
-- [ ] T4 : PWA installable + hors ligne + version affichée
+- [x] T4 : PWA installable + hors ligne + version affichée
 - [ ] T5 : Palm rejection (3 stratégies, TDD) + sélecteur et réglages G/S
 - [ ] T6 : Renderer rAF, coalesced on/off, points bruts, effacer
 

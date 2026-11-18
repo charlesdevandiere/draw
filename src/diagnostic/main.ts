@@ -118,5 +118,11 @@ requireElement('#clear', HTMLButtonElement).addEventListener('click', () => {
 });
 window.addEventListener('resize', resizeCanvas);
 
+// A new service worker took over (new deploy): reload so the page runs the new build.
+// Skipped on first install, when the page had no controller yet.
+if (navigator.serviceWorker?.controller) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+}
+
 resizeCanvas();
 schedulePanel();
