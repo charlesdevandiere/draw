@@ -214,20 +214,20 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T10 : Statistiques par pointerType + rapport JSON (F7)
+### - [x] T10 : Statistiques par pointerType + rapport JSON (F7)
 
 **Description :** `pointer-stats.ts` (agrégation par `pointerType` : nombre, min/max/distinctes de pressure, tilt, altitude, twist, width/height) et `report.ts` (assemblage de F3/F4/F5/F6 + version + SHA) en TDD. Boutons Copier (Clipboard), Partager (Web Share si dispo), repli `<textarea>`, Réinitialiser les mesures.
 
 **Acceptance criteria :**
 
-- [ ] Rapport conforme à F7, JSON valide, champ `reportVersion`
+- [x] Rapport conforme à F7, JSON valide, champ `reportVersion`
 - [ ] Copier ou Partager fonctionne sur iPad et Pixel ; sinon le `<textarea>` s'affiche
-- [ ] Réinitialiser remet stats, compteurs et tracé à zéro
+- [x] Réinitialiser remet stats, compteurs et tracé à zéro
 
 **Verification :**
 
-- [ ] `npx vitest run src/diagnostic/pointer-stats.test.ts src/diagnostic/report.test.ts`
-- [ ] `npm run check` (couverture ≥ 90 % sur les modules purs)
+- [x] `npx vitest run src/diagnostic/pointer-stats.test.ts src/diagnostic/report.test.ts`
+- [x] `npm run check` (couverture ≥ 90 % sur les modules purs)
 - [ ] Manuel : copier un rapport sur chaque appareil et le coller ailleurs
 
 **Dependencies :** T5, T7, T8, T9

@@ -104,6 +104,7 @@ body {
 }
 
 #drawing,
+#report,
 #env,
 #gestures,
 #palm {
@@ -141,4 +142,20 @@ body {
 
 #persist {
   min-height: 36px;
+}
+
+#report .buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#report button {
+  min-height: 36px;
+}
+
+#report-fallback {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
 }

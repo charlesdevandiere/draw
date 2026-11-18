@@ -5,13 +5,21 @@ import {
   type PointerInput,
 } from '../input/palm-rejection';
 import { formatSample, toSample, type PointerSample } from './pointer-sample';
-import { collectEnvironment, formatEnvironment, requestPersistence } from './environment';
+import {
+  collectEnvironment,
+  formatEnvironment,
+  requestPersistence,
+  type EnvironmentInfo,
+} from './environment';
 import {
   createGestureProtections,
   markIntentionalReload,
+  resetReloadCount,
   watchIncidents,
 } from './gesture-protections';
 import { createIncidentCounter } from './incidents';
+import { createPointerStats } from './pointer-stats';
+import { buildReport } from './report';
 import { createStrokeRenderer } from './stroke-renderer';
 import {
   createRateMeter,
@@ -48,6 +56,9 @@ const incidentsOutput = requireElement('#incidents', HTMLPreElement);
 const protectionsToggle = requireElement('#protections', HTMLInputElement);
 const environmentOutput = requireElement('#environment', HTMLPreElement);
 const persistButton = requireElement('#persist', HTMLButtonElement);
+const reportFallback = requireElement('#report-fallback', HTMLTextAreaElement);
+const shareButton = requireElement('#share-report', HTMLButtonElement);
+const reportStatus = requireElement('#report-status', HTMLOutputElement);
 const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
 const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
@@ -124,11 +135,15 @@ renderer.onFrame((frameTime) => {
 let environmentRequest = 0;
 let environmentTimer: number | undefined;
 
+let latestEnvironment: EnvironmentInfo | null = null;
+const pointerStats = createPointerStats();
+
 async function refreshEnvironment(): Promise<void> {
   // Overlapping calls (resize bursts, persist click) may resolve out of order: keep the latest.
   const request = ++environmentRequest;
   const info = await collectEnvironment();
   if (request !== environmentRequest) return;
+  latestEnvironment = info;
   environmentOutput.textContent = formatEnvironment(info);
 }
 
@@ -163,12 +178,17 @@ function readNumber(input: HTMLInputElement, fallback: number): number {
   return Number.isFinite(value) && value >= 0 ? value : fallback;
 }
 
-function buildRejector() {
-  return createPalmRejector({
+/** Palm-rejection settings as applied to the rejector (and reported). */
+function rejectorConfig() {
+  return {
     strategy: currentStrategy(),
     graceMs: readNumber(graceInput, 500),
     sessionMs: readNumber(sessionInput, 10) * 1000,
-  });
+  };
+}
+
+function buildRejector() {
+  return createPalmRejector(rejectorConfig());
 }
 
 let rejector = buildRejector();
@@ -192,6 +212,7 @@ function onPointerDown(event: PointerEvent): void {
     // Capture is a convenience: drawing still works without it.
   }
   const sample = toSample(event);
+  pointerStats.record(sample);
   const state: ActivePointer = { sample, ignored: false };
   active.set(event.pointerId, state);
   if (rejectorAccepts(event, 'down')) {
@@ -210,6 +231,7 @@ function onPointerMove(event: PointerEvent): void {
   const events = hasCoalesced ? event.getCoalescedEvents() : [];
   lastCoalescedCount = events.length;
   recordMoveTiming(event, events);
+  for (const sub of events.length > 0 ? events : [event]) pointerStats.record(toSample(sub));
   schedulePanel();
   if (state.ignored) return;
   if (!rejectorAccepts(event, 'move')) {
@@ -310,6 +332,97 @@ function renderPanel(): void {
           .join('\n\n');
 }
 
+function timingSummary(timing: TypeTiming) {
+  return {
+    eventsHz: timing.events.rate(),
+    samplesHz: timing.samples.rate(),
+    coalescedPerMove: summarize(timing.coalescedPerMove.values()),
+  };
+}
+
+function currentReport() {
+  const byType: Record<string, ReturnType<typeof timingSummary>> = {};
+  for (const [type, timing] of timingByType) byType[type] = timingSummary(timing);
+  return buildReport({
+    generatedAt: new Date().toISOString(),
+    appVersion: APP_VERSION,
+    environment: latestEnvironment,
+    support: { coalescedEvents: hasCoalesced, predictedEvents: hasPredicted },
+    drawingOptions: {
+      coalescedDrawing: hasCoalesced && coalescedToggle.checked,
+      rawPoints: rawPointsToggle.checked,
+    },
+    pointers: pointerStats.snapshot(),
+    timing: {
+      byType,
+      frameIntervalMs: summarize(frameDurations.values()),
+      eventToRenderMs: summarize(inputLatencies.values()),
+    },
+    incidents: { protectionsEnabled: protections.isEnabled(), ...incidents.snapshot() },
+    palmRejection: {
+      ...rejectorConfig(),
+      ignoredByStrategy: { ...ignoredCounts },
+    },
+  });
+}
+
+/** Last resort when neither clipboard nor share work: a selectable text area. */
+function showReportFallback(json: string): void {
+  reportFallback.hidden = false;
+  reportFallback.value = json;
+  reportFallback.focus();
+  // iOS Safari ignores select() on text fields: set the range explicitly.
+  reportFallback.setSelectionRange(0, json.length);
+}
+
+async function copyReport(): Promise<void> {
+  const json = JSON.stringify(currentReport(), null, 2);
+  try {
+    await navigator.clipboard.writeText(json);
+    reportFallback.hidden = true;
+    reportStatus.textContent = 'Rapport copié.';
+  } catch {
+    reportStatus.textContent = 'Copie impossible : sélectionnez le texte ci-dessous.';
+    showReportFallback(json);
+  }
+}
+
+async function shareReport(): Promise<void> {
+  const json = JSON.stringify(currentReport(), null, 2);
+  try {
+    await navigator.share({ title: `Diagnostic Carnet magique ${APP_VERSION}`, text: json });
+    reportFallback.hidden = true;
+    reportStatus.textContent = 'Rapport partagé.';
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return;
+    reportStatus.textContent = 'Partage impossible : sélectionnez le texte ci-dessous.';
+    showReportFallback(json);
+  }
+}
+
+function resetMeasurements(): void {
+  pointerStats.reset();
+  for (const timing of timingByType.values()) {
+    timing.events.reset();
+    timing.samples.reset();
+    timing.coalescedPerMove.clear();
+  }
+  frameDurations.clear();
+  inputLatencies.clear();
+  pendingEventTimes = [];
+  previousFrameTime = null;
+  incidents.reset();
+  resetReloadCount();
+  for (const strategy of Object.keys(ignoredCounts) as PalmRejectionStrategy[]) {
+    ignoredCounts[strategy] = 0;
+  }
+  lastCoalescedCount = 0;
+  renderer.clear();
+  reportFallback.hidden = true;
+  reportStatus.textContent = 'Mesures réinitialisées.';
+  schedulePanel();
+}
+
 canvas.addEventListener('pointerdown', onPointerDown);
 canvas.addEventListener('pointermove', onPointerMove);
 // On window: without pointer capture, a contact lifted off the canvas must still end.
@@ -327,6 +440,13 @@ rawPointsToggle.addEventListener('change', () =>
   renderer.setShowRawPoints(rawPointsToggle.checked),
 );
 coalescedToggle.disabled = !hasCoalesced;
+requireElement('#copy-report', HTMLButtonElement).addEventListener(
+  'click',
+  () => void copyReport(),
+);
+shareButton.hidden = typeof navigator.share !== 'function';
+shareButton.addEventListener('click', () => void shareReport());
+requireElement('#reset', HTMLButtonElement).addEventListener('click', resetMeasurements);
 persistButton.addEventListener('click', async () => {
   persistButton.disabled = true;
   try {
@@ -350,7 +470,8 @@ protectionsToggle.addEventListener('change', () => {
   schedulePanel();
 });
 for (const control of [strategySelect, graceInput, sessionInput]) {
-  control.addEventListener('change', () => {
+  // 'input' (not 'change'): a typed value applies before the field loses focus.
+  control.addEventListener('input', () => {
     rejector = buildRejector();
     // The new rejector starts blank: tell it about pens still in contact.
     for (const { sample } of active.values()) {
