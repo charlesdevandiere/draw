@@ -29,14 +29,14 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T2 : Déploiement continu GitHub Pages
+### - [x] T2 : Déploiement continu GitHub Pages
 
 **Description :** Workflow `.github/workflows/deploy.yml` : sur push `master` → `npm ci`, `npm run check`, build, `actions/upload-pages-artifact`, `actions/deploy-pages`. Activation manuelle de Pages par l'utilisateur.
 
 **Acceptance criteria :**
 
-- [ ] Un push sur `master` publie `https://charlesdevandiere.github.io/draw/`
-- [ ] Un `check` en échec empêche le déploiement
+- [x] Un push sur `master` publie `https://charlesdevandiere.github.io/draw/`
+- [x] Un `check` en échec empêche le déploiement
 
 **Verification :**
 

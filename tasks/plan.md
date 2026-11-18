@@ -39,7 +39,7 @@ Détail des tâches : `tasks/todo.md`.
 ### Phase 1 : Socle et premier contact avec l'iPad
 
 - [x] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
-- [ ] T2 : Déploiement continu GitHub Pages
+- [x] T2 : Déploiement continu GitHub Pages
 - [ ] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
 
 ### Checkpoint A (sur appareils)

@@ -88,7 +88,7 @@ Tests (watch) :    npm run test:watch      # vitest
 Un seul test :     npx vitest run src/input/palm-rejection.test.ts -t "ignore le doigt pendant la grâce"
 Lint :             npm run lint            # eslint .
 Format :           npm run format          # prettier --write .
-Tout vérifier :    npm run check           # lint + format --check + test + build
+Tout vérifier :    npm run check           # lint + format --check + test (couverture ≥ 90 %) + build
 ```
 
 ## Project Structure

@@ -15,7 +15,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts'],
+      // Seuil sur les modules purs uniquement : le DOM est confiné à ces fichiers (SPEC.md).
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/main.ts',
+        'src/diagnostic/environment.ts',
+        'src/diagnostic/stroke-renderer.ts',
+      ],
       thresholds: { lines: 90, functions: 90, branches: 90, statements: 90 },
     },
   },
