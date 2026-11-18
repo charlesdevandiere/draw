@@ -104,6 +104,7 @@ body {
 }
 
 #drawing,
+#env,
 #gestures,
 #palm {
   display: grid;
@@ -136,4 +137,8 @@ body {
 #touch-state[data-blocked='true'] {
   color: #b3261e;
   font-weight: 600;
+}
+
+#persist {
+  min-height: 36px;
 }

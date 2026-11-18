@@ -5,6 +5,7 @@ import {
   type PointerInput,
 } from '../input/palm-rejection';
 import { formatSample, toSample, type PointerSample } from './pointer-sample';
+import { collectEnvironment, formatEnvironment, requestPersistence } from './environment';
 import {
   createGestureProtections,
   markIntentionalReload,
@@ -45,6 +46,8 @@ const panel = requireElement('#panel', HTMLElement);
 const timingOutput = requireElement('#timing', HTMLPreElement);
 const incidentsOutput = requireElement('#incidents', HTMLPreElement);
 const protectionsToggle = requireElement('#protections', HTMLInputElement);
+const environmentOutput = requireElement('#environment', HTMLPreElement);
+const persistButton = requireElement('#persist', HTMLButtonElement);
 const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
 const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
@@ -117,6 +120,23 @@ renderer.onFrame((frameTime) => {
   for (const eventTime of pendingEventTimes) inputLatencies.push(paintedAt - eventTime);
   pendingEventTimes = [];
 });
+
+let environmentRequest = 0;
+let environmentTimer: number | undefined;
+
+async function refreshEnvironment(): Promise<void> {
+  // Overlapping calls (resize bursts, persist click) may resolve out of order: keep the latest.
+  const request = ++environmentRequest;
+  const info = await collectEnvironment();
+  if (request !== environmentRequest) return;
+  environmentOutput.textContent = formatEnvironment(info);
+}
+
+/** Coalesces bursts of resize events (rotation, toolbar animation) into one refresh. */
+function scheduleEnvironmentRefresh(): void {
+  window.clearTimeout(environmentTimer);
+  environmentTimer = window.setTimeout(() => void refreshEnvironment(), PANEL_INTERVAL_MS);
+}
 
 const protections = createGestureProtections(canvas);
 const incidents = createIncidentCounter();
@@ -307,6 +327,24 @@ rawPointsToggle.addEventListener('change', () =>
   renderer.setShowRawPoints(rawPointsToggle.checked),
 );
 coalescedToggle.disabled = !hasCoalesced;
+persistButton.addEventListener('click', async () => {
+  persistButton.disabled = true;
+  try {
+    const granted = await requestPersistence();
+    persistButton.textContent = `Persistance : ${granted === null ? 'non disponible' : granted ? 'accordée' : 'refusée'}`;
+    await refreshEnvironment();
+  } finally {
+    persistButton.disabled = false;
+  }
+});
+// Viewport, DPR and display mode change with rotation, toolbars, zoom and installation.
+window.addEventListener('resize', scheduleEnvironmentRefresh);
+for (const mode of ['standalone', 'fullscreen', 'minimal-ui', 'browser']) {
+  window
+    .matchMedia(`(display-mode: ${mode})`)
+    .addEventListener?.('change', scheduleEnvironmentRefresh);
+}
+void refreshEnvironment();
 protectionsToggle.addEventListener('change', () => {
   protections.setEnabled(protectionsToggle.checked);
   schedulePanel();

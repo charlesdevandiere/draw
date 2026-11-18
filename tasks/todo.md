@@ -194,18 +194,18 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T9 : Environnement PWA et stockage (F6)
+### - [x] T9 : Environnement PWA et stockage (F6)
 
 **Description :** `environment.ts` : mode d'affichage, `storage.persisted()` / bouton `persist()`, `storage.estimate()`, infos appareil (UA, `userAgentData`, écran/viewport, DPR, `maxTouchPoints`, media queries pointer/hover). Panneau F6.
 
 **Acceptance criteria :**
 
-- [ ] Toutes les infos F6 affichées, valeurs absentes signalées « non disponible » (pas d'erreur)
-- [ ] Le bouton « Demander la persistance » met à jour l'affichage
+- [x] Toutes les infos F6 affichées, valeurs absentes signalées « non disponible » (pas d'erreur)
+- [x] Le bouton « Demander la persistance » met à jour l'affichage
 
 **Verification :**
 
-- [ ] `npm run check`
+- [x] `npm run check`
 - [ ] Manuel : comparer navigateur vs PWA installée sur iPad et Pixel
 
 **Dependencies :** T4
