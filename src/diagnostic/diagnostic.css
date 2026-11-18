@@ -25,7 +25,24 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* F5 anti-gesture protections, toggled from the panel (gesture-protections.ts). */
+.gesture-protected #surface {
   touch-action: none;
+}
+
+.gesture-protected :is(input, select) {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+.gesture-protected,
+.gesture-protected body {
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Drawer: on the right on landscape screens, at the bottom on portrait ones. */
@@ -87,6 +104,7 @@ body {
 }
 
 #drawing,
+#gestures,
 #palm {
   display: grid;
   gap: 4px;
@@ -97,6 +115,7 @@ body {
 }
 
 #drawing label,
+#gestures label,
 #palm label {
   display: flex;
   justify-content: space-between;

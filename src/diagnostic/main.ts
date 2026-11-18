@@ -5,6 +5,12 @@ import {
   type PointerInput,
 } from '../input/palm-rejection';
 import { formatSample, toSample, type PointerSample } from './pointer-sample';
+import {
+  createGestureProtections,
+  markIntentionalReload,
+  watchIncidents,
+} from './gesture-protections';
+import { createIncidentCounter } from './incidents';
 import { createStrokeRenderer } from './stroke-renderer';
 import {
   createRateMeter,
@@ -37,6 +43,8 @@ const supportOutput = requireElement('#support', HTMLPreElement);
 const renderer = createStrokeRenderer(canvas);
 const panel = requireElement('#panel', HTMLElement);
 const timingOutput = requireElement('#timing', HTMLPreElement);
+const incidentsOutput = requireElement('#incidents', HTMLPreElement);
+const protectionsToggle = requireElement('#protections', HTMLInputElement);
 const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
 const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
@@ -109,6 +117,15 @@ renderer.onFrame((frameTime) => {
   for (const eventTime of pendingEventTimes) inputLatencies.push(paintedAt - eventTime);
   pendingEventTimes = [];
 });
+
+const protections = createGestureProtections(canvas);
+const incidents = createIncidentCounter();
+// Before setEnabled: a reload is counted under the state stored by the previous page.
+watchIncidents((kind, protectionsOn) => {
+  incidents.record(kind, protectionsOn ?? protections.isEnabled());
+  schedulePanel();
+});
+protections.setEnabled(protectionsToggle.checked);
 
 const ignoredCounts: Record<PalmRejectionStrategy, number> = {
   none: 0,
@@ -237,8 +254,24 @@ function renderTiming(): void {
   timingOutput.textContent = lines.join('\n');
 }
 
+function formatIncidents(counts: Record<string, number>): string {
+  const entries = Object.entries(counts);
+  return entries.length === 0
+    ? 'aucun'
+    : entries.map(([kind, count]) => `${kind} ${count}`).join(', ');
+}
+
+function renderIncidents(): void {
+  const { protectionsOn, protectionsOff } = incidents.snapshot();
+  incidentsOutput.textContent = [
+    `Incidents (protections on) : ${formatIncidents(protectionsOn)}`,
+    `Incidents (protections off) : ${formatIncidents(protectionsOff)}`,
+  ].join('\n');
+}
+
 function renderPanel(): void {
   panelScheduled = false;
+  renderIncidents();
   renderTiming();
   renderTouchState();
   supportOutput.textContent = [
@@ -274,6 +307,10 @@ rawPointsToggle.addEventListener('change', () =>
   renderer.setShowRawPoints(rawPointsToggle.checked),
 );
 coalescedToggle.disabled = !hasCoalesced;
+protectionsToggle.addEventListener('change', () => {
+  protections.setEnabled(protectionsToggle.checked);
+  schedulePanel();
+});
 for (const control of [strategySelect, graceInput, sessionInput]) {
   control.addEventListener('change', () => {
     rejector = buildRejector();
@@ -290,7 +327,10 @@ for (const control of [strategySelect, graceInput, sessionInput]) {
 // A new service worker took over (new deploy): reload so the page runs the new build.
 // Skipped on first install, when the page had no controller yet.
 if (navigator.serviceWorker?.controller) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    markIntentionalReload();
+    window.location.reload();
+  });
 }
 
 schedulePanel();

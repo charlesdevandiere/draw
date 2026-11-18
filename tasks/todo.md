@@ -172,24 +172,24 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T8 : Gestes système — protections on/off + incidents (F5)
+### - [x] T8 : Gestes système — protections on/off + incidents (F5)
 
 **Description :** `incidents.ts` : compteurs purs testés + fonction d'abonnement DOM séparée (`pointercancel` par type, `touchcancel`, `contextmenu`, `selectionchange` non vide, `visualViewport.scale ≠ 1`, défilement, rechargement via `sessionStorage`). Interrupteur protections (classe CSS + écouteurs `preventDefault` ajoutés/retirés, viewport sans zoom).
 
 **Acceptance criteria :**
 
-- [ ] Comptage testé unitairement (incrément, remise à zéro, état des protections inclus dans l'instantané)
+- [x] Comptage testé unitairement (incrément, remise à zéro, état des protections inclus dans l'instantané)
 - [ ] Protections off : appui long / double-tap provoquent des incidents comptés ; protections on : moins ou pas d'incidents
-- [ ] Basculer l'interrupteur ne nécessite pas de recharger
+- [x] Basculer l'interrupteur ne nécessite pas de recharger
 
 **Verification :**
 
-- [ ] `npx vitest run src/diagnostic/incidents.test.ts`
-- [ ] `npm run check`
+- [x] `npx vitest run src/diagnostic/incidents.test.ts`
+- [x] `npm run check`
 - [ ] Manuel : étape 3 du protocole sur un appareil
 
 **Dependencies :** T6
-**Files :** `src/diagnostic/incidents.ts`, `src/diagnostic/incidents.test.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
+**Files :** `src/diagnostic/incidents.ts`, `src/diagnostic/incidents.test.ts`, `src/diagnostic/gesture-protections.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
 **Scope :** M
 
 ---

@@ -61,7 +61,7 @@ Détail des tâches : `tasks/todo.md`.
 ### Phase 3 : Mesures complètes et rapport
 
 - [x] T7 : Mesures de fluidité (F3)
-- [ ] T8 : Gestes système — protections on/off + incidents (F5)
+- [x] T8 : Gestes système — protections on/off + incidents (F5)
 - [ ] T9 : Environnement PWA et stockage (F6)
 - [ ] T10 : Statistiques par pointerType + rapport JSON copier/partager (F7)
 

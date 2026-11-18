@@ -61,6 +61,7 @@ export default defineConfig({
         'src/vite-env.d.ts',
         'src/diagnostic/environment.ts',
         'src/diagnostic/stroke-renderer.ts',
+        'src/diagnostic/gesture-protections.ts',
       ],
       thresholds: { lines: 90, functions: 90, branches: 90, statements: 90 },
     },

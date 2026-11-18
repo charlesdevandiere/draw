@@ -109,8 +109,9 @@ src/
     pointer-stats.test.ts
     timing-stats.ts              → Fréquences, moyenne/p95 de durées (pur)
     timing-stats.test.ts
-    incidents.ts                 → Compteurs d'incidents de gestes (pur + abonnement DOM séparé)
+    incidents.ts                 → Compteurs d'incidents de gestes (pur)
     incidents.test.ts
+    gesture-protections.ts       → Protections anti-gestes on/off + écoute des incidents (DOM)
     environment.ts               → Infos appareil / PWA / stockage (DOM)
     report.ts                    → Construction du rapport JSON (pur)
     report.test.ts
@@ -121,7 +122,7 @@ docs/ideas/                      → Notes de cadrage
 docs/diagnostic/                 → Rapports JSON collectés sur les appareils + conclusions
 ```
 
-Règle : tout ce qui est **pur** (sans DOM) est testé unitairement ; le DOM est confiné à `main.ts`, `environment.ts`, `stroke-renderer.ts` et à la partie abonnement d'`incidents.ts`.
+Règle : tout ce qui est **pur** (sans DOM) est testé unitairement ; le DOM est confiné à `main.ts`, `environment.ts`, `stroke-renderer.ts` et `gesture-protections.ts`.
 
 ## Code Style
 
