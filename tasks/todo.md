@@ -122,7 +122,7 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ---
 
-### - [ ] T6 : Renderer rAF, coalesced on/off, points bruts
+### - [x] T6 : Renderer rAF, coalesced on/off, points bruts
 
 **Description :** `stroke-renderer.ts` : rendu incrémental dans `requestAnimationFrame`, canvas dimensionné en `devicePixelRatio`, redimensionnement/rotation gérés. Interrupteurs coalesced on/off et points bruts, bouton Effacer. Les écouteurs ne font plus qu'enregistrer dans des tampons ; panneaux throttlés ~10 Hz. Tiroir de panneaux repliable.
 
@@ -130,11 +130,11 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 - [ ] Tracé net (pas flou) sur écran Retina et après rotation
 - [ ] Coalesced off → points visiblement plus espacés en tracé rapide (si l'appareil fournit des coalesced events)
-- [ ] Les panneaux ne se rafraîchissent pas plus de ~10 fois/s
+- [x] Les panneaux ne se rafraîchissent pas plus de ~10 fois/s
 
 **Verification :**
 
-- [ ] `npm run check`
+- [x] `npm run check`
 - [ ] Manuel : tracé rapide coalesced on/off avec points bruts, sur iPad et Pixel ; rotation de l'appareil
 
 **Dependencies :** T3

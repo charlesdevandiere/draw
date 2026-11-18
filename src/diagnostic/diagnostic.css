@@ -28,13 +28,17 @@ body {
   touch-action: none;
 }
 
+/* Drawer: on the right on landscape screens, at the bottom on portrait ones. */
 #panel {
   position: fixed;
   top: max(8px, env(safe-area-inset-top));
-  left: max(8px, env(safe-area-inset-left));
-  max-width: min(320px, calc(100vw - 16px));
-  max-height: 60vh;
+  right: max(8px, env(safe-area-inset-right));
+  width: min(340px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  /* iOS Safari: 100vh includes the area behind the toolbars. */
+  max-height: calc(100dvh - 16px);
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 8px 10px;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
@@ -48,9 +52,27 @@ body {
   align-items: center;
 }
 
+@media (orientation: portrait) {
+  #panel {
+    top: auto;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: max(8px, env(safe-area-inset-left));
+    width: auto;
+    max-height: 45vh;
+    max-height: 45dvh;
+  }
+}
+
+#panel.collapsed #panel-body {
+  display: none;
+}
+
 #panel header button {
+  min-height: 36px;
+}
+
+#clear {
   margin-left: auto;
-  min-height: 32px;
 }
 
 #version {
@@ -64,6 +86,7 @@ body {
   white-space: pre-wrap;
 }
 
+#drawing,
 #palm {
   display: grid;
   gap: 4px;
@@ -73,6 +96,7 @@ body {
   border-radius: 6px;
 }
 
+#drawing label,
 #palm label {
   display: flex;
   justify-content: space-between;

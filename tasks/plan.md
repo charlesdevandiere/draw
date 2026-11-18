@@ -51,7 +51,7 @@ Détail des tâches : `tasks/todo.md`.
 
 - [x] T4 : PWA installable + hors ligne + version affichée
 - [x] T5 : Palm rejection (3 stratégies, TDD) + sélecteur et réglages G/S
-- [ ] T6 : Renderer rAF, coalesced on/off, points bruts, effacer
+- [x] T6 : Renderer rAF, coalesced on/off, points bruts, effacer
 
 ### Checkpoint B (sur appareils)
 

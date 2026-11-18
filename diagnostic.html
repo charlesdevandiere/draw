@@ -20,25 +20,37 @@
         <strong>Diagnostic</strong>
         <span id="version"></span>
         <button id="clear" type="button">Effacer</button>
+        <button id="toggle-panel" type="button" aria-expanded="true" aria-controls="panel-body">
+          Replier
+        </button>
       </header>
-      <fieldset id="palm">
-        <legend>Palm rejection</legend>
-        <label
-          >Stratégie
-          <select id="strategy">
-            <option value="none">Aucune</option>
-            <option value="during-stroke" selected>Pendant le trait</option>
-            <option value="pen-session">Session stylet</option>
-          </select>
-        </label>
-        <label>Grâce G (ms) <input id="grace" type="number" min="0" step="50" value="500" /></label>
-        <label
-          >Session S (s) <input id="session" type="number" min="0" step="1" value="10"
-        /></label>
-        <output id="touch-state"></output>
-      </fieldset>
-      <pre id="support"></pre>
-      <pre id="pointers">Posez un stylet ou un doigt sur l'écran.</pre>
+      <div id="panel-body">
+        <fieldset id="drawing">
+          <legend>Tracé</legend>
+          <label><input id="coalesced" type="checkbox" checked /> Coalesced events</label>
+          <label><input id="raw-points" type="checkbox" /> Points bruts</label>
+        </fieldset>
+        <fieldset id="palm">
+          <legend>Palm rejection</legend>
+          <label
+            >Stratégie
+            <select id="strategy">
+              <option value="none">Aucune</option>
+              <option value="during-stroke" selected>Pendant le trait</option>
+              <option value="pen-session">Session stylet</option>
+            </select>
+          </label>
+          <label
+            >Grâce G (ms) <input id="grace" type="number" min="0" step="50" value="500"
+          /></label>
+          <label
+            >Session S (s) <input id="session" type="number" min="0" step="1" value="10"
+          /></label>
+          <output id="touch-state"></output>
+        </fieldset>
+        <pre id="support"></pre>
+        <pre id="pointers">Posez un stylet ou un doigt sur l'écran.</pre>
+      </div>
     </aside>
     <script type="module" src="/src/diagnostic/main.ts"></script>
   </body>

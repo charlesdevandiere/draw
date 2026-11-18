@@ -5,12 +5,12 @@ import {
   type PointerInput,
 } from '../input/palm-rejection';
 import { formatSample, toSample, type PointerSample } from './pointer-sample';
+import { createStrokeRenderer } from './stroke-renderer';
 
 const COLORS: Record<string, string> = { pen: '#1f5fd6', touch: '#e07a10', mouse: '#2e9d4a' };
 const FALLBACK_COLOR = '#888';
-const LINE_WIDTH = 3;
-const IGNORED_COLOR = '#b3261e';
-const IGNORED_MARK_SIZE = 6;
+/** Panels are repainted at most every 100 ms (~10 Hz) so they do not skew the measurements. */
+const PANEL_INTERVAL_MS = 100;
 /** How often the « doigt ignoré » indicator is re-evaluated while it is on. */
 const TOUCH_STATE_REFRESH_MS = 250;
 
@@ -23,9 +23,10 @@ function requireElement<T extends Element>(selector: string, type: new () => T):
 const canvas = requireElement('#surface', HTMLCanvasElement);
 const pointersOutput = requireElement('#pointers', HTMLPreElement);
 const supportOutput = requireElement('#support', HTMLPreElement);
-const context = canvas.getContext('2d');
-if (!context) throw new Error('Canvas 2D indisponible');
-const ctx = context;
+const renderer = createStrokeRenderer(canvas);
+const panel = requireElement('#panel', HTMLElement);
+const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
+const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
 const strategySelect = requireElement('#strategy', HTMLSelectElement);
 const graceInput = requireElement('#grace', HTMLInputElement);
@@ -39,13 +40,11 @@ const hasPredicted = typeof PointerEvent.prototype.getPredictedEvents === 'funct
 
 interface ActivePointer {
   sample: PointerSample;
-  lastX: number;
-  lastY: number;
   /** Rejected by palm rejection: the pointer no longer draws until it lifts. */
   ignored: boolean;
 }
 
-/** Latest sample and last drawn point for each active pointer. */
+/** Latest sample and palm-rejection state for each active pointer. */
 const active = new Map<number, ActivePointer>();
 let lastCoalescedCount = 0;
 let panelScheduled = false;
@@ -82,48 +81,11 @@ function rejectorAccepts(event: PointerEvent, phase: PointerInput['phase']): boo
 }
 
 /** Marks a contact ignored by palm rejection and counts it once. */
-function markIgnored(state: ActivePointer, x: number, y: number): void {
+function markIgnored(pointerId: number, state: ActivePointer, x: number, y: number): void {
   state.ignored = true;
   ignoredCounts[currentStrategy()] += 1;
-  ctx.strokeStyle = IGNORED_COLOR;
-  ctx.beginPath();
-  ctx.moveTo(x - IGNORED_MARK_SIZE, y - IGNORED_MARK_SIZE);
-  ctx.lineTo(x + IGNORED_MARK_SIZE, y + IGNORED_MARK_SIZE);
-  ctx.moveTo(x + IGNORED_MARK_SIZE, y - IGNORED_MARK_SIZE);
-  ctx.lineTo(x - IGNORED_MARK_SIZE, y + IGNORED_MARK_SIZE);
-  ctx.stroke();
-}
-
-function resizeCanvas(): void {
-  const ratio = window.devicePixelRatio || 1;
-  const width = Math.round(canvas.clientWidth * ratio);
-  const height = Math.round(canvas.clientHeight * ratio);
-  if (width === canvas.width && height === canvas.height) return;
-  // Changing the canvas size wipes its bitmap: keep a copy to paint back.
-  const previous = canvas.width > 0 && canvas.height > 0 ? snapshotCanvas() : null;
-  canvas.width = width;
-  canvas.height = height;
-  if (previous) ctx.drawImage(previous, 0, 0);
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = LINE_WIDTH;
-}
-
-function snapshotCanvas(): HTMLCanvasElement {
-  const copy = document.createElement('canvas');
-  copy.width = canvas.width;
-  copy.height = canvas.height;
-  copy.getContext('2d')?.drawImage(canvas, 0, 0);
-  return copy;
-}
-
-function drawSegment(fromX: number, fromY: number, toX: number, toY: number, type: string): void {
-  ctx.strokeStyle = COLORS[type] ?? FALLBACK_COLOR;
-  ctx.beginPath();
-  ctx.moveTo(fromX, fromY);
-  ctx.lineTo(toX, toY);
-  ctx.stroke();
+  renderer.endStroke(pointerId);
+  renderer.markIgnored(x, y);
 }
 
 function onPointerDown(event: PointerEvent): void {
@@ -133,12 +95,13 @@ function onPointerDown(event: PointerEvent): void {
     // Capture is a convenience: drawing still works without it.
   }
   const sample = toSample(event);
-  const state: ActivePointer = { sample, lastX: sample.x, lastY: sample.y, ignored: false };
+  const state: ActivePointer = { sample, ignored: false };
   active.set(event.pointerId, state);
   if (rejectorAccepts(event, 'down')) {
-    drawSegment(sample.x, sample.y, sample.x, sample.y, sample.pointerType);
+    const color = COLORS[sample.pointerType] ?? FALLBACK_COLOR;
+    renderer.beginStroke(event.pointerId, sample.x, sample.y, color);
   } else {
-    markIgnored(state, sample.x, sample.y);
+    markIgnored(event.pointerId, state, sample.x, sample.y);
   }
   schedulePanel();
 }
@@ -150,15 +113,14 @@ function onPointerMove(event: PointerEvent): void {
   schedulePanel();
   if (state.ignored) return;
   if (!rejectorAccepts(event, 'move')) {
-    markIgnored(state, event.clientX, event.clientY);
+    markIgnored(event.pointerId, state, event.clientX, event.clientY);
     return;
   }
   const events = hasCoalesced ? event.getCoalescedEvents() : [];
   lastCoalescedCount = events.length;
-  for (const sub of events.length > 0 ? events : [event]) {
-    drawSegment(state.lastX, state.lastY, sub.clientX, sub.clientY, event.pointerType);
-    state.lastX = sub.clientX;
-    state.lastY = sub.clientY;
+  const useCoalesced = coalescedToggle.checked && events.length > 0;
+  for (const sub of useCoalesced ? events : [event]) {
+    renderer.extendStroke(event.pointerId, sub.clientX, sub.clientY);
   }
 }
 
@@ -166,15 +128,16 @@ function onPointerEnd(event: PointerEvent): void {
   // Only end contacts that began on the canvas, once: a stray or duplicate `up`
   // would otherwise release another pen still in contact.
   if (!active.delete(event.pointerId)) return;
+  renderer.endStroke(event.pointerId);
   rejectorAccepts(event, 'up');
   schedulePanel();
 }
 
-/** Repaints the panel on the next frame; idle pages schedule no frames. */
+/** Repaints the panels at most every PANEL_INTERVAL_MS; idle pages schedule nothing. */
 function schedulePanel(): void {
   if (panelScheduled) return;
   panelScheduled = true;
-  requestAnimationFrame(renderPanel);
+  window.setTimeout(renderPanel, PANEL_INTERVAL_MS);
 }
 
 function renderTouchState(): void {
@@ -213,10 +176,18 @@ canvas.addEventListener('pointermove', onPointerMove);
 // On window: without pointer capture, a contact lifted off the canvas must still end.
 window.addEventListener('pointerup', onPointerEnd);
 window.addEventListener('pointercancel', onPointerEnd);
-requireElement('#clear', HTMLButtonElement).addEventListener('click', () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+requireElement('#clear', HTMLButtonElement).addEventListener('click', () => renderer.clear());
+requireElement('#toggle-panel', HTMLButtonElement).addEventListener('click', (event) => {
+  const collapsed = panel.classList.toggle('collapsed');
+  if (event.currentTarget instanceof HTMLButtonElement) {
+    event.currentTarget.setAttribute('aria-expanded', String(!collapsed));
+    event.currentTarget.textContent = collapsed ? 'Ouvrir' : 'Replier';
+  }
 });
-window.addEventListener('resize', resizeCanvas);
+rawPointsToggle.addEventListener('change', () =>
+  renderer.setShowRawPoints(rawPointsToggle.checked),
+);
+coalescedToggle.disabled = !hasCoalesced;
 for (const control of [strategySelect, graceInput, sessionInput]) {
   control.addEventListener('change', () => {
     rejector = buildRejector();
@@ -236,5 +207,4 @@ if (navigator.serviceWorker?.controller) {
   navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
 }
 
-resizeCanvas();
 schedulePanel();
