@@ -44,8 +44,8 @@ Détail des tâches : `tasks/todo.md`.
 
 ### Checkpoint A (sur appareils)
 
-- [ ] `https://charlesdevandiere.github.io/draw/diagnostic.html` s'ouvre sur iPad et Pixel
-- [ ] **Verdict préliminaire hypothèse 1** : `pointerType` affiché avec le Metapen
+- [x] `https://charlesdevandiere.github.io/draw/diagnostic.html` s'ouvre sur iPad et Pixel
+- [x] **Verdict préliminaire hypothèse 1** : `pointerType` affiché avec le Metapen
 
 ### Phase 2 : Cœur du diagnostic
 
@@ -55,8 +55,8 @@ Détail des tâches : `tasks/todo.md`.
 
 ### Checkpoint B (sur appareils)
 
-- [ ] PWA installée sur les deux appareils, ouverture en mode avion OK
-- [ ] Les 3 stratégies se comportent comme prévu avec le Metapen
+- [x] PWA installée sur les deux appareils, ouverture en mode avion OK
+- [x] Les 3 stratégies se comportent comme prévu avec le Metapen
 
 ### Phase 3 : Mesures complètes et rapport
 
@@ -67,17 +67,17 @@ Détail des tâches : `tasks/todo.md`.
 
 ### Checkpoint C
 
-- [ ] `npm run check` vert, couverture ≥ 90 % sur les modules purs
-- [ ] Rapport copiable sur les deux appareils
+- [x] `npm run check` vert, couverture ≥ 90 % sur les modules purs
+- [x] Rapport copiable sur les deux appareils
 
 ### Phase 4 : Campagne de mesure
 
-- [ ] T11 : Protocole manuel sur les 3 configurations + `docs/diagnostic/conclusions.md`
+- [x] T11 : Protocole manuel sur les 3 configurations + `docs/diagnostic/conclusions.md`
 
 ### Checkpoint final
 
-- [ ] Les 8 Success Criteria de `SPEC.md` sont remplis
-- [ ] `CLAUDE.md` mis à jour (commandes, structure, conclusions clés)
+- [ ] Les 8 Success Criteria de `SPEC.md` sont remplis (reste : Lighthouse non lancé, pas de Chrome local)
+- [x] `CLAUDE.md` mis à jour (commandes, structure, conclusions clés)
 
 ## Risks and Mitigations
 

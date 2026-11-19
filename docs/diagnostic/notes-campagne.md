@@ -40,3 +40,5 @@ Observations faites à l'écran pendant les tests, qui ne figurent pas dans les 
 - **Mise à jour sur iPad** : l'app installée restait bloquée sur l'ancienne version, même après suppression de l'icône et rafraîchissement dans Safari. → Ajout d'une recherche de mise à jour au retour au premier plan, et des boutons « Rechercher une mise à jour » et « Vider le cache et recharger ».
 - **Point par simple appui** : fonctionne.
 - **« Un seul doigt à la fois »** (doigt et stylet rond) : fonctionne, mais pas parfait. Des traits apparaissent encore sous la paume **quand on relève le doigt ou le stylet rond**. Évite quand même une partie des traits indésirables par rapport au multi doigts. Décision de l'utilisateur : **garder ce choix dans l'app**.
+- **Mode avion** : l'app installée s'ouvre hors ligne sur l'iPad et sur le Pixel.
+- **Filtre de largeur contre la paume** : bonne idée selon l'utilisateur, mais risque de moins bien fonctionner avec des mains d'enfant.

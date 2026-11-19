@@ -40,8 +40,8 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 **Verification :**
 
-- [ ] Run GitHub Actions vert (`gh run watch`)
-- [ ] L'URL affiche l'accueil provisoire sur l'iPad et le Pixel
+- [x] Run GitHub Actions vert (`gh run watch`)
+- [x] L'URL affiche l'accueil provisoire sur l'iPad et le Pixel
 
 **Dependencies :** T1
 **Files :** `.github/workflows/deploy.yml`
@@ -63,7 +63,7 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 - [x] `npx vitest run src/diagnostic/pointer-sample.test.ts`
 - [x] `npm run check`
-- [ ] Manuel après déploiement : iPad + Metapen, iPad au doigt, Pixel au doigt
+- [x] Manuel après déploiement : iPad + Metapen, iPad au doigt, Pixel au doigt
 
 **Dependencies :** T2
 **Files :** `diagnostic.html`, `src/diagnostic/main.ts`, `src/diagnostic/pointer-sample.ts`, `src/diagnostic/pointer-sample.test.ts`, `src/diagnostic/diagnostic.css`
@@ -71,9 +71,9 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ### Checkpoint A (sur appareils)
 
-- [ ] Diagnostic accessible sur iPad et Pixel
-- [ ] Verdict préliminaire hypothèse 1 (Metapen = `pen` ?) noté dans `docs/diagnostic/notes.md`
-- [ ] Revue avec l'utilisateur avant la phase 2
+- [x] Diagnostic accessible sur iPad et Pixel
+- [x] Verdict préliminaire hypothèse 1 (Metapen = `pen` ?) noté dans `docs/diagnostic/notes.md`
+- [x] Revue avec l'utilisateur avant la phase 2
 
 ---
 
@@ -85,14 +85,14 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 **Acceptance criteria :**
 
-- [ ] Lighthouse : aucun défaut d'installabilité
-- [ ] Installée, l'app s'ouvre en standalone et la navigation accueil → diagnostic reste en standalone
-- [ ] Après une première ouverture, l'app se charge en mode avion
+- [ ] Lighthouse : aucun défaut d'installabilité (non lancé : pas de Chrome local ; installation vérifiée sur les deux appareils)
+- [x] Installée, l'app s'ouvre en standalone et la navigation accueil → diagnostic reste en standalone
+- [x] Après une première ouverture, l'app se charge en mode avion
 
 **Verification :**
 
 - [ ] `npm run check`, `npm run preview` + Lighthouse
-- [ ] Manuel : installation iPad (Safari) et Pixel (Chrome), test mode avion
+- [x] Manuel : installation iPad (Safari) et Pixel (Chrome), test mode avion
 
 **Dependencies :** T3
 **Files :** `vite.config.ts`, `index.html`, `diagnostic.html`, `public/icons/*`
@@ -114,7 +114,7 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 - [x] `npx vitest run src/input/palm-rejection.test.ts`
 - [x] `npm run check`
-- [ ] Manuel iPad + Metapen : écrire paume posée avec chaque stratégie
+- [x] Manuel iPad + Metapen : écrire paume posée avec chaque stratégie
 
 **Dependencies :** T3
 **Files :** `src/input/palm-rejection.ts`, `src/input/palm-rejection.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
@@ -128,14 +128,14 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 **Acceptance criteria :**
 
-- [ ] Tracé net (pas flou) sur écran Retina et après rotation
-- [ ] Coalesced off → points visiblement plus espacés en tracé rapide (si l'appareil fournit des coalesced events)
+- [ ] Tracé net (pas flou) sur écran Retina et après rotation (rotation non testée)
+- [x] Coalesced off → points visiblement plus espacés en tracé rapide (si l'appareil fournit des coalesced events)
 - [x] Les panneaux ne se rafraîchissent pas plus de ~10 fois/s
 
 **Verification :**
 
 - [x] `npm run check`
-- [ ] Manuel : tracé rapide coalesced on/off avec points bruts, sur iPad et Pixel ; rotation de l'appareil
+- [ ] Manuel : tracé rapide coalesced on/off avec points bruts, sur iPad et Pixel ; rotation de l'appareil (rotation non testée)
 
 **Dependencies :** T3
 **Files :** `src/diagnostic/stroke-renderer.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
@@ -143,9 +143,9 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ### Checkpoint B (sur appareils)
 
-- [ ] PWA installée sur les deux appareils, ouverture en mode avion OK
-- [ ] Les 3 stratégies de palm rejection testées avec le Metapen ; impressions notées dans `docs/diagnostic/notes.md`
-- [ ] Revue avec l'utilisateur
+- [x] PWA installée sur les deux appareils, ouverture en mode avion OK
+- [x] Les 3 stratégies de palm rejection testées avec le Metapen ; impressions notées dans `docs/diagnostic/notes.md`
+- [x] Revue avec l'utilisateur
 
 ---
 
@@ -158,13 +158,13 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 **Acceptance criteria :**
 
 - [x] Fonctions pures testées (séries vides, un seul échantillon, p95 sur valeurs connues)
-- [ ] Panneau F3 cohérent : ~60 Hz souris/doigt typique, plus pour le stylet si l'appareil l'échantillonne plus vite
+- [x] Panneau F3 cohérent : ~60 Hz souris/doigt typique, plus pour le stylet si l'appareil l'échantillonne plus vite
 
 **Verification :**
 
 - [x] `npx vitest run src/diagnostic/timing-stats.test.ts`
 - [x] `npm run check`
-- [ ] Manuel : comparer les valeurs iPad stylet / iPad doigt / Pixel
+- [x] Manuel : comparer les valeurs iPad stylet / iPad doigt / Pixel
 
 **Dependencies :** T6
 **Files :** `src/diagnostic/timing-stats.ts`, `src/diagnostic/timing-stats.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
@@ -179,14 +179,14 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 **Acceptance criteria :**
 
 - [x] Comptage testé unitairement (incrément, remise à zéro, état des protections inclus dans l'instantané)
-- [ ] Protections off : appui long / double-tap provoquent des incidents comptés ; protections on : moins ou pas d'incidents
+- [x] Protections off : appui long / double-tap provoquent des incidents comptés ; protections on : moins ou pas d'incidents
 - [x] Basculer l'interrupteur ne nécessite pas de recharger
 
 **Verification :**
 
 - [x] `npx vitest run src/diagnostic/incidents.test.ts`
 - [x] `npm run check`
-- [ ] Manuel : étape 3 du protocole sur un appareil
+- [x] Manuel : étape 3 du protocole sur un appareil
 
 **Dependencies :** T6
 **Files :** `src/diagnostic/incidents.ts`, `src/diagnostic/incidents.test.ts`, `src/diagnostic/gesture-protections.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
@@ -206,7 +206,7 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 **Verification :**
 
 - [x] `npm run check`
-- [ ] Manuel : comparer navigateur vs PWA installée sur iPad et Pixel
+- [x] Manuel : comparer navigateur vs PWA installée sur iPad et Pixel
 
 **Dependencies :** T4
 **Files :** `src/diagnostic/environment.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
@@ -221,14 +221,14 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 **Acceptance criteria :**
 
 - [x] Rapport conforme à F7, JSON valide, champ `reportVersion`
-- [ ] Copier ou Partager fonctionne sur iPad et Pixel ; sinon le `<textarea>` s'affiche
+- [x] Copier ou Partager fonctionne sur iPad et Pixel ; sinon le `<textarea>` s'affiche
 - [x] Réinitialiser remet stats, compteurs et tracé à zéro
 
 **Verification :**
 
 - [x] `npx vitest run src/diagnostic/pointer-stats.test.ts src/diagnostic/report.test.ts`
 - [x] `npm run check` (couverture ≥ 90 % sur les modules purs)
-- [ ] Manuel : copier un rapport sur chaque appareil et le coller ailleurs
+- [x] Manuel : copier un rapport sur chaque appareil et le coller ailleurs
 
 **Dependencies :** T5, T7, T8, T9
 **Files :** `src/diagnostic/pointer-stats.ts`, `src/diagnostic/pointer-stats.test.ts`, `src/diagnostic/report.ts`, `src/diagnostic/report.test.ts`, `src/diagnostic/main.ts`
@@ -236,23 +236,23 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ### Checkpoint C
 
-- [ ] `npm run check` vert, couverture ≥ 90 % sur les modules purs
-- [ ] Rapport copiable sur les deux appareils
-- [ ] Revue avec l'utilisateur avant la campagne
+- [x] `npm run check` vert, couverture ≥ 90 % sur les modules purs
+- [x] Rapport copiable sur les deux appareils
+- [x] Revue avec l'utilisateur avant la campagne
 
 ---
 
 ## Phase 4 : Campagne de mesure
 
-### - [ ] T11 : Protocole manuel + conclusions
+### - [x] T11 : Protocole manuel + conclusions
 
 **Description :** L'utilisateur exécute le protocole en 6 étapes de la spec sur les 3 configurations et colle les rapports. Rédaction de `docs/diagnostic/conclusions.md` : oui/non argumenté pour chacune des 5 hypothèses, stratégie de palm rejection retenue, liste des protections anti-gestes nécessaires. Mise à jour de `CLAUDE.md` (commandes, structure, conclusions clés).
 
 **Acceptance criteria :**
 
-- [ ] 3 rapports dans `docs/diagnostic/` (`ipad11-metapen.json`, `ipad11-doigt.json`, `pixel9a-doigt.json`)
-- [ ] `conclusions.md` répond aux 5 hypothèses avec références aux rapports
-- [ ] `CLAUDE.md` à jour
+- [x] 3 rapports dans `docs/diagnostic/` (`ipad11-metapen.json`, `ipad11-doigt.json`, `pixel9a-doigt.json`)
+- [x] `conclusions.md` répond aux 5 hypothèses avec références aux rapports
+- [x] `CLAUDE.md` à jour
 
 **Verification :**
 
