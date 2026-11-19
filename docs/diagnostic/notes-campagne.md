@@ -34,3 +34,9 @@ Observations faites à l'écran pendant les tests, qui ne figurent pas dans les 
 - **Sans coalesced events, les traits rapides sont anguleux** (constaté après coup). Coalesced indispensable.
 - **Impossible de faire un simple point** (point du `i`, du `!`), quels que soient l'outil et l'appareil : il faut faire un petit rond. Cause : le canvas ne peint pas un segment de longueur nulle. → Corrigé dans la page : un appui sans mouvement dessine un disque. À reprendre dans le moteur du MVP.
 - **Idée pour l'app** : un bouton « mode » pour choisir « stylet », « doigt » ou « multi doigts ».
+
+## Tests après ajouts (version 300d383 puis 71f767c)
+
+- **Mise à jour sur iPad** : l'app installée restait bloquée sur l'ancienne version, même après suppression de l'icône et rafraîchissement dans Safari. → Ajout d'une recherche de mise à jour au retour au premier plan, et des boutons « Rechercher une mise à jour » et « Vider le cache et recharger ».
+- **Point par simple appui** : fonctionne.
+- **« Un seul doigt à la fois »** (doigt et stylet rond) : fonctionne, mais pas parfait. Des traits apparaissent encore sous la paume **quand on relève le doigt ou le stylet rond**. Évite quand même une partie des traits indésirables par rapport au multi doigts. Décision de l'utilisateur : **garder ce choix dans l'app**.
