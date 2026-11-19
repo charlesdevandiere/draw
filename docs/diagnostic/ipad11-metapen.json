@@ -1,0 +1,174 @@
+{
+  "reportVersion": 1,
+  "generatedAt": "2026-11-19T20:19:27.391Z",
+  "appVersion": "79dcd82",
+  "environment": {
+    "displayMode": "standalone",
+    "iosStandalone": true,
+    "storagePersisted": true,
+    "storageEstimate": {
+      "usage": 78842,
+      "quota": 41231686042
+    },
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+    "userAgentData": null,
+    "screen": {
+      "width": 820,
+      "height": 1180
+    },
+    "viewport": {
+      "width": 1180,
+      "height": 788
+    },
+    "devicePixelRatio": 2,
+    "maxTouchPoints": 5,
+    "media": {
+      "pointerFine": false,
+      "pointerCoarse": true,
+      "anyPointerFine": false,
+      "anyPointerCoarse": true,
+      "hover": false,
+      "anyHover": false
+    }
+  },
+  "support": {
+    "coalescedEvents": true,
+    "predictedEvents": true
+  },
+  "drawingOptions": {
+    "coalescedDrawing": true,
+    "rawPoints": false
+  },
+  "pointers": {
+    "touch": {
+      "events": 1604,
+      "pressure": {
+        "min": 0,
+        "max": 0,
+        "distinctCount": 1,
+        "distinctValues": [
+          0
+        ]
+      },
+      "tiltX": {
+        "min": 0,
+        "max": 0
+      },
+      "tiltY": {
+        "min": 0,
+        "max": 0
+      },
+      "altitudeAngle": {
+        "min": 1.571,
+        "max": 1.571
+      },
+      "azimuthAngle": {
+        "min": 0,
+        "max": 0
+      },
+      "twistSeen": false,
+      "width": {
+        "min": 41.77,
+        "max": 250.619
+      },
+      "height": {
+        "min": 41.77,
+        "max": 250.619
+      }
+    },
+    "pen": {
+      "events": 9255,
+      "pressure": {
+        "min": 0.12,
+        "max": 0.12,
+        "distinctCount": 1,
+        "distinctValues": [
+          0.12
+        ]
+      },
+      "tiltX": {
+        "min": -27,
+        "max": -27
+      },
+      "tiltY": {
+        "min": 16,
+        "max": 16
+      },
+      "altitudeAngle": {
+        "min": 1.047,
+        "max": 1.047
+      },
+      "azimuthAngle": {
+        "min": 2.618,
+        "max": 2.618
+      },
+      "twistSeen": false,
+      "width": {
+        "min": 0.5,
+        "max": 0.5
+      },
+      "height": {
+        "min": 0.5,
+        "max": 0.5
+      }
+    }
+  },
+  "timing": {
+    "byType": {
+      "pen": {
+        "eventsHz": 62.5,
+        "samplesHz": 238.579,
+        "coalescedPerMove": {
+          "count": 500,
+          "mean": 3.496,
+          "p95": 4
+        }
+      },
+      "touch": {
+        "eventsHz": 60,
+        "samplesHz": 117.232,
+        "coalescedPerMove": {
+          "count": 500,
+          "mean": 1.784,
+          "p95": 2
+        }
+      }
+    },
+    "frameIntervalMs": {
+      "count": 500,
+      "mean": 22.658,
+      "p95": 46
+    },
+    "eventToRenderMs": {
+      "count": 500,
+      "mean": 6.096,
+      "p95": 21
+    }
+  },
+  "incidents": {
+    "protectionsEnabled": true,
+    "protectionsOn": {
+      "pointercancel:touch": 139,
+      "gesturestart:bloqué": 31,
+      "touchcancel": 99
+    },
+    "protectionsOff": {
+      "selection": 2,
+      "dblclick": 2,
+      "gesturestart": 1,
+      "pointercancel:touch": 3,
+      "scroll": 1,
+      "touchcancel": 1
+    }
+  },
+  "palmRejection": {
+    "strategy": "pen-session",
+    "graceMs": 500,
+    "sessionMs": 10000,
+    "ignoredByStrategy": {
+      "none": 0,
+      "during-stroke": 20,
+      "pen-session": 32
+    }
+  }
+}

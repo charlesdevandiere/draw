@@ -2,3 +2,6 @@ dist
 coverage
 dev-dist
 package-lock.json
+
+# Device reports, kept exactly as copied from the diagnostic page
+docs/diagnostic/*.json

@@ -1,0 +1,145 @@
+{
+  "reportVersion": 1,
+  "generatedAt": "2026-11-19T20:38:43.892Z",
+  "appVersion": "79dcd82",
+  "environment": {
+    "displayMode": "standalone",
+    "iosStandalone": null,
+    "storagePersisted": true,
+    "storageEstimate": {
+      "usage": 165381,
+      "quota": 10737583621
+    },
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Mobile Safari/537.36",
+    "userAgentData": {
+      "brands": [
+        "Chromium 158",
+        "Not.A/Brand 24",
+        "Google Chrome 158"
+      ],
+      "mobile": true,
+      "platform": "Android"
+    },
+    "screen": {
+      "width": 412,
+      "height": 924
+    },
+    "viewport": {
+      "width": 411,
+      "height": 817
+    },
+    "devicePixelRatio": 2.625,
+    "maxTouchPoints": 5,
+    "media": {
+      "pointerFine": false,
+      "pointerCoarse": true,
+      "anyPointerFine": false,
+      "anyPointerCoarse": true,
+      "hover": false,
+      "anyHover": false
+    }
+  },
+  "support": {
+    "coalescedEvents": true,
+    "predictedEvents": true
+  },
+  "drawingOptions": {
+    "coalescedDrawing": true,
+    "rawPoints": false
+  },
+  "pointers": {
+    "touch": {
+      "events": 11671,
+      "pressure": {
+        "min": 0.114,
+        "max": 1,
+        "distinctCount": 225,
+        "distinctValues": [
+          0.114,
+          0.118,
+          0.122,
+          0.125,
+          0.129,
+          0.133,
+          0.137,
+          0.141,
+          0.145,
+          0.149
+        ]
+      },
+      "tiltX": {
+        "min": 0,
+        "max": 0
+      },
+      "tiltY": {
+        "min": 0,
+        "max": 0
+      },
+      "altitudeAngle": {
+        "min": 1.571,
+        "max": 1.571
+      },
+      "azimuthAngle": {
+        "min": 0,
+        "max": 0
+      },
+      "twistSeen": false,
+      "width": {
+        "min": 0,
+        "max": 43.733
+      },
+      "height": {
+        "min": 0,
+        "max": 61.257
+      }
+    }
+  },
+  "timing": {
+    "byType": {
+      "touch": {
+        "eventsHz": 132.275,
+        "samplesHz": 238.095,
+        "coalescedPerMove": {
+          "count": 500,
+          "mean": 1.804,
+          "p95": 2
+        }
+      }
+    },
+    "frameIntervalMs": {
+      "count": 500,
+      "mean": 8.943,
+      "p95": 16.6
+    },
+    "eventToRenderMs": {
+      "count": 500,
+      "mean": 5.995,
+      "p95": 10.3
+    }
+  },
+  "incidents": {
+    "protectionsEnabled": true,
+    "protectionsOn": {
+      "pointercancel:touch": 17,
+      "contextmenu:bloqué": 3,
+      "touchcancel": 8
+    },
+    "protectionsOff": {
+      "contextmenu": 4,
+      "dblclick": 1,
+      "pointercancel:touch": 11,
+      "selection": 1,
+      "touchcancel": 1
+    }
+  },
+  "palmRejection": {
+    "strategy": "pen-session",
+    "graceMs": 500,
+    "sessionMs": 10000,
+    "ignoredByStrategy": {
+      "none": 0,
+      "during-stroke": 0,
+      "pen-session": 0
+    }
+  }
+}
