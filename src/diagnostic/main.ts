@@ -17,6 +17,7 @@ import {
   resetReloadCount,
   watchIncidents,
 } from './gesture-protections';
+import { checkForUpdate, resetAppCache } from './app-update';
 import { createIncidentCounter } from './incidents';
 import { createPointerStats } from './pointer-stats';
 import { buildReport } from './report';
@@ -56,6 +57,9 @@ const incidentsOutput = requireElement('#incidents', HTMLPreElement);
 const protectionsToggle = requireElement('#protections', HTMLInputElement);
 const environmentOutput = requireElement('#environment', HTMLPreElement);
 const persistButton = requireElement('#persist', HTMLButtonElement);
+const checkUpdateButton = requireElement('#check-update', HTMLButtonElement);
+const resetCacheButton = requireElement('#reset-cache', HTMLButtonElement);
+const updateStatus = requireElement('#update-status', HTMLOutputElement);
 const reportFallback = requireElement('#report-fallback', HTMLTextAreaElement);
 const shareButton = requireElement('#share-report', HTMLButtonElement);
 const reportStatus = requireElement('#report-status', HTMLOutputElement);
@@ -504,6 +508,41 @@ for (const control of [strategySelect, graceInput, sessionInput, singleTouchTogg
     schedulePanel();
   });
 }
+
+const UPDATE_MESSAGES = {
+  updating: 'Nouvelle version trouvée, rechargement…',
+  'up-to-date': `Déjà à jour (${APP_VERSION}).`,
+  'no-service-worker': 'Aucun service worker : rechargez la page.',
+} as const;
+
+checkUpdateButton.addEventListener('click', async () => {
+  checkUpdateButton.disabled = true;
+  updateStatus.textContent = 'Recherche…';
+  try {
+    updateStatus.textContent = UPDATE_MESSAGES[await checkForUpdate()];
+  } catch {
+    updateStatus.textContent = 'Recherche impossible (hors ligne ?).';
+  } finally {
+    checkUpdateButton.disabled = false;
+  }
+});
+
+resetCacheButton.addEventListener('click', async () => {
+  resetCacheButton.disabled = true;
+  updateStatus.textContent = 'Vidage du cache…';
+  try {
+    await resetAppCache(markIntentionalReload);
+  } catch {
+    updateStatus.textContent = 'Échec du vidage du cache.';
+    resetCacheButton.disabled = false;
+  }
+});
+
+// An installed app is resumed rather than reopened: look for a new version each time it
+// comes back to the foreground. Failures (offline) are silent, the buttons stay available.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkForUpdate().catch(() => undefined);
+});
 
 // A new service worker took over (new deploy): reload so the page runs the new build.
 // Skipped on first install, when the page had no controller yet.

@@ -67,6 +67,7 @@ Sélecteur à 3 positions :
 - Manifest + service worker (`vite-plugin-pwa`, precache de tous les assets) : l'app est installable et la page de diagnostic fonctionne hors ligne une fois installée.
 - `index.html` provisoire : titre « Carnet magique », lien vers le diagnostic. `start_url` et `scope` = racine de l'app, pour que la navigation reste en mode standalone.
 - Icônes provisoires (192, 512, maskable, `apple-touch-icon` 180) produites une fois depuis un SVG et commitées.
+- Mise à jour (ajoutée pendant la campagne T11, l'app installée sur iPad restant bloquée sur l'ancienne version) : recherche d'une nouvelle version à chaque retour au premier plan, bouton « Rechercher une mise à jour », et bouton de secours « Vider le cache et recharger » (désinscrit le service worker, vide les caches, recharge depuis le réseau).
 
 ## Tech Stack
 

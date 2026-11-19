@@ -58,6 +58,7 @@ export default defineConfig({
         'src/**/*.test.ts',
         'src/**/main.ts',
         'src/app-version.ts',
+        'src/diagnostic/app-update.ts',
         'src/vite-env.d.ts',
         'src/diagnostic/environment.ts',
         'src/diagnostic/stroke-renderer.ts',
