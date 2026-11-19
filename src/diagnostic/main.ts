@@ -63,6 +63,7 @@ const coalescedToggle = requireElement('#coalesced', HTMLInputElement);
 const rawPointsToggle = requireElement('#raw-points', HTMLInputElement);
 
 const strategySelect = requireElement('#strategy', HTMLSelectElement);
+const singleTouchToggle = requireElement('#single-touch', HTMLInputElement);
 const graceInput = requireElement('#grace', HTMLInputElement);
 const sessionInput = requireElement('#session', HTMLInputElement);
 const touchStateOutput = requireElement('#touch-state', HTMLOutputElement);
@@ -167,6 +168,7 @@ const ignoredCounts: Record<PalmRejectionStrategy, number> = {
   'during-stroke': 0,
   'pen-session': 0,
 };
+let ignoredBySingleTouch = 0;
 
 function currentStrategy(): PalmRejectionStrategy {
   const value = strategySelect.value;
@@ -184,6 +186,7 @@ function rejectorConfig() {
     strategy: currentStrategy(),
     graceMs: readNumber(graceInput, 500),
     sessionMs: readNumber(sessionInput, 10) * 1000,
+    singleTouch: singleTouchToggle.checked,
   };
 }
 
@@ -194,13 +197,23 @@ function buildRejector() {
 let rejector = buildRejector();
 
 function rejectorAccepts(event: PointerEvent, phase: PointerInput['phase']): boolean {
-  return rejector.accepts({ pointerType: event.pointerType, phase, timeStamp: event.timeStamp });
+  return rejector.accepts({
+    pointerId: event.pointerId,
+    pointerType: event.pointerType,
+    phase,
+    timeStamp: event.timeStamp,
+  });
 }
 
 /** Marks a contact ignored by palm rejection and counts it once. */
 function markIgnored(pointerId: number, state: ActivePointer, x: number, y: number): void {
   state.ignored = true;
-  ignoredCounts[currentStrategy()] += 1;
+  // A touch ignored while no pen blocks touches was refused by the single-touch option.
+  if (rejector.isSlotTaken(pointerId) && !rejector.isTouchBlocked(performance.now())) {
+    ignoredBySingleTouch += 1;
+  } else {
+    ignoredCounts[currentStrategy()] += 1;
+  }
   renderer.endStroke(pointerId);
   renderer.markIgnored(x, y);
 }
@@ -267,7 +280,7 @@ function renderTouchState(): void {
   touchStateOutput.textContent =
     `Doigt : ${blocked ? 'ignoré' : 'actif'} — ignorés : ` +
     `aucune ${ignoredCounts.none} · trait ${ignoredCounts['during-stroke']} · ` +
-    `session ${ignoredCounts['pen-session']}`;
+    `session ${ignoredCounts['pen-session']} · un seul doigt ${ignoredBySingleTouch}`;
   // While blocked, re-check periodically so the indicator flips back without new input.
   window.clearTimeout(touchStateTimer);
   if (blocked) touchStateTimer = window.setTimeout(schedulePanel, TOUCH_STATE_REFRESH_MS);
@@ -362,6 +375,7 @@ function currentReport() {
     palmRejection: {
       ...rejectorConfig(),
       ignoredByStrategy: { ...ignoredCounts },
+      ignoredBySingleTouch,
     },
   });
 }
@@ -416,6 +430,7 @@ function resetMeasurements(): void {
   for (const strategy of Object.keys(ignoredCounts) as PalmRejectionStrategy[]) {
     ignoredCounts[strategy] = 0;
   }
+  ignoredBySingleTouch = 0;
   lastCoalescedCount = 0;
   renderer.clear();
   reportFallback.hidden = true;
@@ -469,14 +484,21 @@ protectionsToggle.addEventListener('change', () => {
   protections.setEnabled(protectionsToggle.checked);
   schedulePanel();
 });
-for (const control of [strategySelect, graceInput, sessionInput]) {
+for (const control of [strategySelect, graceInput, sessionInput, singleTouchToggle]) {
   // 'input' (not 'change'): a typed value applies before the field loses focus.
   control.addEventListener('input', () => {
     rejector = buildRejector();
-    // The new rejector starts blank: tell it about pens still in contact.
-    for (const { sample } of active.values()) {
+    // The new rejector starts blank: tell it about pens still in contact, then
+    // about touches still drawing (the first one takes the single-touch slot).
+    const now = performance.now();
+    for (const [pointerId, { sample }] of active) {
       if (sample.pointerType === 'pen') {
-        rejector.accepts({ pointerType: 'pen', phase: 'down', timeStamp: performance.now() });
+        rejector.accepts({ pointerId, pointerType: 'pen', phase: 'down', timeStamp: now });
+      }
+    }
+    for (const [pointerId, { sample, ignored }] of active) {
+      if (sample.pointerType === 'touch' && !ignored) {
+        rejector.accepts({ pointerId, pointerType: 'touch', phase: 'down', timeStamp: now });
       }
     }
     schedulePanel();

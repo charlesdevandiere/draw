@@ -5,7 +5,7 @@ import type { TypeStats } from './pointer-stats';
 import type { Summary } from './timing-stats';
 
 /** Bump when the report's shape changes, so collected reports stay interpretable. */
-export const REPORT_VERSION = 1;
+export const REPORT_VERSION = 2;
 
 export interface ReportInput {
   generatedAt: string;
@@ -28,7 +28,10 @@ export interface ReportInput {
     strategy: PalmRejectionStrategy;
     graceMs: number;
     sessionMs: number;
+    singleTouch: boolean;
     ignoredByStrategy: Record<PalmRejectionStrategy, number>;
+    /** Touches ignored because another touch was drawing (single-touch option). */
+    ignoredBySingleTouch: number;
   };
 }
 

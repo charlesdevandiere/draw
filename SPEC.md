@@ -43,6 +43,7 @@ Sélecteur à 3 positions :
 - **Aucune** : tout pointeur dessine.
 - **Pendant le trait** : tant qu'un `pen` est en contact, et pendant une grâce de `G` ms après son `pointerup` (défaut 500 ms), les `touch` sont ignorés.
 - **Session stylet** : dès qu'un `pen` est vu, les `touch` sont ignorés jusqu'à `S` s sans activité stylet (défaut 10 s).
+- **Un seul doigt à la fois** (case à cocher, combinable avec les 3 stratégies ; ajoutée pendant la campagne T11) : le premier `touch` garde la priorité jusqu'à son `pointerup`, tout autre `touch` posé entre-temps (paume) est ignoré.
   `G` et `S` sont réglables. Les contacts ignorés sont visualisés (marqueur discret) et comptés. Un indicateur montre l'état courant (« doigt actif » / « doigt ignoré »).
 
 **F5 — Gestes système**
@@ -58,7 +59,7 @@ Sélecteur à 3 positions :
 **F7 — Rapport**
 
 - Bouton « Copier le rapport » (Clipboard API) et « Partager » (Web Share API, si dispo) ; repli : rapport affiché dans un `<textarea>` sélectionnable.
-- Contenu JSON : version du rapport, date, infos appareil (F6), et pour chaque `pointerType` vu : nombre d'événements, min/max/valeurs distinctes de `pressure`, min/max de `tiltX`/`tiltY`/`altitudeAngle`, présence de `twist`, `width/height` min/max, fréquences (F3), compteurs d'incidents (F5) avec l'état des protections, compteurs de contacts ignorés par stratégie (F4).
+- Contenu JSON : version du rapport, date, infos appareil (F6), et pour chaque `pointerType` vu : nombre d'événements, min/max/valeurs distinctes de `pressure`, min/max de `tiltX`/`tiltY`/`altitudeAngle`, présence de `twist`, `width/height` min/max, fréquences (F3), compteurs d'incidents (F5) avec l'état des protections, compteurs de contacts ignorés par stratégie et par l'option « un seul doigt » (F4).
 - Bouton « Réinitialiser les mesures ».
 
 **F8 — PWA et page d'accueil provisoire**

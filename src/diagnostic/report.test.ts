@@ -19,7 +19,9 @@ function input(overrides: Partial<ReportInput> = {}): ReportInput {
       strategy: 'during-stroke',
       graceMs: 500,
       sessionMs: 10_000,
+      singleTouch: false,
       ignoredByStrategy: { none: 0, 'during-stroke': 0, 'pen-session': 0 },
+      ignoredBySingleTouch: 0,
     },
     ...overrides,
   };

@@ -6,9 +6,15 @@ export interface PalmRejectionOptions {
   graceMs: number;
   /** Time without pen activity before touch draws again (pen-session strategy). */
   sessionMs: number;
+  /**
+   * Only one touch draws at a time: the first one keeps priority until it lifts,
+   * and any other touch (a palm landing mid-stroke) is ignored.
+   */
+  singleTouch: boolean;
 }
 
 export interface PointerInput {
+  pointerId: number;
   pointerType: string;
   /** `up` also covers `pointercancel`. */
   phase: 'down' | 'move' | 'up';
@@ -20,11 +26,19 @@ export interface PalmRejector {
   accepts(input: PointerInput): boolean;
   /** Whether a touch arriving at `timeStamp` would be ignored. */
   isTouchBlocked(timeStamp: number): boolean;
+  /** Whether another touch holds the single drawing slot (always false without singleTouch). */
+  isSlotTaken(pointerId: number): boolean;
 }
 
 export function createPalmRejector(options: PalmRejectionOptions): PalmRejector {
   let pensDown = 0;
   let lastPenActivity = Number.NEGATIVE_INFINITY;
+  /** pointerId of the touch currently drawing (singleTouch only). */
+  let slotOwner: number | null = null;
+
+  function isSlotTaken(pointerId: number): boolean {
+    return options.singleTouch && slotOwner !== null && slotOwner !== pointerId;
+  }
 
   function isTouchBlocked(timeStamp: number): boolean {
     switch (options.strategy) {
@@ -45,8 +59,14 @@ export function createPalmRejector(options: PalmRejectionOptions): PalmRejector 
       return true;
     }
     if (input.pointerType !== 'touch') return true;
-    return !isTouchBlocked(input.timeStamp);
+    if (input.phase === 'up') {
+      if (slotOwner === input.pointerId) slotOwner = null;
+      return true;
+    }
+    if (isTouchBlocked(input.timeStamp) || isSlotTaken(input.pointerId)) return false;
+    if (input.phase === 'down' && options.singleTouch) slotOwner = input.pointerId;
+    return true;
   }
 
-  return { accepts, isTouchBlocked };
+  return { accepts, isTouchBlocked, isSlotTaken };
 }

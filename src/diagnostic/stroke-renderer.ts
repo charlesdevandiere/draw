@@ -60,6 +60,14 @@ export function createStrokeRenderer(canvas: HTMLCanvasElement): StrokeRenderer 
       ctx.lineTo(stroke.points[i * 2] ?? 0, stroke.points[i * 2 + 1] ?? 0);
     }
     ctx.stroke();
+    // Canvas prunes zero-length segments, so a tap (the dot of an « i ») would paint
+    // nothing: draw the first point as a disc the width of the line.
+    if (stroke.drawn === 0) {
+      ctx.fillStyle = stroke.color;
+      ctx.beginPath();
+      ctx.arc(stroke.points[0] ?? 0, stroke.points[1] ?? 0, LINE_WIDTH / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
     if (showRawPoints) {
       ctx.fillStyle = RAW_POINT_COLOR;
       // From `start`: the new segment's round cap just covered the previous frame's last dot.
