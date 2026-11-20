@@ -55,6 +55,7 @@ export default defineConfig({
         'src/app/raster.ts',
         'src/app/gallery-screen.ts',
         'src/app/share.ts',
+        'src/app/replay-screen.ts',
         'src/store/magic-png.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',

@@ -200,6 +200,22 @@ body {
   height: 22px;
 }
 
+// Replay screen: the page as large as possible, the "play again" button below.
+.replay-screen {
+  display: grid;
+  grid-template:
+    'page' minmax(0, 1fr)
+    'actions' var(--app-tool-size)
+    / minmax(0, 1fr);
+  gap: var(--app-tool-gap);
+}
+
+.replay-actions {
+  grid-area: actions;
+  display: flex;
+  justify-content: center;
+}
+
 // Gallery screen.
 .gallery-screen {
   display: flex;

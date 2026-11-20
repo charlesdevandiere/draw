@@ -87,7 +87,7 @@ Checkpoint A3 — phase A validated (spec criteria 1–13)
 Phase B — the magic and the parent
 
 - [x] T18: Replay schedule
-- [ ] T19: Replay screen
+- [x] T19: Replay screen
 - [ ] T20: Padlock and parent page shell
 - [ ] T21: Drawings list and deletion
 - [ ] T22: Export and import of magic PNGs

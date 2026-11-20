@@ -43,6 +43,9 @@
     <path d="M7 8l5-5 5 5" />
     <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
   </symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </symbol>
   <symbol id="icon-back" viewBox="0 0 24 24">
     <path d="M15 5l-7 7 7 7" />
   </symbol>
@@ -96,4 +99,23 @@
     </button>
   </div>
   <div id="gallery-grid" class="gallery-grid"></div>
+</section>
+
+<section id="replay-screen" class="screen replay-screen" hidden>
+  <div class="page-area">
+    <div id="replay-page" class="page">
+      <canvas id="replay-layer" role="button" tabindex="0" data-i18n-aria="replay.stop"></canvas>
+    </div>
+  </div>
+  <div class="replay-actions">
+    <button
+      id="replay-again"
+      class="tool-button"
+      type="button"
+      data-i18n-aria="replay.again"
+      hidden
+    >
+      <svg><use href="#icon-play" /></svg>
+    </button>
+  </div>
 </section>

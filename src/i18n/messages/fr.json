@@ -83,5 +83,8 @@
   "tools.newPage": "Nouvelle page",
   "gallery.open": "Ouvrir le dessin du {date}",
   "gallery.share": "Partager ce dessin",
-  "file.prefix": "carnet-magique"
+  "file.prefix": "carnet-magique",
+  "gallery.play": "Revoir ce dessin",
+  "replay.again": "Rejouer",
+  "replay.stop": "Toucher pour arrêter"
 }

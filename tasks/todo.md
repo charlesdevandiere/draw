@@ -420,11 +420,11 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] "Play" on the selected thumbnail; touching stops and returns to the gallery; "play again" at the end.
+- [x] "Play" on the selected thumbnail; touching stops and returns to the gallery; "play again" at the end.
 
 **Verification:**
 
-- [ ] `npm run check`; manual replay of a long and a short drawing.
+- [x] `npm run check`; manual replay of a long and a short drawing.
 
 **Dependencies:** T14, T18
 

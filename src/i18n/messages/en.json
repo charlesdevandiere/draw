@@ -83,5 +83,8 @@
   "tools.newPage": "New page",
   "gallery.open": "Open the drawing of {date}",
   "gallery.share": "Share this drawing",
-  "file.prefix": "magic-sketchbook"
+  "file.prefix": "magic-sketchbook",
+  "gallery.play": "Watch this drawing again",
+  "replay.again": "Play again",
+  "replay.stop": "Touch to stop"
 }

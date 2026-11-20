@@ -13,9 +13,14 @@ export function isBlank(pixel: number[]): boolean {
   return alpha < 30;
 }
 
-/** Viewport point at a fraction of the page square (0..1 on both axes). */
-export async function pagePoint(page: Page, fx: number, fy: number): Promise<Point> {
-  const box = await page.locator('#page').boundingBox();
+/** Viewport point at a fraction of a page square (0..1 on both axes). */
+export async function pagePoint(
+  page: Page,
+  fx: number,
+  fy: number,
+  square = '#page',
+): Promise<Point> {
+  const box = await page.locator(square).boundingBox();
   if (!box) throw new Error('Page not visible');
   return [box.x + box.width * fx, box.y + box.height * fy];
 }

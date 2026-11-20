@@ -43,6 +43,7 @@ import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
 import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
+import { initReplayScreen } from './replay-screen';
 import { shareFile } from './share';
 import { encodeMagicPng } from '../store/magic-png';
 import { drawingFileName } from '../store/file-name';
@@ -52,8 +53,11 @@ const translator = createTranslator(documentLanguage());
 document.body.innerHTML = appHtml;
 applyTranslations(document.body, translator.t);
 
-const page = document.getElementById('page');
-if (page) protectGestures(page);
+// Every touch surface needs them: the drawing page and the replay page.
+for (const id of ['page', 'replay-page']) {
+  const surface = document.getElementById(id);
+  if (surface) protectGestures(surface);
+}
 
 const canvas = document.getElementById('drawing-layer');
 if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Drawing canvas missing');
@@ -184,6 +188,29 @@ function showDrawScreen(): void {
   openGallery.focus();
 }
 
+const replay = initReplayScreen({
+  canvas: requireElement('replay-layer', HTMLCanvasElement),
+  playAgain: requireElement('replay-again', HTMLButtonElement),
+  onStop: () => {
+    showScreen('gallery');
+    backToDrawing.focus();
+  },
+});
+
+/** A gallery card's play button: the drawing redraws itself on a full-screen page. */
+function playButton(drawing: Drawing): HTMLButtonElement {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'tool-button';
+  button.setAttribute('aria-label', translator.t('gallery.play'));
+  button.innerHTML = '<svg><use href="#icon-play" /></svg>';
+  button.addEventListener('click', () => {
+    showScreen('replay');
+    replay.play(drawing);
+  });
+  return button;
+}
+
 /** A gallery card's share button: the drawing as a magic PNG. */
 function shareButton(drawing: Drawing): HTMLButtonElement {
   const button = document.createElement('button');
@@ -236,7 +263,7 @@ const gallery = initGallery({
     }
     return records;
   },
-  actions: (drawing) => [shareButton(drawing)],
+  actions: (drawing) => [playButton(drawing), shareButton(drawing)],
   onOpen: (drawing) => {
     if (drawing.id === current.id || drawScreen.isDrawing()) {
       showDrawScreen();
