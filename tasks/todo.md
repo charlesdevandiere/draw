@@ -76,14 +76,14 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `index.html` at the root redirects to `fr/` when the first matching language of `navigator.languages` is French, else `en/` (logic pure and tested).
-- [ ] `en/index.html` and `fr/index.html` with `lang`, manifest link, translated title; manifests in `public/en/` and `public/fr/` ("Magic Sketchbook" / "Carnet magique", `start_url` and `scope` per folder).
-- [ ] `vite-plugin-pwa` with `manifest: false`; the service worker at `/draw/` precaches every page of both folders.
-- [ ] `src/i18n/apply.ts` fills `data-i18n` and `data-i18n-aria`.
+- [x] `index.html` at the root redirects to `fr/` when the first matching language of `navigator.languages` is French, else `en/` (logic pure and tested).
+- [x] `en/index.html` and `fr/index.html` with `lang`, manifest link, translated title; manifests in `public/en/` and `public/fr/` ("Magic Sketchbook" / "Carnet magique", `start_url` and `scope` per folder).
+- [x] `vite-plugin-pwa` with `manifest: false`; the service worker at `/draw/` precaches every page of both folders.
+- [x] `src/i18n/apply.ts` fills `data-i18n` and `data-i18n-aria`.
 
 **Verification:**
 
-- [ ] `npm run check`; `npm run preview`: `/draw/` lands on the right folder; Chrome DevTools shows a valid manifest per folder.
+- [x] `npm run check`; `npm run preview`: `/draw/` lands on the right folder; Chrome DevTools shows a valid manifest per folder.
 
 **Dependencies:** T3
 

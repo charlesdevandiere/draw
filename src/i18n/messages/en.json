@@ -1,3 +1,5 @@
 {
-  "app.name": "Magic Sketchbook"
+  "app.name": "Magic Sketchbook",
+  "home.underConstruction": "Under construction.",
+  "home.diagnostic": "Diagnostic page"
 }

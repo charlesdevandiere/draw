@@ -1,3 +1,5 @@
 {
-  "app.name": "Carnet magique"
+  "app.name": "Carnet magique",
+  "home.underConstruction": "En construction.",
+  "home.diagnostic": "Page de diagnostic"
 }
