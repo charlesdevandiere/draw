@@ -80,5 +80,6 @@
   "tools.eraser": "Gomme",
   "tools.undo": "Annuler",
   "tools.redo": "Rétablir",
-  "tools.newPage": "Nouvelle page"
+  "tools.newPage": "Nouvelle page",
+  "gallery.open": "Ouvrir le dessin du {date}"
 }

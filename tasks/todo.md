@@ -317,12 +317,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Thumbnail stored with each save; grid shows all drawings, newest first.
-- [ ] Tapping a thumbnail reopens it with its full history; "new page" and "back to drawing" buttons.
+- [x] Thumbnail stored with each save; grid shows all drawings, newest first.
+- [x] Tapping a thumbnail reopens it with its full history; "new page" and "back to drawing" buttons.
 
 **Verification:**
 
-- [ ] `npm run check`; manual: 5 drawings, reopen and continue one.
+- [x] `npm run check`; manual: 5 drawings, reopen and continue one.
 
 **Dependencies:** T13
 

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
+import { lastDrawingId, savedStrokeCounts, savedStrokes } from './helpers/storage';
 
 const RED = [0xe5, 0x39, 0x35];
 
@@ -36,7 +37,7 @@ test('the drawing is there after a relaunch, and the colors and mode too', async
   await strokeAt(page, 0.5);
   await expect(page.locator('#mode-button')).toHaveAttribute('data-mode', 'pen');
   // The batched save happens within about a second.
-  await page.waitForTimeout(1500);
+  await expect.poll(() => savedStrokes(page)).toBe(1);
 
   await page.reload();
   await expect.poll(async () => isColor(await pixel(page, 0.5), RED)).toBe(true);
@@ -51,7 +52,8 @@ test('the drawing is there after a relaunch, and the colors and mode too', async
 test('going to the background saves at once', async ({ page }) => {
   await strokeAt(page, 0.3);
   await goToBackground(page);
-  await page.waitForTimeout(200);
+  // Well before the one-second batch delay.
+  await expect.poll(() => savedStrokes(page), { timeout: 800 }).toBe(1);
   await page.reload();
   await expect.poll(async () => isBlank(await pixel(page, 0.3))).toBe(false);
 });
@@ -61,14 +63,22 @@ test('undo is saved too, and a new page reopens blank', async ({ page }) => {
   await strokeAt(page, 0.6);
   await page.getByRole('button', { name: 'Undo' }).click();
   await goToBackground(page);
-  await page.waitForTimeout(200);
+  await expect.poll(() => savedStrokes(page)).toBe(1);
   await page.reload();
   await expect.poll(async () => isBlank(await pixel(page, 0.3))).toBe(false);
   expect(isBlank(await pixel(page, 0.6))).toBe(true);
 
   await page.getByRole('button', { name: 'New page' }).click();
-  await page.waitForTimeout(200);
+  // The new (empty) page is the one to reopen: its id is remembered, though never saved.
+  await expect
+    .poll(async () => {
+      const [lastId, counts] = await Promise.all([lastDrawingId(page), savedStrokeCounts(page)]);
+      return typeof lastId === 'string' && !(lastId in counts);
+    })
+    .toBe(true);
+  const before = await savedStrokes(page);
   await page.reload();
   await page.waitForTimeout(300);
   expect(isBlank(await pixel(page, 0.3))).toBe(true);
+  expect(await savedStrokes(page)).toBe(before);
 });

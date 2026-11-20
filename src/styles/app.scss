@@ -214,6 +214,47 @@ body {
 
 .gallery-grid {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+.gallery-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-tool-gap);
+  align-items: center;
+}
+
+.gallery-open {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--app-page);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}
+
+.gallery-actions {
+  display: flex;
+  gap: var(--app-tool-gap);
 }

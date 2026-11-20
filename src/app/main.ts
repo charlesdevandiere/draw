@@ -8,7 +8,14 @@ import { createTranslator } from '../i18n/i18n';
 import { createInputFilter } from '../input/input-mode';
 import { checkForUpdate } from '../pwa/app-update';
 import { createAutosave } from '../store/autosave';
-import { deleteDrawing, loadDrawing, readSetting, saveDrawing, writeSetting } from '../store/db';
+import {
+  deleteDrawing,
+  listDrawings,
+  loadDrawing,
+  readSetting,
+  saveDrawing,
+  writeSetting,
+} from '../store/db';
 import {
   DEFAULT_INPUT_MODE,
   SETTING_KEYS,
@@ -34,6 +41,8 @@ import { initDrawScreen } from './draw-screen';
 import { initModeButton } from './mode-button';
 import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
+import { initGallery } from './gallery-screen';
+import { renderThumbnail } from './raster';
 import { showScreen } from './screens';
 
 const translator = createTranslator(documentLanguage());
@@ -69,7 +78,13 @@ let history: History = createHistory();
 
 const autosave = createAutosave({
   async save(drawing) {
-    await saveDrawing(drawing, null);
+    // The vectors come first: a thumbnail that fails, or that a hidden page (going to the
+    // background, maybe killed) would delay, is skipped; the gallery renders it instead.
+    const thumbnail =
+      document.visibilityState === 'hidden'
+        ? null
+        : await renderThumbnail(drawing.strokes).catch(() => null);
+    await saveDrawing(drawing, thumbnail);
     await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
   },
   remove: deleteDrawing,
@@ -102,16 +117,24 @@ function setHistory(next: History): void {
   autosave.changed(currentDrawing());
 }
 
+/**
+ * Puts another drawing on the slate (a blank page, or one reopened from the gallery). The
+ * flush takes the pending save at once: switching synchronously after it means a stroke
+ * started while it writes lands on the new drawing instead of being lost.
+ */
+function switchDrawing(drawing: Drawing): Promise<void> {
+  const saved = autosave.flush();
+  current = { id: drawing.id, createdAt: drawing.createdAt };
+  history = createHistory(drawing.strokes);
+  drawScreen.setStrokes(history.strokes);
+  refreshHistoryButtons();
+  return saved;
+}
+
 /** Starts a blank page; the drawing left is already saved (or dropped if empty). */
 async function startNewPage(): Promise<void> {
-  // The flush takes the pending save at once: switch pages synchronously after it, so a
-  // stroke started while it writes lands on the new page instead of being lost.
-  const saved = autosave.flush();
-  current = { id: crypto.randomUUID(), createdAt: Date.now() };
-  history = createHistory();
-  drawScreen.setStrokes([]);
-  refreshHistoryButtons();
-  await saved;
+  const now = Date.now();
+  await switchDrawing({ id: crypto.randomUUID(), createdAt: now, updatedAt: now, strokes: [] });
   // Strokes already drawn on the new page have saved it (and its id) themselves.
   if (history.strokes.length === 0) await writeSetting(SETTING_KEYS.lastDrawingId, current.id);
 }
@@ -150,15 +173,58 @@ newPageButton.addEventListener('click', () => {
 });
 
 // The button pressed is hidden with its screen: move the focus to the other screen's button.
-const openGallery = document.getElementById('open-gallery');
-const backToDrawing = document.getElementById('back-to-drawing');
-openGallery?.addEventListener('click', () => {
-  showScreen('gallery');
-  backToDrawing?.focus();
-});
-backToDrawing?.addEventListener('click', () => {
+const openGallery = requireElement('open-gallery', HTMLButtonElement);
+const backToDrawing = requireElement('back-to-drawing', HTMLButtonElement);
+
+function showDrawScreen(): void {
   showScreen('draw');
-  openGallery?.focus();
+  openGallery.focus();
+}
+
+const gallery = initGallery({
+  grid: requireElement('gallery-grid', HTMLElement),
+  t: translator.t,
+  language: translator.language,
+  // Drawings saved without a thumbnail get one rendered from their vectors.
+  list: async () =>
+    Promise.all(
+      (await listDrawings()).map(async (record) =>
+        record.thumbnail
+          ? record
+          : {
+              ...record,
+              thumbnail: await renderThumbnail(record.drawing.strokes).catch(() => null),
+            },
+      ),
+    ),
+  onOpen: (drawing) => {
+    if (drawing.id !== current.id) {
+      switchDrawing(drawing)
+        .then(() => writeSetting(SETTING_KEYS.lastDrawingId, drawing.id))
+        .catch(() => undefined);
+    }
+    showDrawScreen();
+  },
+});
+
+openGallery.addEventListener('click', () => {
+  if (drawScreen.isDrawing()) return;
+  // Save first so the drawing just made shows up in the gallery.
+  void autosave
+    .flush()
+    .then(() => gallery.refresh())
+    .catch(() => undefined)
+    .finally(() => {
+      // A stroke started during the save would be cut short by hiding its screen.
+      if (drawScreen.isDrawing()) return;
+      showScreen('gallery');
+      backToDrawing.focus();
+    });
+});
+backToDrawing.addEventListener('click', showDrawScreen);
+requireElement('gallery-new-page', HTMLButtonElement).addEventListener('click', () => {
+  startNewPage().catch(() => undefined);
+  showDrawScreen();
 });
 
 // An installed app is resumed rather than reopened: look for a new version each time it

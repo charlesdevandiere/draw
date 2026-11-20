@@ -80,5 +80,6 @@
   "tools.eraser": "Eraser",
   "tools.undo": "Undo",
   "tools.redo": "Redo",
-  "tools.newPage": "New page"
+  "tools.newPage": "New page",
+  "gallery.open": "Open the drawing of {date}"
 }

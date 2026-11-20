@@ -82,15 +82,19 @@ async function withDb<T>(work: (db: IDBDatabase) => Promise<T>): Promise<T> {
   }
 }
 
+/**
+ * Thumbnails are stored as raw PNG bytes, not as Blob: Blobs in IndexedDB fail in some
+ * WebKit builds and have a troubled history on iOS.
+ */
 function toRecord(value: unknown): DrawingRecord | null {
   try {
-    const thumbnail =
+    const bytes =
       typeof value === 'object' && value !== null && 'thumbnail' in value
         ? (value as { thumbnail: unknown }).thumbnail
         : null;
     return {
       drawing: parseDrawing(value),
-      thumbnail: thumbnail instanceof Blob ? thumbnail : null,
+      thumbnail: bytes instanceof ArrayBuffer ? new Blob([bytes], { type: 'image/png' }) : null,
     };
   } catch {
     // A corrupt record is skipped rather than breaking the whole gallery.
@@ -98,10 +102,12 @@ function toRecord(value: unknown): DrawingRecord | null {
   }
 }
 
-export function saveDrawing(drawing: Drawing, thumbnail: Blob | null): Promise<void> {
+export async function saveDrawing(drawing: Drawing, thumbnail: Blob | null): Promise<void> {
+  // Read the bytes before opening the transaction: it must not wait on other promises.
+  const bytes = thumbnail ? await thumbnail.arrayBuffer() : null;
   return withDb((db) => {
     const transaction = db.transaction(DRAWINGS, 'readwrite');
-    transaction.objectStore(DRAWINGS).put({ ...toStored(drawing), thumbnail });
+    transaction.objectStore(DRAWINGS).put({ ...toStored(drawing), thumbnail: bytes });
     return done(transaction);
   });
 }
