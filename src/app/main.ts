@@ -226,31 +226,37 @@ const gallery = initGallery({
   t: translator.t,
   language: translator.language,
   // Drawings saved without a thumbnail get one rendered from their vectors.
-  list: async () =>
-    Promise.all(
-      (await listDrawings()).map(async (record) =>
-        record.thumbnail
-          ? record
-          : {
-              ...record,
-              thumbnail: await renderThumbnail(record.drawing.strokes).catch(() => null),
-            },
-      ),
-    ),
+  // One at a time: iOS Safari caps the total canvas memory.
+  list: async () => {
+    const records = await listDrawings();
+    for (const [index, record] of records.entries()) {
+      if (record.thumbnail) continue;
+      const thumbnail = await renderThumbnail(record.drawing.strokes).catch(() => null);
+      records[index] = { ...record, thumbnail };
+    }
+    return records;
+  },
   actions: (drawing) => [shareButton(drawing)],
   onOpen: (drawing) => {
-    if (drawing.id !== current.id && !drawScreen.isDrawing()) {
-      // The card may be older than what is being saved: write first, then read it back.
-      autosave
-        .flush()
-        .then(() => loadDrawing(drawing.id))
-        .then(async (record) => {
-          await switchDrawing(record?.drawing ?? drawing);
-          await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
-        })
-        .catch(() => undefined);
+    if (drawing.id === current.id || drawScreen.isDrawing()) {
+      showDrawScreen();
+      return;
     }
-    showDrawScreen();
+    // The card may be older than what is being saved: write first, then read it back.
+    // The draw screen is shown only once the switch is done: a stroke started earlier
+    // would be dropped by the switch, or land on the drawing being left.
+    autosave
+      .flush()
+      .then(() => loadDrawing(drawing.id))
+      .then(async (record) => {
+        const saved = switchDrawing(record?.drawing ?? drawing);
+        showDrawScreen();
+        await saved;
+        await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
+      })
+      .catch(() => {
+        showDrawScreen();
+      });
   },
 });
 

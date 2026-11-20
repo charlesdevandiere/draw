@@ -127,7 +127,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 **B1 — Replay**
 
 - From the gallery, a "play" button on the selected thumbnail replays the drawing stroke by stroke, eraser included, on a full-screen page.
-- **Speed**: inside a stroke, real time is kept; every pause between strokes is shortened to 300 ms at most; if the result still exceeds **15 s**, everything is sped up uniformly to fit 15 s.
+- **Speed**: inside a stroke, real time is kept (a finger held still more than 1 s mid-stroke is shortened to 1 s); every pause between strokes is shortened to 300 ms at most; if the result still exceeds **15 s**, everything is sped up uniformly to fit 15 s.
 - Touching the screen during replay stops it and returns to the gallery. A "play again" button at the end.
 
 **B2 — Parent access**

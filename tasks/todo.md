@@ -402,11 +402,11 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Real time inside strokes; pauses between strokes capped at 300 ms; uniform speed-up to fit 15 s when longer; empty drawing → zero duration (tests).
+- [x] Real time inside strokes; pauses between strokes capped at 300 ms; uniform speed-up to fit 15 s when longer; empty drawing → zero duration (tests).
 
 **Verification:**
 
-- [ ] `npx vitest run src/engine/replay.test.ts`; `npm run check`
+- [x] `npx vitest run src/engine/replay.test.ts`; `npm run check`
 
 **Dependencies:** T7
 
