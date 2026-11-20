@@ -66,5 +66,16 @@
   "gallery.back": "Back to drawing",
   "mode.pen": "Input: pen only (tap to change)",
   "mode.finger": "Input: one finger (tap to change)",
-  "mode.multi": "Input: several fingers (tap to change)"
+  "mode.multi": "Input: several fingers (tap to change)",
+  "color.black": "Black",
+  "color.red": "Red",
+  "color.orange": "Orange",
+  "color.yellow": "Yellow",
+  "color.green": "Green",
+  "color.blue": "Blue",
+  "color.purple": "Purple",
+  "color.brown": "Brown",
+  "tools.thin": "Thin line",
+  "tools.thick": "Thick line",
+  "tools.eraser": "Eraser"
 }

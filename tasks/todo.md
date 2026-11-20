@@ -252,13 +252,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] 8 colors (black, red, orange, yellow, green, blue, purple, brown), thin / thick widths, eraser ~48 units.
-- [ ] Active color and width highlighted; targets ≥ 48 px; translated labels.
-- [ ] Eraser strokes clear to the white page background.
+- [x] 8 colors (black, red, orange, yellow, green, blue, purple, brown), thin / thick widths, eraser ~48 units.
+- [x] Active color and width highlighted; targets ≥ 48 px; translated labels.
+- [x] Eraser strokes clear to the white page background.
 
 **Verification:**
 
-- [ ] `npm run check`; manual drawing in the browser in portrait and landscape.
+- [x] `npm run check`; manual drawing in the browser in portrait and landscape.
 
 **Dependencies:** T8
 

@@ -163,6 +163,43 @@ body {
   }
 }
 
+// Color swatches: the button is the color.
+.swatch {
+  background: var(--swatch);
+  border-color: var(--app-page);
+
+  &[aria-pressed='true'] {
+    border-color: var(--app-accent);
+    box-shadow:
+      0 0 0 3px var(--app-page),
+      0 0 0 6px var(--app-accent);
+  }
+}
+
+// With the eraser on, the color and width kept for later show a soft ring.
+.tool-button[data-kept] {
+  border-color: rgb(0 0 0 / 25%);
+}
+
+// Width buttons preview a dot of the current color at that size.
+.width-dot {
+  display: block;
+  border-radius: 50%;
+  background: var(--current-color, var(--app-ink));
+  // Keeps a light color (yellow) visible on the white button.
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 25%);
+}
+
+.width-thin .width-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.width-thick .width-dot {
+  width: 22px;
+  height: 22px;
+}
+
 // Gallery screen.
 .gallery-screen {
   display: flex;

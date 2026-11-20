@@ -8,8 +8,10 @@ import { createTranslator } from '../i18n/i18n';
 import { createInputFilter } from '../input/input-mode';
 import { checkForUpdate } from '../pwa/app-update';
 import appHtml from './app.html?raw';
+import { DEFAULT_TOOLS, styleFor } from '../engine/palette';
 import { initDrawScreen } from './draw-screen';
 import { initModeButton } from './mode-button';
+import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
 import { showScreen } from './screens';
 
@@ -27,9 +29,13 @@ if (!(modeButtonElement instanceof HTMLButtonElement)) throw new Error('Mode but
 const inputFilter = createInputFilter({ mode: 'finger', chosenByHand: false });
 const modeButton = initModeButton(modeButtonElement, inputFilter, translator.t, () => undefined);
 
+const toolsContainer = document.getElementById('tools-primary');
+if (!toolsContainer) throw new Error('Tool bar missing');
+const tools = initTools(toolsContainer, DEFAULT_TOOLS, translator.t, () => undefined);
+
 const drawScreen = initDrawScreen({
   canvas,
-  style: () => ({ tool: 'pen', color: '#212121', width: 8 }),
+  style: () => styleFor(tools.state()),
   accepts: (event, phase) => {
     const drawing = inputFilter.accepts({
       pointerId: event.pointerId,

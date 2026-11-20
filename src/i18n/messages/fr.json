@@ -66,5 +66,16 @@
   "gallery.back": "Retour au dessin",
   "mode.pen": "Saisie : stylet seul (toucher pour changer)",
   "mode.finger": "Saisie : un doigt (toucher pour changer)",
-  "mode.multi": "Saisie : plusieurs doigts (toucher pour changer)"
+  "mode.multi": "Saisie : plusieurs doigts (toucher pour changer)",
+  "color.black": "Noir",
+  "color.red": "Rouge",
+  "color.orange": "Orange",
+  "color.yellow": "Jaune",
+  "color.green": "Vert",
+  "color.blue": "Bleu",
+  "color.purple": "Violet",
+  "color.brown": "Marron",
+  "tools.thin": "Trait fin",
+  "tools.thick": "Trait épais",
+  "tools.eraser": "Gomme"
 }
