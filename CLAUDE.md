@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État du projet
 
-Projet Vite + TypeScript (sans framework). L'étape 0, la page de diagnostic Pointer Events (`spec/SPEC-diagnostic.md`, `diagnostic.html`), est terminée : rapports et **conclusions dans `docs/diagnostic/conclusions.md`**, à lire avant de concevoir la saisie du MVP. Plan et tâches de l'étape 0 : `tasks/diagnostic/`. Prochaine étape : le MVP, spécifié dans **`spec/SPEC-mvp.md`**.
+Projet Vite + TypeScript (sans framework). L'étape 0, la page de diagnostic Pointer Events (`spec/SPEC-diagnostic.md`, `diagnostic.html`), est terminée : rapports et **conclusions dans `docs/diagnostic/conclusions.md`**, à lire avant de concevoir la saisie du MVP. Plan et tâches de l'étape 0 : `tasks/diagnostic/`. Prochaine étape : le MVP, spécifié dans **`spec/SPEC-mvp.md`**, plan dans `tasks/plan.md` et tâches dans `tasks/todo.md`.
 
 Commandes :
 
@@ -23,6 +23,8 @@ npm run check          # lint + format:check + tests avec couverture (seuil 90 %
 Structure : `index.html` (accueil provisoire), `diagnostic.html` + `src/diagnostic/` (page de diagnostic, à garder pour tester de nouveaux appareils), `src/input/palm-rejection.ts` (logique pure de filtrage), `vite.config.ts` (base `/draw/`, entrées multi-pages, PWA, config Vitest), tests `src/**/*.test.ts`. Le DOM est confiné à quelques fichiers exclus de la couverture (liste dans `vite.config.ts`) ; tout le reste est pur et testé (seuil 90 %).
 
 Déploiement : chaque push sur `master` passe `npm run check` puis publie sur `https://charlesdevandiere.github.io/draw/` (GitHub Actions). **Ne jamais pousser : l'utilisateur pousse lui-même.**
+
+Fin de chaque tâche : exécuter `/code-review --fix`, relancer `npm run check`, puis committer la tâche (un commit par tâche).
 
 La vision produit, le périmètre MVP, les hypothèses à valider et la liste « Not Doing » sont dans **`docs/ideas/carnet-magique.md`** — à lire avant toute décision de fonctionnalité ou d'architecture.
 
