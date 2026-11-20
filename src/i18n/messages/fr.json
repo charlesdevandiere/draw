@@ -1,7 +1,5 @@
 {
   "app.name": "Carnet magique",
-  "home.underConstruction": "En construction.",
-  "home.diagnostic": "Page de diagnostic",
   "diag.clear": "Effacer",
   "diag.collapse": "Replier",
   "diag.expand": "Ouvrir",
@@ -61,5 +59,9 @@
   "update.noServiceWorker": "Aucun service worker : rechargez la page.",
   "update.checkFailed": "Recherche impossible (hors ligne ?).",
   "update.clearing": "Vidage du cache…",
-  "update.clearFailed": "Échec du vidage du cache."
+  "update.clearFailed": "Échec du vidage du cache.",
+  "tools.drawing": "Outils de dessin",
+  "tools.actions": "Actions",
+  "tools.gallery": "Mes dessins",
+  "gallery.back": "Retour au dessin"
 }

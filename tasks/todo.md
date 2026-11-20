@@ -147,14 +147,14 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Bootstrap compiled from Sass with selective imports; theme variables in `src/styles/`.
-- [ ] Portrait: square page area full width, tools below; landscape: page full height, tools on the sides; no control within 32 px + safe area of the top and bottom edges.
-- [ ] Gesture protections (shared module extracted from the diagnostic) always on in the app.
-- [ ] Drawing and gallery sections switch with `hidden`.
+- [x] Bootstrap compiled from Sass with selective imports; theme variables in `src/styles/`.
+- [x] Portrait: square page area full width, tools below; landscape: page full height, tools on the sides; no control within 32 px + safe area of the top and bottom edges.
+- [x] Gesture protections (shared module extracted from the diagnostic) always on in the app.
+- [x] Drawing and gallery sections switch with `hidden`.
 
 **Verification:**
 
-- [ ] `npm run check`; CSS bundle size noted; layout checked in the browser at phone portrait and tablet landscape sizes.
+- [x] `npm run check`; CSS bundle size noted; layout checked in the browser at phone portrait and tablet landscape sizes.
 
 **Dependencies:** T4
 

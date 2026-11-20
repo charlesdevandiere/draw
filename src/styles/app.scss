@@ -1,0 +1,182 @@
+// Bootstrap 6 (alpha), only the modules the app uses (no utility classes: they weigh
+// ~150 kB and the app needs none). Its CSS sits in cascade layers;
+// the app's own rules below are unlayered and win over them.
+@use 'bootstrap/scss/config' with (
+  $enable-shadows: false,
+  $enable-gradients: false
+);
+@use 'bootstrap/scss/colors';
+@use 'bootstrap/scss/theme';
+@use 'bootstrap/scss/root';
+@use 'bootstrap/scss/content';
+@use 'bootstrap/scss/buttons';
+@use 'bootstrap/scss/helpers';
+@use 'tokens' as *;
+
+:root {
+  --app-paper: #{$paper};
+  --app-ink: #{$ink};
+  --app-page: #{$page};
+  --app-accent: #{$accent};
+  --app-tool-size: #{$tool-size};
+  --app-tool-gap: #{$tool-gap};
+  --app-edge-top: calc(#{$edge-margin} + env(safe-area-inset-top));
+  --app-edge-bottom: calc(#{$edge-margin} + env(safe-area-inset-bottom));
+  color-scheme: light;
+  // Bootstrap reserves a scrollbar gutter on :root; the app never scrolls.
+  scrollbar-gutter: auto;
+}
+
+// Gesture protections (see docs/diagnostic/conclusions.md), always on in the child app.
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  background: var(--app-paper);
+  color: var(--app-ink);
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  padding: var(--app-edge-top) max(8px, env(safe-area-inset-right)) var(--app-edge-bottom)
+    max(8px, env(safe-area-inset-left));
+}
+
+.screen[hidden] {
+  display: none;
+}
+
+// Drawing screen: portrait = page on top, tools below; landscape = tools on both sides.
+.draw-screen {
+  display: grid;
+  gap: var(--app-tool-gap);
+  grid-template:
+    'page' minmax(0, 1fr)
+    'primary' auto
+    'secondary' auto
+    / minmax(0, 1fr);
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .draw-screen {
+    grid-template:
+      'primary page secondary' minmax(0, 1fr)
+      / auto minmax(0, 1fr) auto;
+  }
+}
+
+.page-area {
+  grid-area: page;
+  display: grid;
+  // Portrait: the page sits right above the tools, free space goes to the top.
+  place-items: end center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+// The square page: as large as the area allows.
+.page {
+  position: relative;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  background: var(--app-page);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 15%);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.page canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-tool-gap);
+}
+
+.tools-primary {
+  grid-area: primary;
+}
+
+.tools-secondary {
+  grid-area: secondary;
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .page-area {
+    place-items: center;
+  }
+
+  .tools {
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 100%;
+  }
+}
+
+.tool-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--app-tool-size);
+  height: var(--app-tool-size);
+  min-width: $target-min;
+  min-height: $target-min;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  background: var(--app-page);
+  color: var(--app-ink);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 20%);
+  touch-action: manipulation;
+
+  &[aria-pressed='true'] {
+    border-color: var(--app-accent);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+  }
+
+  svg {
+    width: 60%;
+    height: 60%;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+// Gallery screen.
+.gallery-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gallery-header {
+  display: flex;
+  gap: var(--app-tool-gap);
+}
+
+.gallery-grid {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

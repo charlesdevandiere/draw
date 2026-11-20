@@ -3,6 +3,12 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   base: '/draw/',
+  css: {
+    preprocessorOptions: {
+      // Lets Sass resolve `bootstrap/scss/...` partials from node_modules.
+      scss: { loadPaths: ['node_modules'] },
+    },
+  },
   build: {
     rolldownOptions: {
       input: {
@@ -39,6 +45,8 @@ export default defineConfig({
         'src/**/main.ts',
         'src/redirect.ts',
         'src/i18n/apply.ts',
+        'src/app/gesture-protections.ts',
+        'src/app/screens.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

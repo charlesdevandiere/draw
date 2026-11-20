@@ -1,5 +1,47 @@
-<main class="placeholder">
-  <h1 data-i18n="app.name"></h1>
-  <p data-i18n="home.underConstruction"></p>
-  <p><a href="diagnostic.html" data-i18n="home.diagnostic"></a></p>
-</main>
+<svg class="visually-hidden" aria-hidden="true">
+  <symbol id="icon-gallery" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+  </symbol>
+  <symbol id="icon-back" viewBox="0 0 24 24">
+    <path d="M15 5l-7 7 7 7" />
+  </symbol>
+</svg>
+
+<h1 class="visually-hidden" data-i18n="app.name"></h1>
+
+<section id="draw-screen" class="screen draw-screen">
+  <div
+    id="tools-primary"
+    class="tools tools-primary"
+    role="toolbar"
+    data-i18n-aria="tools.drawing"
+  ></div>
+  <div class="page-area">
+    <div id="page" class="page">
+      <canvas id="drawing-layer"></canvas>
+      <canvas id="live-layer"></canvas>
+    </div>
+  </div>
+  <div
+    id="tools-secondary"
+    class="tools tools-secondary"
+    role="toolbar"
+    data-i18n-aria="tools.actions"
+  >
+    <button id="open-gallery" class="tool-button" type="button" data-i18n-aria="tools.gallery">
+      <svg><use href="#icon-gallery" /></svg>
+    </button>
+  </div>
+</section>
+
+<section id="gallery-screen" class="screen gallery-screen" hidden>
+  <div class="gallery-header">
+    <button id="back-to-drawing" class="tool-button" type="button" data-i18n-aria="gallery.back">
+      <svg><use href="#icon-back" /></svg>
+    </button>
+  </div>
+  <div id="gallery-grid" class="gallery-grid"></div>
+</section>

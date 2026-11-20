@@ -1,7 +1,5 @@
 {
   "app.name": "Magic Sketchbook",
-  "home.underConstruction": "Under construction.",
-  "home.diagnostic": "Diagnostic page",
   "diag.clear": "Clear",
   "diag.collapse": "Collapse",
   "diag.expand": "Expand",
@@ -61,5 +59,9 @@
   "update.noServiceWorker": "No service worker: reload the page.",
   "update.checkFailed": "Check failed (offline?).",
   "update.clearing": "Clearing the cache…",
-  "update.clearFailed": "Clearing the cache failed."
+  "update.clearFailed": "Clearing the cache failed.",
+  "tools.drawing": "Drawing tools",
+  "tools.actions": "Actions",
+  "tools.gallery": "My drawings",
+  "gallery.back": "Back to drawing"
 }
