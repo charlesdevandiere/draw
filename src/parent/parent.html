@@ -6,6 +6,55 @@
 
   <!-- Phase B sections are added here in order: drawings, transfer, input. -->
   <div id="parent-sections" class="d-flex flex-column gap-4">
+    <section id="section-drawings" class="card">
+      <div class="card-body d-flex flex-column gap-3">
+        <h2 class="h5" data-i18n="parent.drawings"></h2>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <button
+            id="drawings-select-all"
+            type="button"
+            class="btn btn-outline theme-secondary"
+            data-i18n="parent.drawings.selectAll"
+          ></button>
+          <button
+            id="drawings-delete"
+            type="button"
+            class="btn btn-outline theme-danger"
+            data-i18n="parent.drawings.delete"
+            disabled
+          ></button>
+          <output id="drawings-count"></output>
+        </div>
+        <ul id="drawings-list" class="parent-drawings"></ul>
+      </div>
+    </section>
+
+    <dialog id="delete-dialog" class="dialog dialog-instant" aria-labelledby="delete-dialog-title">
+      <div class="dialog-header">
+        <h2
+          id="delete-dialog-title"
+          class="dialog-title h5"
+          data-i18n="parent.drawings.confirmTitle"
+        ></h2>
+      </div>
+      <div class="dialog-body">
+        <p id="delete-dialog-text" class="m-0"></p>
+      </div>
+      <div class="dialog-footer">
+        <button
+          id="delete-cancel"
+          type="button"
+          class="btn btn-outline theme-secondary"
+          data-i18n="common.cancel"
+        ></button>
+        <button
+          id="delete-confirm"
+          type="button"
+          class="btn btn-solid theme-danger"
+          data-i18n="parent.drawings.delete"
+        ></button>
+      </div>
+    </dialog>
     <section id="section-language" class="card">
       <div class="card-body d-flex flex-column gap-2">
         <h2 class="h5" data-i18n="parent.language"></h2>

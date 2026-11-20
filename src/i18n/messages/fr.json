@@ -98,5 +98,14 @@
   "parent.app": "Application",
   "parent.version": "Version {version}",
   "parent.diagnostic": "Page de diagnostic",
-  "gallery.parent": "Espace parent (maintenir 3 secondes)"
+  "gallery.parent": "Espace parent (maintenir 3 secondes)",
+  "parent.drawings": "Dessins",
+  "parent.drawings.selectAll": "Tout sélectionner",
+  "parent.drawings.selectNone": "Tout désélectionner",
+  "parent.drawings.delete": "Supprimer",
+  "parent.drawings.selected": "{count, plural, =0 {Aucun dessin sélectionné} one {# dessin sélectionné} other {# dessins sélectionnés}}",
+  "parent.drawings.confirmTitle": "Supprimer des dessins ?",
+  "parent.drawings.confirm": "{count, plural, one {Ce dessin sera supprimé définitivement.} other {Ces # dessins seront supprimés définitivement.}}",
+  "parent.drawings.none": "Aucun dessin pour l'instant.",
+  "common.cancel": "Annuler"
 }

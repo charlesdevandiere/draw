@@ -13,6 +13,8 @@ import {
 } from '../i18n/apply';
 import { createTranslator, isLanguage } from '../i18n/i18n';
 import { checkForUpdate, resetAppCache } from '../pwa/app-update';
+import { deleteDrawing, listDrawings } from '../store/db';
+import { initDrawingsSection } from './drawings';
 import parentHtml from './parent.html?raw';
 
 const translator = createTranslator(documentLanguage());
@@ -21,6 +23,15 @@ document.documentElement.lang = translator.language;
 document.title = `${t('parent.title')} — ${t('app.name')}`;
 document.body.innerHTML = parentHtml;
 applyTranslations(document.body, t);
+
+// Drawings: list and deletion.
+const drawings = initDrawingsSection({
+  t,
+  language: translator.language,
+  list: listDrawings,
+  remove: deleteDrawing,
+});
+drawings.refresh().catch(() => undefined);
 
 // Language: an override of the folder's language, for this browser.
 const languageSelect = requireElement('language-select', HTMLSelectElement);

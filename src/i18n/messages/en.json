@@ -98,5 +98,14 @@
   "parent.app": "Application",
   "parent.version": "Version {version}",
   "parent.diagnostic": "Diagnostic page",
-  "gallery.parent": "Parent space (press and hold 3 seconds)"
+  "gallery.parent": "Parent space (press and hold 3 seconds)",
+  "parent.drawings": "Drawings",
+  "parent.drawings.selectAll": "Select all",
+  "parent.drawings.selectNone": "Select none",
+  "parent.drawings.delete": "Delete",
+  "parent.drawings.selected": "{count, plural, =0 {No drawing selected} one {# drawing selected} other {# drawings selected}}",
+  "parent.drawings.confirmTitle": "Delete drawings?",
+  "parent.drawings.confirm": "{count, plural, one {This drawing will be deleted for good.} other {These # drawings will be deleted for good.}}",
+  "parent.drawings.none": "No drawings yet.",
+  "common.cancel": "Cancel"
 }

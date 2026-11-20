@@ -320,6 +320,11 @@ document.addEventListener('visibilitychange', () => {
   else void autosave.flush();
 });
 window.addEventListener('pagehide', () => void autosave.flush());
+// Back from the parent page (back gesture, bfcache): the drawing on the slate may have been
+// deleted there, and a new stroke would save it again. Reload to start from the database.
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) window.location.reload();
+});
 
 // A new service worker took over (new deploy): reload so the page runs the new build.
 // Skipped on first install, when the page had no controller yet.

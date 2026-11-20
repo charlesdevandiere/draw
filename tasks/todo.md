@@ -458,11 +458,11 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Selection count with plural; confirmation dialog; deleted drawings gone from the gallery; deleting the current drawing opens a new page.
+- [x] Selection count with plural; confirmation dialog; deleted drawings gone from the gallery; deleting the current drawing opens a new page.
 
 **Verification:**
 
-- [ ] `npm run check`; manual deletion.
+- [x] `npm run check`; manual deletion.
 
 **Dependencies:** T20
 

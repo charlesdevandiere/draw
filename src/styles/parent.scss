@@ -25,3 +25,38 @@ body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+.parent-drawings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    font-size: 0.875rem;
+  }
+
+  input[type='checkbox'] {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+  }
+
+  img,
+  .parent-drawings-placeholder {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+  }
+}

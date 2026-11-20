@@ -59,6 +59,7 @@ export default defineConfig({
         'src/app/share.ts',
         'src/app/replay-screen.ts',
         'src/app/padlock.ts',
+        'src/parent/drawings.ts',
         'src/store/magic-png.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
