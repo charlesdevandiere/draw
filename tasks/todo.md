@@ -297,13 +297,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `schema.ts` validates drawings and rejects unknown versions; migration hook tested.
-- [ ] Database `draw` with `drawings` and `settings` stores; save after each finished stroke (batched ~1 s) and on `visibilitychange` hidden; empty drawings never stored.
-- [ ] Launch reopens the last drawing; input mode and "chosen by hand" flag persisted; `persist()` requested in standalone mode.
+- [x] `schema.ts` validates drawings and rejects unknown versions; migration hook tested.
+- [x] Database `draw` with `drawings` and `settings` stores; save after each finished stroke (batched ~1 s) and on `visibilitychange` hidden; empty drawings never stored.
+- [x] Launch reopens the last drawing; input mode and "chosen by hand" flag persisted; `persist()` requested in standalone mode.
 
 **Verification:**
 
-- [ ] `npx vitest run src/store`; `npm run check`; kill and relaunch the page mid-drawing.
+- [x] `npx vitest run src/store`; `npm run check`; kill and relaunch the page mid-drawing.
 
 **Dependencies:** T12
 

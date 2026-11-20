@@ -76,7 +76,7 @@ Checkpoint A1 — drawing is fluid on the three devices
 
 Checkpoint A2 — the slate is complete
 
-- [ ] T13: Storage, autosave and settings
+- [x] T13: Storage, autosave and settings
 - [ ] T14: Gallery
 - [ ] T15: PNG iTXt chunk (pure)
 - [ ] T16: Magic PNG and sharing

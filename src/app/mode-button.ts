@@ -9,8 +9,8 @@ const LABELS: Record<InputMode, MessageKey> = {
 };
 
 export interface ModeButton {
-  /** Shows the filter's current mode (call after an automatic switch). */
-  refresh(): void;
+  /** Shows the filter's current mode; true when it changed (automatic switch). */
+  refresh(): boolean;
 }
 
 export function initModeButton(
@@ -22,13 +22,14 @@ export function initModeButton(
   const icon = button.querySelector('use');
   let shown: InputMode | null = null;
 
-  function refresh(): void {
+  function refresh(): boolean {
     const { mode } = filter.state();
-    if (mode === shown) return;
+    if (mode === shown) return false;
     shown = mode;
     icon?.setAttribute('href', `#icon-mode-${mode}`);
     button.setAttribute('aria-label', t(LABELS[mode]));
     button.dataset['mode'] = mode;
+    return true;
   }
 
   button.addEventListener('click', () => {
