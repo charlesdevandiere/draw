@@ -47,6 +47,7 @@ export default defineConfig({
         'src/i18n/apply.ts',
         'src/app/gesture-protections.ts',
         'src/app/screens.ts',
+        'src/app/draw-screen.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

@@ -39,7 +39,7 @@ Sources: `docs/ideas/carnet-magique.md` (vision, scope, "Not Doing") and `docs/d
 **A1 — Page and rendering**
 
 - The square page is scaled and centered in the drawing area. Points are stored in **page coordinates** (0–1000): converted on input (screen → page) and on render (page → screen, honoring `devicePixelRatio`).
-- Two stacked canvases: the **drawing** layer (finished strokes, redrawn from vectors only when needed: undo, resize, open) and the **live** layer (strokes in progress, redrawn on every `requestAnimationFrame`). The white page background sits under both, so the eraser clears down to white without erasing the background itself.
+- One canvas over the white page background (changed during T8: an eraser stroke in progress must act on what is already drawn, so a separate live layer does not work). Strokes in progress are painted incrementally on every `requestAnimationFrame`; the whole drawing is repainted from its vectors only when needed (undo, resize, open). The eraser clears the canvas down to the white background without erasing it.
 - A tap without movement draws a **dot** (a disc of the stroke diameter).
 - Resizing or rotating the screen redraws the page at its new size, losing nothing.
 

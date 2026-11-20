@@ -12,7 +12,7 @@ Turn the repository into the first real Carnet magique: an English-only reposito
 - **Static screens.** Drawing and gallery are `<section>`s in the same HTML, initialized once, switched with `hidden`.
 - **One build, runtime language.** Both catalogs are bundled; `<html lang>` of the language folder picks the default, the parent page can override it.
 - **Language folders.** `/draw/en/` and `/draw/fr/` each hold `index.html`, `diagnostic.html` (and `parent.html` in phase B) plus a hand-written manifest. `vite-plugin-pwa` keeps generating the service worker only (`manifest: false`); its scope stays `/draw/`.
-- **Two canvases.** A "drawing" layer for finished strokes (redrawn from vectors on undo / resize / open) and a "live" layer for strokes in progress (redrawn every frame).
+- **One canvas.** Strokes in progress are painted incrementally on the drawing canvas every frame (an eraser must act on what is already drawn); the whole drawing is repainted from vectors on undo / resize / open.
 - **Engine state is immutable data** (`History` of strokes); the drawing screen holds the current value and re-renders from it.
 - **Settings and drawings in IndexedDB** (database `draw`), behind a hand-written promise wrapper.
 - **Magic PNG** is the single file format: share (phase A), export / import (phase B).
@@ -65,7 +65,7 @@ Phase A — the sketchbook
 
 - [x] T6: Sass + Bootstrap theme and the app shell
 - [x] T7: Engine foundations (types, page transform, stroke builder)
-- [ ] T8: First stroke on screen (render + drawing screen)
+- [x] T8: First stroke on screen (render + drawing screen)
 
 Checkpoint A1 — drawing is fluid on the three devices
 

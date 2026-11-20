@@ -188,13 +188,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `render.ts` draws strokes, dots (disc) and eraser strokes (`destination-out`); tested with a recording fake context.
-- [ ] Drawing layer redrawn only on change / resize; live layer per frame; one stroke per `pointerId`; hover (`buttons === 0`) ignored; `pointercancel` keeps the stroke.
-- [ ] Rotation / resize redraws the page without loss.
+- [x] `render.ts` draws strokes, dots (disc) and eraser strokes (`destination-out`); tested with a recording fake context.
+- [x] Drawing repainted from vectors only on change / resize; strokes in progress painted incrementally on the same canvas every frame; one stroke per `pointerId`; hover (`buttons === 0`) ignored; `pointercancel` keeps the stroke.
+- [x] Rotation / resize redraws the page without loss.
 
 **Verification:**
 
-- [ ] `npm run check`; draw in the browser (mouse and touch emulation), rotate the window.
+- [x] `npm run check`; draw in the browser (mouse and touch emulation), rotate the window.
 
 **Dependencies:** T6, T7
 
