@@ -88,7 +88,7 @@ Phase B — the magic and the parent
 
 - [x] T18: Replay schedule
 - [x] T19: Replay screen
-- [ ] T20: Padlock and parent page shell
+- [x] T20: Padlock and parent page shell
 - [ ] T21: Drawings list and deletion
 - [ ] T22: Export and import of magic PNGs
 - [ ] T23: Input settings

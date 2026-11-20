@@ -1,0 +1,27 @@
+// Parent page: Bootstrap 6 (alpha) with the components an adult screen needs.
+@use 'bootstrap/scss/config' with (
+  $enable-shadows: false,
+  $enable-gradients: false
+);
+@use 'bootstrap/scss/colors';
+@use 'bootstrap/scss/theme';
+@use 'bootstrap/scss/root';
+@use 'bootstrap/scss/content';
+@use 'bootstrap/scss/layout';
+@use 'bootstrap/scss/forms';
+@use 'bootstrap/scss/buttons';
+@use 'bootstrap/scss/card';
+@use 'bootstrap/scss/dialog';
+@use 'bootstrap/scss/helpers';
+@use 'bootstrap/scss/utilities/api';
+@use 'tokens' as *;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: $paper;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -46,6 +46,10 @@
   <symbol id="icon-play" viewBox="0 0 24 24">
     <path d="M8 5v14l11-7z" />
   </symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24">
+    <rect x="5" y="11" width="14" height="10" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </symbol>
   <symbol id="icon-back" viewBox="0 0 24 24">
     <path d="M15 5l-7 7 7 7" />
   </symbol>
@@ -96,6 +100,14 @@
     </button>
     <button id="gallery-new-page" class="tool-button" type="button" data-i18n-aria="tools.newPage">
       <svg><use href="#icon-new-page" /></svg>
+    </button>
+    <button
+      id="parent-lock"
+      class="tool-button padlock"
+      type="button"
+      data-i18n-aria="gallery.parent"
+    >
+      <svg><use href="#icon-lock" /></svg>
     </button>
   </div>
   <div id="gallery-grid" class="gallery-grid"></div>

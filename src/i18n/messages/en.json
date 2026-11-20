@@ -86,5 +86,17 @@
   "file.prefix": "magic-sketchbook",
   "gallery.play": "Watch this drawing again",
   "replay.again": "Play again",
-  "replay.stop": "Touch to stop"
+  "replay.stop": "Touch to stop",
+  "parent.title": "Parent space",
+  "parent.back": "Back to the sketchbook",
+  "parent.language": "Language",
+  "parent.language.auto": "Default (the language this app was installed in)",
+  "parent.storage": "Storage",
+  "parent.storage.persisted": "Drawings protected from automatic cleanup: {state, select, yes {yes} no {no} other {unknown}}",
+  "parent.storage.usage": "Space used: {used} of {quota}",
+  "parent.storage.persist": "Protect the drawings",
+  "parent.app": "Application",
+  "parent.version": "Version {version}",
+  "parent.diagnostic": "Diagnostic page",
+  "gallery.parent": "Parent space (press and hold 3 seconds)"
 }

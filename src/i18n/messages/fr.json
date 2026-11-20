@@ -86,5 +86,17 @@
   "file.prefix": "carnet-magique",
   "gallery.play": "Revoir ce dessin",
   "replay.again": "Rejouer",
-  "replay.stop": "Toucher pour arrêter"
+  "replay.stop": "Toucher pour arrêter",
+  "parent.title": "Espace parent",
+  "parent.back": "Retour au carnet",
+  "parent.language": "Langue",
+  "parent.language.auto": "Par défaut (langue dans laquelle l'app est installée)",
+  "parent.storage": "Stockage",
+  "parent.storage.persisted": "Dessins protégés du nettoyage automatique : {state, select, yes {oui} no {non} other {inconnu}}",
+  "parent.storage.usage": "Espace utilisé : {used} sur {quota}",
+  "parent.storage.persist": "Protéger les dessins",
+  "parent.app": "Application",
+  "parent.version": "Version {version}",
+  "parent.diagnostic": "Page de diagnostic",
+  "gallery.parent": "Espace parent (maintenir 3 secondes)"
 }

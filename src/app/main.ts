@@ -43,6 +43,7 @@ import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
 import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
+import { initPadlock } from './padlock';
 import { initReplayScreen } from './replay-screen';
 import { shareFile } from './share';
 import { encodeMagicPng } from '../store/magic-png';
@@ -302,6 +303,10 @@ openGallery.addEventListener('click', () => {
     });
 });
 backToDrawing.addEventListener('click', showDrawScreen);
+initPadlock(requireElement('parent-lock', HTMLButtonElement), () => {
+  // Save before leaving the app page.
+  void autosave.flush().finally(() => window.location.assign('parent.html'));
+});
 requireElement('gallery-new-page', HTMLButtonElement).addEventListener('click', () => {
   startNewPage().catch(() => undefined);
   showDrawScreen();

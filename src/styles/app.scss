@@ -228,6 +228,27 @@ body {
   gap: var(--app-tool-gap);
 }
 
+// Parent padlock: a ring fills while it is held (3 s), at the far end of the header.
+.padlock {
+  position: relative;
+  margin-left: auto;
+  background: conic-gradient(var(--app-accent) calc(var(--progress, 0) * 1turn), var(--app-page) 0);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--app-page);
+  }
+
+  svg {
+    position: relative;
+    width: 45%;
+    height: 45%;
+  }
+}
+
 .gallery-grid {
   flex: 1;
   min-height: 0;

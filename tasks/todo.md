@@ -438,13 +438,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Hold logic pure and tested (release early cancels); ring animation.
-- [ ] `en/parent.html` and `fr/parent.html` with Bootstrap components; language override persisted; storage status and persist button; version, check for updates, clear cache, diagnostic link; back button.
-- [ ] Bootstrap JS loaded only by the parent page.
+- [x] Hold logic pure and tested (release early cancels); ring animation.
+- [x] `en/parent.html` and `fr/parent.html` with Bootstrap components; language override persisted; storage status and persist button; version, check for updates, clear cache, diagnostic link; back button.
+- [x] Bootstrap JS loaded only by the parent page.
 
 **Verification:**
 
-- [ ] `npm run check`; build output shows Bootstrap JS only in the parent chunk.
+- [x] `npm run check`; build output shows Bootstrap JS only in the parent chunk.
 
 **Dependencies:** T13, T17
 
