@@ -1,81 +1,81 @@
-# Conclusions du diagnostic Pointer Events (étape 0)
+# Pointer Events diagnostic conclusions (step 0)
 
-Campagne du 19/11/2026, page `diagnostic.html` versions `79dcd82` → `71f767c`, PWA installée sur chaque appareil.
+Campaign of 2026-11-19, `diagnostic.html` page versions `79dcd82` → `71f767c`, PWA installed on each device.
 
-| Rapport                                      | Configuration                                                        |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| [`ipad11-metapen.json`](ipad11-metapen.json) | iPad 11, Safari standalone, stylet Metapen                           |
-| [`ipad11-doigt.json`](ipad11-doigt.json)     | iPad 11, Safari standalone, doigt                                    |
-| [`pixel9a-doigt.json`](pixel9a-doigt.json)   | Pixel 9a, Chrome standalone, doigt (+ stylet à embout rond, étape 4) |
-| [`notes-campagne.md`](notes-campagne.md)     | Observations visuelles hors rapport                                  |
+| Report                                       | Configuration                                                    |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| [`ipad11-metapen.json`](ipad11-metapen.json) | iPad 11, Safari standalone, Metapen stylus                       |
+| [`ipad11-doigt.json`](ipad11-doigt.json)     | iPad 11, Safari standalone, finger                               |
+| [`pixel9a-doigt.json`](pixel9a-doigt.json)   | Pixel 9a, Chrome standalone, finger (+ round-tip stylus, step 4) |
+| [`campaign-notes.md`](campaign-notes.md)     | Visual observations outside the reports                          |
 
-## Les 5 hypothèses
+## The 5 hypotheses
 
-### 1. Le Metapen est vu comme `pointerType: "pen"` par Safari iPadOS — **OUI**
+### 1. The Metapen is seen as `pointerType: "pen"` by Safari iPadOS — **YES**
 
-- 9 255 événements `pen` dans `ipad11-metapen.json`.
-- Mais **pression et inclinaison sont factices** : `pressure` fixe à 0,12, `tiltX`/`tiltY` fixes à −27°/16°, `width`/`height` à 0,5. Elles ne servent à rien : épaisseur fixe confirmée.
-- Le stylet à embout rond (passif) est vu comme un **doigt** (`touch`) sur les deux appareils : aucune distinction possible avec la main.
+- 9,255 `pen` events in `ipad11-metapen.json`.
+- But **pressure and tilt are fake**: `pressure` fixed at 0.12, `tiltX`/`tiltY` fixed at −27°/16°, `width`/`height` at 0.5. They are useless: fixed stroke width confirmed.
+- The round-tip (passive) stylus is seen as a **finger** (`touch`) on both devices: no way to tell it apart from the hand.
 
-### 2. On peut ignorer la paume quand le stylet est actif sans bloquer le doigt — **OUI, avec une limite**
+### 2. The palm can be ignored while the stylus is active without blocking the finger — **YES, with a limit**
 
-- iPadOS fait déjà une partie du travail : 139 contacts de paume annulés par le système (`pointercancel:touch`) pendant l'écriture au Metapen.
-- Notre filtrage complète : 20 contacts ignorés en « Pendant le trait », 32 en « Session stylet ». **« Session stylet » est nettement meilleure** ; le doigt redevient actif après S secondes sans stylet.
-- **Limite** : la paume posée **avant** le premier trait au stylet dessine (marque orange constatée), puisqu'aucun stylet n'a encore été vu. Seul un mode « Stylet » choisi explicitement l'évite.
-- **Au doigt, aucune stratégie stylet n'agit** (iPad comme Pixel : des traits sous la paume dans tous les modes). L'option « Un seul doigt à la fois » en évite une partie, mais pas tout : la place se libère dès que le doigt se lève, et la paume encore posée qui touche un nouvel endroit dessine alors.
-- Sur smartphone, poser la paume n'est pas un besoin (constat de l'utilisateur). Sur une tablette Android (Metapen probablement incompatible, donc doigt ou stylet passif), la paume redeviendra un problème : **non testé, pas d'appareil**.
+- iPadOS already does part of the work: 139 palm contacts canceled by the system (`pointercancel:touch`) while writing with the Metapen.
+- Our filtering completes it: 20 contacts ignored in "Pendant le trait" (during the stroke), 32 in "Session stylet" (pen session). **"Session stylet" is clearly better**; the finger becomes active again after S seconds without the stylus.
+- **Limit**: a palm resting **before** the first stylus stroke draws (orange mark observed), since no stylus has been seen yet. Only an explicitly chosen "Pen" mode avoids it.
+- **With the finger, no stylus strategy has any effect** (iPad and Pixel alike: strokes under the palm in every mode). The "Un seul doigt à la fois" (one finger at a time) option avoids some of them, but not all: the slot is freed as soon as the finger lifts, and the palm, still resting, draws when it touches a new spot.
+- On a smartphone, resting the palm is not a need (user's observation). On an Android tablet (Metapen probably incompatible, so finger or passive stylus), the palm will become a problem again: **not tested, no device**.
 
-### 3. Les gestes système sont neutralisables — **OUI, sauf les bords haut et bas**
+### 3. System gestures can be neutralized — **YES, except the top and bottom edges**
 
-- Protections activées : pincement bloqué (`gesturestart:bloqué` ×31 iPad), appui long / menu bloqué (`contextmenu:bloqué` Pixel), plus de sélection ni de double-tap zoom, pas de défilement.
-- Protections désactivées : **app inutilisable** (sélection, double-tap, défilement, menu…).
-- **Non bloquables** (système) : centre de notifications (glissé depuis le haut, iPad et Pixel) et barre d'accueil / dock (glissé depuis le bas, iPad ; Pixel non testé, navigation à 3 boutons).
-- Aucun rechargement involontaire en PWA installée (pas de pull-to-refresh compté).
+- Protections on: pinch blocked (`gesturestart:bloqué` (blocked) ×31 on iPad), long press / menu blocked (`contextmenu:bloqué` (blocked) on Pixel), no more selection or double-tap zoom, no scrolling.
+- Protections off: **app unusable** (selection, double-tap, scrolling, menu…).
+- **Not blockable** (system): notification center (swipe from the top, iPad and Pixel) and home bar / dock (swipe from the bottom, iPad; Pixel not tested, 3-button navigation).
+- No unintended reload in the installed PWA (no pull-to-refresh counted).
 
-### 4. Le tracé est fluide — **OUI**
+### 4. Drawing is smooth — **YES**
 
-| Mesure                                  | iPad + Metapen | iPad doigt   | Pixel doigt   |
+| Measure                                 | iPad + Metapen | iPad finger  | Pixel finger  |
 | --------------------------------------- | -------------- | ------------ | ------------- |
-| Événements `pointermove` / s            | 62,5           | 70,6         | 132,3         |
-| Points reçus / s (avec coalesced)       | 238,6          | 108,1        | 238,1         |
-| Coalesced par `pointermove` (moyenne)   | 3,5            | 1,6          | 1,8           |
-| Intervalle entre images (moyenne / p95) | 22,7 / 46 ms   | 19,6 / 34 ms | 8,9 / 16,6 ms |
-| Événement → rendu (moyenne / p95)       | 6,1 / 21 ms    | 7,0 / 20 ms  | 6,0 / 10,3 ms |
+| `pointermove` events / s                | 62.5           | 70.6         | 132.3         |
+| Points received / s (with coalesced)    | 238.6          | 108.1        | 238.1         |
+| Coalesced per `pointermove` (average)   | 3.5            | 1.6          | 1.8           |
+| Interval between frames (average / p95) | 22.7 / 46 ms   | 19.6 / 34 ms | 8.9 / 16.6 ms |
+| Event → render (average / p95)          | 6.1 / 21 ms    | 7.0 / 20 ms  | 6.0 / 10.3 ms |
 
-- **Coalesced indispensable** : sur iPad, le stylet n'envoie que 60 événements/s, chacun regroupant 4 points. Sans coalesced, les traits rapides sont anguleux (constaté).
-- Pixel 9a : écran 120 Hz, excellent.
-- **À surveiller** : sur iPad, le p95 de l'intervalle entre images (34 à 46 ms) montre des images sautées ; la page de diagnostic rafraîchit ses panneaux texte à 10 Hz, à vérifier sur le moteur du MVP.
-- **Défaut trouvé** : un simple appui ne dessinait rien (le canvas ignore les segments de longueur nulle) — impossible de faire le point du « i ». Corrigé en dessinant un disque ; à reprendre dans le moteur.
+- **Coalesced is essential**: on iPad, the stylus only sends 60 events/s, each grouping 4 points. Without coalesced, fast strokes are angular (observed).
+- Pixel 9a: 120 Hz screen, excellent.
+- **To watch**: on iPad, the p95 of the interval between frames (34 to 46 ms) shows dropped frames; the diagnostic page refreshes its text panels at 10 Hz, to be checked on the MVP engine.
+- **Defect found**: a simple tap drew nothing (the canvas ignores zero-length segments) — impossible to dot an "i". Fixed by drawing a disc; to be carried over into the engine.
 
-### 5. En PWA installée, le stockage peut être rendu persistant — **OUI**
+### 5. In an installed PWA, storage can be made persistent — **YES**
 
-- iPad (Safari standalone) : `persist()` accordé, `storagePersisted: true`.
-- Pixel 9a (**Chrome**) : accordé. Dans **Brave**, refusé : Chrome est la cible Android.
-- L'export manuel de la galerie reste prévu comme filet de sécurité.
+- iPad (Safari standalone): `persist()` granted, `storagePersisted: true`.
+- Pixel 9a (**Chrome**): granted. In **Brave**, denied: Chrome is the Android target.
+- Manual gallery export remains planned as a safety net.
 
-## Décisions pour le MVP
+## Decisions for the MVP
 
-### Mode de saisie : bouton « Stylet » / « Doigt » / « Multi doigts »
+### Input mode: "Pen" / "Finger" / "Multi-finger" button
 
-Idée de l'utilisateur, confirmée par les mesures :
+User's idea, confirmed by the measurements:
 
-- **Stylet** : seuls les `pen` dessinent, tout `touch` est ignoré. Règle aussi la paume posée avant le premier trait. Proposé automatiquement dès qu'un `pen` est détecté.
-- **Doigt** (défaut sans stylet) : un seul contact dessine à la fois. À améliorer par rapport au diagnostic :
-  - la place ne se libère que lorsque **plus aucun contact** ne touche l'écran, puis après un court délai (~300 ms, à régler) ;
-  - **filtre de largeur** : ignorer les contacts trop larges (iPad : doigt ≈ 42–63 px, paume jusqu'à 292 px). Le Pixel ne remonte que de petites largeurs (≤ 61 px) : filtre inefficace sur Android. **Risque : les mains d'enfant sont plus petites**, l'écart doigt / paume se réduit. Seuil à mesurer avec un enfant, et filtre désactivable.
-- **Multi doigts** : tous les contacts dessinent (plusieurs enfants, plusieurs doigts).
+- **Pen**: only `pen` pointers draw, every `touch` is ignored. Also handles the palm resting before the first stroke. Suggested automatically as soon as a `pen` is detected.
+- **Finger** (default without a stylus): only one contact draws at a time. To improve over the diagnostic:
+  - the slot is only freed when **no contact at all** touches the screen anymore, then after a short delay (~300 ms, to be tuned);
+  - **width filter**: ignore contacts that are too wide (iPad: finger ≈ 42–63 px, palm up to 292 px). The Pixel only reports small widths (≤ 61 px): the filter is ineffective on Android. **Risk: children's hands are smaller**, so the finger / palm gap narrows. Threshold to be measured with a child, and the filter must be disableable.
+- **Multi-finger**: all contacts draw (several children, several fingers).
 
-### Protections anti-gestes obligatoires (toujours actives sur l'écran de dessin)
+### Mandatory anti-gesture protections (always on the drawing screen)
 
-`touch-action: none` ; `user-select: none` et `-webkit-user-select: none` ; `-webkit-touch-callout: none` ; `overscroll-behavior: none` ; viewport sans zoom (`maximum-scale=1, user-scalable=no`) ; `preventDefault` sur `contextmenu`, `selectstart`, `dblclick`, `gesturestart` ; `touchstart` / `touchmove` non passifs avec `preventDefault` sur la surface.
+`touch-action: none`; `user-select: none` and `-webkit-user-select: none`; `-webkit-touch-callout: none`; `overscroll-behavior: none`; viewport without zoom (`maximum-scale=1, user-scalable=no`); `preventDefault` on `contextmenu`, `selectstart`, `dblclick`, `gesturestart`; non-passive `touchstart` / `touchmove` with `preventDefault` on the surface.
 
-**Aucune commande près des bords haut et bas** de l'écran : ces glissés appartiennent au système.
+**No controls near the top and bottom edges** of the screen: those swipes belong to the system.
 
-### Autres règles
+### Other rules
 
-- **Coalesced events** obligatoires (avec repli si absents).
-- **Ne jamais utiliser `pressure` ni `tilt`** : factices au Metapen, nulles au doigt sur iPad, variables au doigt sur Android (incohérent).
-- **Un appui sans mouvement dessine un point.**
-- **Mise à jour de la PWA** : rechercher une nouvelle version à chaque retour au premier plan (une PWA iOS reprend sans naviguer et restait bloquée sur l'ancienne version), plus un moyen manuel de forcer la mise à jour dans l'écran adulte.
-- **Ne jamais se fier au user-agent** : Safari sur iPad se présente comme un Mac (`Macintosh`).
-- Demander `navigator.storage.persist()` dans l'app installée (accordé sur les deux appareils de référence).
+- **Coalesced events** are mandatory (with a fallback if absent).
+- **Never use `pressure` or `tilt`**: fake on the Metapen, zero with the finger on iPad, variable with the finger on Android (inconsistent).
+- **A tap without movement draws a dot.**
+- **PWA update**: look for a new version every time the app returns to the foreground (an iOS PWA resumes without navigating and used to stay stuck on the old version), plus a manual way to force the update in the adult screen.
+- **Never rely on the user agent**: Safari on iPad presents itself as a Mac (`Macintosh`).
+- Request `navigator.storage.persist()` in the installed app (granted on both reference devices).

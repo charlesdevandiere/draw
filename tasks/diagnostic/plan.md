@@ -1,97 +1,97 @@
-# Implementation Plan: Page de diagnostic Pointer Events
+# Implementation Plan: Pointer Events Diagnostic Page
 
 Source spec: `spec/SPEC-diagnostic.md`
 
 ## Overview
 
-Créer le socle du dépôt (Vite + TypeScript, outillage qualité, PWA, déploiement GitHub Pages) et la page `diagnostic.html` qui mesure sur l'iPad 11 et le Pixel 9a les cinq hypothèses de saisie du Carnet magique, puis produit un rapport JSON. Ordre **risque d'abord** : on met une page minimale sur l'iPad le plus tôt possible (tâche 3) pour savoir dès le premier soir si le Metapen est vu comme `pen`.
+Create the repository foundation (Vite + TypeScript, quality tooling, PWA, GitHub Pages deployment) and the `diagnostic.html` page that measures, on the iPad 11 and the Pixel 9a, the five input hypotheses of Carnet magique, then produces a JSON report. **Risk-first** order: a minimal page goes onto the iPad as early as possible (task 3) so that we know on the very first evening whether the Metapen is seen as `pen`.
 
 ## Architecture Decisions
 
-- **Vite multi-pages** : `index.html` (accueil provisoire) et `diagnostic.html` comme deux entrées `build.rollupOptions.input`, `base: '/draw/'`.
-- **Cœur pur, coquille DOM fine** : toute logique décisionnelle ou statistique (`palm-rejection`, `pointer-stats`, `timing-stats`, `incidents`, `report`) est sans DOM, avec le temps injecté → testée unitairement. Le DOM est confiné à `main.ts`, `environment.ts`, `stroke-renderer.ts` et à l'abonnement d'`incidents.ts`.
-- **Mesure non perturbée** : les écouteurs Pointer Events ne font qu'enregistrer des échantillons dans des tampons ; le canvas est dessiné dans `requestAnimationFrame` (segments incrémentaux) ; les panneaux texte sont rafraîchis au plus à ~10 Hz. Ainsi l'affichage des mesures ne fausse pas les mesures.
-- **Panneaux en surcouche repliable** : un tiroir repliable au-dessus du canvas (bas d'écran sur téléphone portrait, côté droit sur tablette paysage). Les événements sur le tiroir ne sont pas comptés comme tracé.
-- **Version visible** : le SHA du commit (injecté au build via `define`) est affiché dans la page et inclus dans le rapport → on sait toujours quelle version tourne sur l'appareil malgré le cache du service worker.
-- **PWA** : `vite-plugin-pwa` en `generateSW`, `registerType: 'autoUpdate'`, precache de tous les assets ; `start_url`/`scope` = `/draw/`.
-- **CI unique** : un workflow `deploy.yml` sur push `master` : `npm ci` → `npm run check` → upload artefact → `actions/deploy-pages`. Un `check` rouge bloque le déploiement.
+- **Vite multi-page**: `index.html` (provisional home page) and `diagnostic.html` as two `build.rollupOptions.input` entries, `base: '/draw/'`.
+- **Pure core, thin DOM shell**: all decision or statistical logic (`palm-rejection`, `pointer-stats`, `timing-stats`, `incidents`, `report`) is DOM-free, with time injected → unit-tested. The DOM is confined to `main.ts`, `environment.ts`, `stroke-renderer.ts` and the subscription part of `incidents.ts`.
+- **Undisturbed measurement**: the Pointer Events listeners only record samples into buffers; the canvas is drawn in `requestAnimationFrame` (incremental segments); the text panels are refreshed at ~10 Hz at most. This way, displaying the measurements does not skew them.
+- **Collapsible overlay panels**: a collapsible drawer above the canvas (bottom of the screen on portrait phone, right side on landscape tablet). Events on the drawer are not counted as drawing.
+- **Visible version**: the commit SHA (injected at build time via `define`) is displayed in the page and included in the report → we always know which version is running on the device despite the service worker cache.
+- **PWA**: `vite-plugin-pwa` in `generateSW`, `registerType: 'autoUpdate'`, precache of all assets; `start_url`/`scope` = `/draw/`.
+- **Single CI**: one `deploy.yml` workflow on push to `master`: `npm ci` → `npm run check` → upload artifact → `actions/deploy-pages`. A red `check` blocks deployment.
 
 ## Dependency Graph
 
 ```
-T1 Scaffold + outillage
- ├── T2 Déploiement GitHub Pages
- │    └── T3 Diagnostic minimal (lecture F1 + tracé brut)  ← test iPad n°1
- │         ├── T4 PWA installable + hors ligne
- │         ├── T5 Palm rejection (TDD) + sélecteur
- │         └── T6 Renderer rAF + coalesced on/off + points bruts
- │              ├── T7 Fluidité F3 (TDD timing-stats)
- │              └── T8 Gestes système F5 (TDD incidents) + protections
- ├── T9 Environnement F6 (persist, infos appareil)   [après T4]
- └── T10 Stats + rapport F7 (TDD) + copier/partager  [après T5, T7, T8, T9]
-      └── T11 Campagne appareils + conclusions
+T1 Scaffold + tooling
+ ├── T2 GitHub Pages deployment
+ │    └── T3 Minimal diagnostic (F1 reading + raw drawing)  ← iPad test #1
+ │         ├── T4 Installable PWA + offline
+ │         ├── T5 Palm rejection (TDD) + selector
+ │         └── T6 rAF renderer + coalesced on/off + raw points
+ │              ├── T7 Smoothness F3 (TDD timing-stats)
+ │              └── T8 System gestures F5 (TDD incidents) + protections
+ ├── T9 Environment F6 (persist, device info)   [after T4]
+ └── T10 Stats + report F7 (TDD) + copy/share  [after T5, T7, T8, T9]
+      └── T11 Device campaign + conclusions
 ```
 
 ## Task List
 
-Détail des tâches : `tasks/todo.md`.
+Task details: `tasks/diagnostic/todo.md`.
 
-### Phase 1 : Socle et premier contact avec l'iPad
+### Phase 1: Foundation and first contact with the iPad
 
-- [x] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
-- [x] T2 : Déploiement continu GitHub Pages
-- [x] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
+- [x] T1: Scaffold Vite + TS + Vitest/ESLint/Prettier
+- [x] T2: GitHub Pages continuous deployment
+- [x] T3: Minimal diagnostic — Pointer Events reading + raw drawing
 
-### Checkpoint A (sur appareils)
+### Checkpoint A (on devices)
 
-- [x] `https://charlesdevandiere.github.io/draw/diagnostic.html` s'ouvre sur iPad et Pixel
-- [x] **Verdict préliminaire hypothèse 1** : `pointerType` affiché avec le Metapen
+- [x] `https://charlesdevandiere.github.io/draw/diagnostic.html` opens on iPad and Pixel
+- [x] **Preliminary verdict on hypothesis 1**: `pointerType` displayed with the Metapen
 
-### Phase 2 : Cœur du diagnostic
+### Phase 2: Diagnostic core
 
-- [x] T4 : PWA installable + hors ligne + version affichée
-- [x] T5 : Palm rejection (3 stratégies, TDD) + sélecteur et réglages G/S
-- [x] T6 : Renderer rAF, coalesced on/off, points bruts, effacer
+- [x] T4: Installable PWA + offline + displayed version
+- [x] T5: Palm rejection (3 strategies, TDD) + selector and G/S settings
+- [x] T6: rAF renderer, coalesced on/off, raw points, clear
 
-### Checkpoint B (sur appareils)
+### Checkpoint B (on devices)
 
-- [x] PWA installée sur les deux appareils, ouverture en mode avion OK
-- [x] Les 3 stratégies se comportent comme prévu avec le Metapen
+- [x] PWA installed on both devices, opens in airplane mode OK
+- [x] The 3 strategies behave as expected with the Metapen
 
-### Phase 3 : Mesures complètes et rapport
+### Phase 3: Full measurements and report
 
-- [x] T7 : Mesures de fluidité (F3)
-- [x] T8 : Gestes système — protections on/off + incidents (F5)
-- [x] T9 : Environnement PWA et stockage (F6)
-- [x] T10 : Statistiques par pointerType + rapport JSON copier/partager (F7)
+- [x] T7: Smoothness measurements (F3)
+- [x] T8: System gestures — protections on/off + incidents (F5)
+- [x] T9: PWA environment and storage (F6)
+- [x] T10: Per-pointerType statistics + JSON report copy/share (F7)
 
 ### Checkpoint C
 
-- [x] `npm run check` vert, couverture ≥ 90 % sur les modules purs
-- [x] Rapport copiable sur les deux appareils
+- [x] `npm run check` green, coverage ≥ 90 % on the pure modules
+- [x] Report copyable on both devices
 
-### Phase 4 : Campagne de mesure
+### Phase 4: Measurement campaign
 
-- [x] T11 : Protocole manuel sur les 3 configurations + `docs/diagnostic/conclusions.md`
+- [x] T11: Manual protocol on the 3 configurations + `docs/diagnostic/conclusions.md`
 
-### Checkpoint final
+### Final checkpoint
 
-- [ ] Les 8 Success Criteria de `spec/SPEC-diagnostic.md` sont remplis (reste : Lighthouse non lancé, pas de Chrome local)
-- [x] `CLAUDE.md` mis à jour (commandes, structure, conclusions clés)
+- [ ] The 8 Success Criteria of `spec/SPEC-diagnostic.md` are met (remaining: Lighthouse not run, no local Chrome)
+- [x] `CLAUDE.md` updated (commands, structure, key conclusions)
 
 ## Risks and Mitigations
 
-| Risque                                                           | Impact                                              | Mitigation                                                                                                                     |
-| ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Le Metapen n'est pas vu comme `pen`                              | Élevé (remet en cause F4 et la stratégie de saisie) | Détecté dès T3 ; on continue le diagnostic (le rapport documente le comportement réel) et on replanifie la saisie avant le MVP |
-| Cache du service worker : l'appareil exécute une vieille version | Moyen (mesures attribuées à la mauvaise version)    | SHA affiché dans la page et le rapport ; `autoUpdate` ; bouton/indication de rechargement                                      |
-| Mauvais `base` / chemins sous `/draw/`                           | Moyen (page blanche sur Pages)                      | Déploiement mis en place dès T2, vérifié avant toute fonctionnalité                                                            |
-| Rafraîchir les panneaux perturbe les mesures                     | Moyen (fréquences/latences faussées)                | Écouteurs minimalistes, rendu rAF, panneaux throttlés ~10 Hz                                                                   |
-| Clipboard API refusée en PWA standalone iOS                      | Faible                                              | Web Share en premier, `<textarea>` de repli                                                                                    |
-| Gestes système non bloquables (bords d'écran iOS)                | Faible pour l'étape 0                               | C'est précisément ce qu'on mesure ; consigné dans les conclusions                                                              |
+| Risk                                                      | Impact                                                | Mitigation                                                                                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| The Metapen is not seen as `pen`                          | High (undermines F4 and the input strategy)           | Detected as early as T3; we continue the diagnostic (the report documents the real behavior) and re-plan input before the MVP |
+| Service worker cache: the device runs an old version      | Medium (measurements attributed to the wrong version) | SHA displayed in the page and the report; `autoUpdate`; reload button/indication                                              |
+| Wrong `base` / paths under `/draw/`                       | Medium (blank page on Pages)                          | Deployment set up as early as T2, verified before any feature                                                                 |
+| Refreshing the panels disturbs the measurements           | Medium (rates/latencies skewed)                       | Minimal listeners, rAF rendering, panels throttled to ~10 Hz                                                                  |
+| Clipboard API refused in iOS standalone PWA               | Low                                                   | Web Share first, `<textarea>` fallback                                                                                        |
+| System gestures that cannot be blocked (iOS screen edges) | Low for step 0                                        | This is precisely what we measure; recorded in the conclusions                                                                |
 
-## Décisions (questions résolues)
+## Decisions (resolved questions)
 
-- `@vitest/coverage-v8` ajouté en dépendance de dev (seuil de couverture).
-- **Aucun push par l'agent** : l'utilisateur pousse toujours lui-même. Les vérifications sur appareil des checkpoints A/B/C se font donc après ses pushs.
-- GitHub Pages est activé (source : GitHub Actions).
+- `@vitest/coverage-v8` added as a dev dependency (coverage threshold).
+- **No push by the agent**: the user always pushes themselves. Device checks for checkpoints A/B/C therefore happen after their pushes.
+- GitHub Pages is enabled (source: GitHub Actions).

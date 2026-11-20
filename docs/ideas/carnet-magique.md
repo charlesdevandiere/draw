@@ -1,80 +1,84 @@
 # Carnet magique
 
+> Superseded in part by `spec/SPEC-mvp.md` (square page only, Pen / Finger / Multi-finger input mode). The spec wins.
+
+Carnet magique (English name: Magic Sketchbook).
+
 ## Problem Statement
 
-Comment donner à un enfant de 5 ans et plus — sur iPad au stylet comme sur smartphone au doigt — un carnet de dessin où il dessine, colorie et apprend à écrire, sans jamais perdre un dessin, sans pub, sans compte, hors ligne ?
+How can we give a child aged 5 and up — on an iPad with a stylus or on a smartphone with a finger — a drawing notebook where they can draw, color and learn to write, without ever losing a drawing, with no ads, no account, and offline?
 
 ## Recommended Direction
 
-Une PWA sans framework (Vite + TypeScript, `vite-plugin-pwa`) centrée sur un moteur de dessin en TS pur, découplé de l'UI. L'écran de dessin est sans texte : grosses pastilles de couleur, deux épaisseurs, gomme, un bouton « annuler » géant. Chaque dessin est stocké sous forme de traits vectoriels (points + horodatage) dans IndexedDB, ce qui rend possibles le replay, les calques de fond et l'export. Bootstrap est réservé aux écrans « adulte » (galerie détaillée, réglages, export).
+A framework-free PWA (Vite + TypeScript, `vite-plugin-pwa`) built around a pure-TS drawing engine, decoupled from the UI. The drawing screen has no text: big color swatches, two stroke widths, an eraser, a giant "undo" button. Each drawing is stored as vector strokes (points + timestamps) in IndexedDB, which makes replay, background layers and export possible. Bootstrap is reserved for "adult" screens (detailed gallery, settings, export).
 
-Trois couches successives : **le carnet** (ardoise + galerie « frigo » partageable via le partage natif), **la magie** (replay trait par trait), **le cahier d'activités** (coloriages SVG à zones fermées avec anti-dépassement par clip sur la zone de départ, et modèles de lettres — capitales puis cursive — sur un calque de fond verrouillé). Le moteur gère un trait par `pointerId` dès le départ : le multi-doigts devient un bonus bon marché, pas une refonte.
+Three successive layers: **the notebook** (slate + shareable "fridge" gallery via native sharing), **the magic** (stroke-by-stroke replay), **the activity book** (SVG coloring pages with closed zones and overflow prevention by clipping to the starting zone, and letter templates — capitals first, then cursive — on a locked background layer). The engine handles one stroke per `pointerId` from the start: multi-finger becomes a cheap bonus, not a rewrite.
 
-Deux modes de saisie de premier rang :
+Two first-class input modes:
 
-- **Tablette au stylet** (iPad + Metapen) : le stylet dessine, la paume est ignorée.
-- **Doigt seul** (iPad sans stylet, smartphones iOS et Android) : le doigt dessine. Aucun geste au doigt n'est réservé au pan/zoom.
+- **Tablet with stylus** (iPad + Metapen): the stylus draws, the palm is ignored.
+- **Finger only** (iPad without stylus, iOS and Android smartphones): the finger draws. No finger gesture is reserved for pan/zoom.
 
-L'interface doit tenir sur un écran de smartphone en portrait comme sur une tablette en paysage (palette repliée en barre compacte sur petit écran, cibles tactiles ≥ 48 px partout).
+The interface must fit a portrait smartphone screen as well as a landscape tablet (palette folded into a compact bar on small screens, touch targets ≥ 48 px everywhere).
 
-**Appareils de référence pour valider le MVP :**
+**Reference devices to validate the MVP:**
 
-1. iPad 11 avec stylet Metapen (Safari, PWA installée) ;
-2. iPad 11 au doigt ;
-3. Google Pixel 9a au doigt (Chrome, PWA installée).
+1. iPad 11 with Metapen stylus (Safari, installed PWA);
+2. iPad 11 with finger;
+3. Google Pixel 9a with finger (Chrome, installed PWA).
 
-Une fonctionnalité n'est « terminée » que lorsqu'elle est validée sur les trois.
+A feature is only "done" once it is validated on all three.
 
 ## Key Assumptions to Validate
 
-- [ ] **Le Metapen est vu comme un stylet** (`pointerType: "pen"`) par Safari iPadOS — avec ou sans pression/inclinaison. → Page de diagnostic affichant les propriétés Pointer Events, testée **avant tout le reste**.
-- [ ] **Basculement stylet / doigt sans réglage** : dès qu'un stylet est détecté, les contacts doigt/paume sont ignorés ; sans stylet, le doigt dessine. → Tester sur l'iPad dans les deux usages, et vérifier qu'un enfant ne se retrouve pas « bloqué » (doigt qui ne dessine plus après usage du stylet).
-- [ ] **Les gestes système sont neutralisables** sur iOS et Android (loupe/appui long, double-tap zoom, sélection, menu contextuel, pull-to-refresh, gestes de bord). → Canvas de test plein écran en PWA installée, 10 min de gribouillage intensif sur chaque appareil.
-- [ ] **Le stockage vectoriel reste léger** : un dessin de 10 min < ~500 Ko. → Mesurer ; simplification des points (Ramer–Douglas–Peucker) si besoin.
-- [ ] **Le rendu est fluide**, sans latence perceptible, au stylet comme au doigt. → Vérifier `getCoalescedEvents()` sur les versions d'iPadOS/iOS et Chrome cibles, fallback prévu.
-- [ ] **Les données survivent** en PWA installée avec `navigator.storage.persist()`. → Test après plusieurs jours sans ouverture ; export manuel comme filet.
-- [ ] **Un enfant de 5 ans s'en sert seul**, y compris sur un petit écran de smartphone. → Test avec l'enfant, sans explication.
+- [ ] **The Metapen is seen as a stylus** (`pointerType: "pen"`) by Safari iPadOS — with or without pressure/tilt. → Diagnostic page displaying the Pointer Events properties, tested **before anything else**.
+- [ ] **Stylus / finger switching without settings**: as soon as a stylus is detected, finger/palm contacts are ignored; without a stylus, the finger draws. → Test on the iPad in both uses, and check that a child does not end up "stuck" (finger no longer drawing after using the stylus).
+- [ ] **System gestures can be neutralized** on iOS and Android (magnifier/long press, double-tap zoom, selection, context menu, pull-to-refresh, edge gestures). → Full-screen test canvas in an installed PWA, 10 minutes of intensive scribbling on each device.
+- [ ] **Vector storage stays light**: a 10-minute drawing < ~500 KB. → Measure; point simplification (Ramer–Douglas–Peucker) if needed.
+- [ ] **Rendering is smooth**, with no perceptible latency, with stylus and finger. → Check `getCoalescedEvents()` on the target iPadOS/iOS and Chrome versions, fallback planned.
+- [ ] **Data survives** in an installed PWA with `navigator.storage.persist()`. → Test after several days without opening; manual export as a safety net.
+- [ ] **A 5-year-old uses it alone**, including on a small smartphone screen. → Test with the child, without explanation.
 
 ## MVP Scope
 
-**Étape 0 (une soirée) :** page de diagnostic Pointer Events, testée sur les trois configurations de référence. Si le Metapen n'est pas vu comme `pen`, on revoit la stratégie de saisie avant d'écrire autre chose.
+**Step 0 (one evening):** Pointer Events diagnostic page, tested on the three reference configurations. If the Metapen is not seen as `pen`, we rethink the input strategy before writing anything else.
 
-**MVP — le carnet :**
+**MVP — the notebook:**
 
-- ardoise : 6–8 couleurs, 2 épaisseurs, gomme, annuler/rétablir, « nouvelle page » ;
-- choix du format à la création de la page, par 3 pictogrammes : **carré**, **A4 portrait**, **A4 paysage** (ratio 1:√2). La page est centrée et mise à l'échelle dans l'écran (bandes autour si besoin) ;
-- saisie stylet et doigt, palm rejection quand un stylet est actif ;
-- UI adaptative smartphone portrait ↔ tablette paysage ;
-- sauvegarde automatique silencieuse ;
-- galerie en vignettes, rouvrir un dessin, partager en PNG (partage natif) ;
-- replay d'un dessin ;
-- mode parent : suppression protégée par un geste adulte, export/import de la galerie, persistance du stockage ;
-- installable en PWA, fonctionne hors ligne.
+- slate: 6–8 colors, 2 stroke widths, eraser, undo/redo, "new page";
+- page format chosen at page creation, via 3 pictograms: **square**, **A4 portrait**, **A4 landscape** (1:√2 ratio). The page is centered and scaled to the screen (bands around it if needed);
+- stylus and finger input, palm rejection when a stylus is active;
+- adaptive UI, portrait smartphone ↔ landscape tablet;
+- silent automatic saving;
+- thumbnail gallery, reopen a drawing, share as PNG (native sharing);
+- replay of a drawing;
+- parent mode: deletion protected by an adult gesture, gallery export/import, storage persistence;
+- installable as a PWA, works offline.
 
-**Jalon 2 — le cahier :** 5–10 coloriages SVG faits main avec anti-dépassement, puis capitales à tracer (point de départ + flèches, pas de correction).
+**Milestone 2 — the activity book:** 5–10 hand-made SVG coloring pages with overflow prevention, then capitals to trace (starting point + arrows, no correction).
 
-**Jalon 3 :** lettres cursives, multi-doigts simultanés, export du replay en vidéo/GIF.
+**Milestone 3:** cursive letters, simultaneous multi-finger, replay export as video/GIF.
 
 ## Not Doing (and Why)
 
-- **Angular / framework UI** — aucune plus-value pour une app qui est surtout un canvas ; poids inutile.
-- **Comptes, synchro, backend** — hors de portée solo le soir, et le partage natif couvre « envoyer à mamie ».
-- **Épaisseur selon la pression, calques, brosses avancées** — le Metapen n'a probablement pas de pression, le doigt jamais ; c'est une app d'illustrateur, pas un carnet d'enfant.
-- **Zoom / canvas infini, pan au doigt** — confusion à 5 ans, et conflit avec « le doigt dessine ». La page fait la taille de l'écran.
-- **Correction automatique de l'écriture** — un projet de reconnaissance de tracé à part entière. On guide, on ne note pas.
-- **Coloriages générés depuis les dessins de l'enfant** — détection de zones complexe et fragile ; quelques coloriages faits main suffisent à valider l'idée.
-- **Tests ciblés PC souris / PC tactile** — le code reste standard (Pointer Events) et devrait fonctionner, mais aucun effort de validation avant que le MVP tienne sur les trois configurations de référence.
-- **Texte dans l'UI enfant** — l'enfant ne lit pas encore bien ; tout passe par des pictogrammes.
+- **Angular / UI framework** — no added value for an app that is mostly a canvas; needless weight.
+- **Accounts, sync, backend** — out of reach for a solo evening project, and native sharing covers "send to grandma".
+- **Pressure-based width, layers, advanced brushes** — the Metapen probably has no pressure, the finger never does; this is an illustrator's app, not a child's notebook.
+- **Zoom / infinite canvas, finger pan** — confusing at 5, and in conflict with "the finger draws". The page is the size of the screen.
+- **Automatic handwriting correction** — a full stroke-recognition project in itself. We guide, we don't grade.
+- **Coloring pages generated from the child's drawings** — complex and fragile zone detection; a few hand-made coloring pages are enough to validate the idea.
+- **Tests targeting PC with mouse / PC with touch** — the code stays standard (Pointer Events) and should work, but no validation effort until the MVP holds on the three reference configurations.
+- **Text in the child UI** — the child does not read well yet; everything goes through pictograms.
 
 ## Open Questions
 
-- Quel modèle de cursive, sous quelle licence (police scolaire libre, ou tracés refaits en SVG) ?
-- Replay à vitesse réelle, ou accéléré pour durer ~10 s quel que soit le dessin ?
-- Quel geste « adulte » pour le mode parent (appui long 3 s, petit calcul, autre) ?
-- Gomme « pixel » ou gomme « trait entier » (plus simple en vectoriel, moins intuitive) ?
-- Sur smartphone, un format dont l'orientation ne correspond pas à celle de l'écran (A4 paysage sur téléphone en portrait) devient tout petit : inviter à tourner le téléphone, ou laisser faire ?
+- Which cursive model, under which license (free school font, or outlines redrawn as SVG)?
+- Replay at real speed, or accelerated to last ~10 s whatever the drawing?
+- Which "adult" gesture for parent mode (3 s long press, small calculation, other)?
+- "Pixel" eraser or "whole stroke" eraser (simpler with vectors, less intuitive)?
+- On a smartphone, a format whose orientation does not match the screen's (A4 landscape on a phone held in portrait) becomes very small: invite the user to rotate the phone, or let it be?
 
-## Décisions prises
+## Decisions Made
 
-- **Format de page choisi à la création** : carré, A4 portrait ou A4 paysage. Les traits sont stockés en **coordonnées de page** (indépendantes de l'écran), ce qui rend un dessin identique sur iPad et smartphone et permet un export PNG/PDF à taille A4. Chaque coloriage et modèle de lettres déclare son format.
-- **« Nouvelle page » reprend le dernier format utilisé** (un tap de moins) ; le choix du format reste accessible depuis l'écran de dessin.
+- **Page format chosen at creation**: square, A4 portrait or A4 landscape. Strokes are stored in **page coordinates** (independent of the screen), which makes a drawing identical on iPad and smartphone and allows PNG/PDF export at A4 size. Each coloring page and letter template declares its format.
+- **"New page" reuses the last format used** (one tap less); the format choice remains accessible from the drawing screen.

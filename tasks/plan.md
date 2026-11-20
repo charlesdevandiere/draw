@@ -52,7 +52,7 @@ T7 engine: types, page-transform, stroke-builder ──► T8 render + first str
 
 Phase 0 — English repository and languages
 
-- [ ] T1: Translate the documentation to English
+- [x] T1: Translate the documentation to English
 - [ ] T2: Translate the code base leftovers and the deployment workflow
 - [ ] T3: i18n core (ICU subset formatter, catalogs, language choice)
 - [ ] T4: Language folders, manifests and root redirect

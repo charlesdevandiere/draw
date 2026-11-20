@@ -1,268 +1,268 @@
-# Tâches — Page de diagnostic Pointer Events
+# Tasks — Pointer Events Diagnostic Page
 
-Spec : `spec/SPEC-diagnostic.md` · Plan : `tasks/diagnostic/plan.md`
+Spec: `spec/SPEC-diagnostic.md` · Plan: `tasks/diagnostic/plan.md`
 
-Definition of Done commune : `npm run check` vert, code conforme à la section Code Style de la spec, commit atomique.
+Common Definition of Done: `npm run check` green, code compliant with the Code Style section of the spec, atomic commit.
 
 ---
 
-## Phase 1 : Socle et premier contact avec l'iPad
+## Phase 1: Foundation and first contact with the iPad
 
-### - [x] T1 : Scaffold Vite + TS + Vitest/ESLint/Prettier
+### - [x] T1: Scaffold Vite + TS + Vitest/ESLint/Prettier
 
-**Description :** Créer le projet Vite vanilla-ts (multi-pages, `base: '/draw/'`), TypeScript strict, Vitest (env `node`), ESLint flat config + typescript-eslint, Prettier (`singleQuote`, `printWidth: 100`), scripts npm de la spec. Nettoyer le `.gitignore` hérité d'Angular. `index.html` provisoire « Carnet magique ».
+**Description:** Create the Vite vanilla-ts project (multi-page, `base: '/draw/'`), strict TypeScript, Vitest (`node` env), ESLint flat config + typescript-eslint, Prettier (`singleQuote`, `printWidth: 100`), npm scripts from the spec. Clean up the `.gitignore` inherited from Angular. Provisional "Carnet magique" `index.html`.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Tous les scripts de la section Commands existent et fonctionnent (`dev`, `build`, `preview`, `test`, `test:watch`, `lint`, `format`, `check`)
-- [x] Un test trivial passe ; un fichier mal formaté / une erreur de lint font échouer `check`
-- [x] `npm run build` produit `dist/` avec des chemins préfixés `/draw/`
+- [x] All scripts of the Commands section exist and work (`dev`, `build`, `preview`, `test`, `test:watch`, `lint`, `format`, `check`)
+- [x] A trivial test passes; a badly formatted file / a lint error makes `check` fail
+- [x] `npm run build` produces `dist/` with paths prefixed by `/draw/`
 
-**Verification :**
+**Verification:**
 
 - [x] `npm run check`
-- [x] `npm run preview` puis ouvrir `http://localhost:4173/draw/`
+- [x] `npm run preview` then open `http://localhost:4173/draw/`
 
-**Dependencies :** aucune
-**Files :** `package.json`, `tsconfig.json`, `vite.config.ts`, `eslint.config.js`, `.prettierrc`, `index.html`, `.gitignore` (fichiers de config uniquement)
-**Scope :** M
-
----
-
-### - [x] T2 : Déploiement continu GitHub Pages
-
-**Description :** Workflow `.github/workflows/deploy.yml` : sur push `master` → `npm ci`, `npm run check`, build, `actions/upload-pages-artifact`, `actions/deploy-pages`. Activation manuelle de Pages par l'utilisateur.
-
-**Acceptance criteria :**
-
-- [x] Un push sur `master` publie `https://charlesdevandiere.github.io/draw/`
-- [x] Un `check` en échec empêche le déploiement
-
-**Verification :**
-
-- [x] Run GitHub Actions vert (`gh run watch`)
-- [x] L'URL affiche l'accueil provisoire sur l'iPad et le Pixel
-
-**Dependencies :** T1
-**Files :** `.github/workflows/deploy.yml`
-**Scope :** S
+**Dependencies:** none
+**Files:** `package.json`, `tsconfig.json`, `vite.config.ts`, `eslint.config.js`, `.prettierrc`, `index.html`, `.gitignore` (config files only)
+**Scope:** M
 
 ---
 
-### - [x] T3 : Diagnostic minimal — lecture des Pointer Events + tracé brut
+### - [x] T2: GitHub Pages continuous deployment
 
-**Description :** Page `diagnostic.html` + `src/diagnostic/main.ts` + `pointer-sample.ts` (extraction d'un échantillon sérialisable). Panneau F1 (propriétés par `pointerId`, support coalesced/predicted, nombre de coalesced du dernier move). Canvas plein écran `touch-action: none`, un trait par `pointerId` coloré selon `pointerType` (rendu direct, sans optimisation). SHA du commit affiché.
+**Description:** Workflow `.github/workflows/deploy.yml`: on push to `master` → `npm ci`, `npm run check`, build, `actions/upload-pages-artifact`, `actions/deploy-pages`. Manual Pages activation by the user.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Toutes les propriétés de F1 s'affichent en direct pour chaque pointeur actif
-- [x] Deux doigts tracent deux traits distincts simultanément
-- [x] La page ne défile ni ne zoome pendant le tracé (au minimum `touch-action: none`)
+- [x] A push to `master` publishes `https://charlesdevandiere.github.io/draw/`
+- [x] A failing `check` prevents deployment
 
-**Verification :**
+**Verification:**
+
+- [x] Green GitHub Actions run (`gh run watch`)
+- [x] The URL shows the provisional home page on the iPad and the Pixel
+
+**Dependencies:** T1
+**Files:** `.github/workflows/deploy.yml`
+**Scope:** S
+
+---
+
+### - [x] T3: Minimal diagnostic — Pointer Events reading + raw drawing
+
+**Description:** `diagnostic.html` page + `src/diagnostic/main.ts` + `pointer-sample.ts` (extraction of a serializable sample). F1 panel (properties per `pointerId`, coalesced/predicted support, number of coalesced events of the last move). Full-screen `touch-action: none` canvas, one stroke per `pointerId` colored by `pointerType` (direct rendering, no optimization). Commit SHA displayed.
+
+**Acceptance criteria:**
+
+- [x] All F1 properties are displayed live for each active pointer
+- [x] Two fingers draw two distinct strokes simultaneously
+- [x] The page neither scrolls nor zooms while drawing (at least `touch-action: none`)
+
+**Verification:**
 
 - [x] `npx vitest run src/diagnostic/pointer-sample.test.ts`
 - [x] `npm run check`
-- [x] Manuel après déploiement : iPad + Metapen, iPad au doigt, Pixel au doigt
+- [x] Manual after deployment: iPad + Metapen, iPad with finger, Pixel with finger
 
-**Dependencies :** T2
-**Files :** `diagnostic.html`, `src/diagnostic/main.ts`, `src/diagnostic/pointer-sample.ts`, `src/diagnostic/pointer-sample.test.ts`, `src/diagnostic/diagnostic.css`
-**Scope :** M
+**Dependencies:** T2
+**Files:** `diagnostic.html`, `src/diagnostic/main.ts`, `src/diagnostic/pointer-sample.ts`, `src/diagnostic/pointer-sample.test.ts`, `src/diagnostic/diagnostic.css`
+**Scope:** M
 
-### Checkpoint A (sur appareils)
+### Checkpoint A (on devices)
 
-- [x] Diagnostic accessible sur iPad et Pixel
-- [x] Verdict préliminaire hypothèse 1 (Metapen = `pen` ?) noté dans `docs/diagnostic/notes.md`
-- [x] Revue avec l'utilisateur avant la phase 2
+- [x] Diagnostic accessible on iPad and Pixel
+- [x] Preliminary verdict on hypothesis 1 (Metapen = `pen`?) noted in `docs/diagnostic/campaign-notes.md`
+- [x] Review with the user before phase 2
 
 ---
 
-## Phase 2 : Cœur du diagnostic
+## Phase 2: Diagnostic core
 
-### - [x] T4 : PWA installable + hors ligne
+### - [x] T4: Installable PWA + offline
 
-**Description :** `vite-plugin-pwa` (`generateSW`, `autoUpdate`, precache complet), manifest (nom, couleurs, `start_url`/`scope` `/draw/`, `display: standalone`), icônes provisoires 192/512/maskable/apple-touch-icon 180 générées une fois depuis un SVG, balises iOS (`apple-mobile-web-app-capable`, etc.). Lien accueil → diagnostic.
+**Description:** `vite-plugin-pwa` (`generateSW`, `autoUpdate`, full precache), manifest (name, colors, `start_url`/`scope` `/draw/`, `display: standalone`), provisional icons 192/512/maskable/apple-touch-icon 180 generated once from an SVG, iOS tags (`apple-mobile-web-app-capable`, etc.). Home → diagnostic link.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [ ] Lighthouse : aucun défaut d'installabilité (non lancé : pas de Chrome local ; installation vérifiée sur les deux appareils)
-- [x] Installée, l'app s'ouvre en standalone et la navigation accueil → diagnostic reste en standalone
-- [x] Après une première ouverture, l'app se charge en mode avion
+- [ ] Lighthouse: no installability defect (not run: no local Chrome; installation verified on both devices)
+- [x] Once installed, the app opens in standalone and home → diagnostic navigation stays in standalone
+- [x] After a first opening, the app loads in airplane mode
 
-**Verification :**
+**Verification:**
 
 - [ ] `npm run check`, `npm run preview` + Lighthouse
-- [x] Manuel : installation iPad (Safari) et Pixel (Chrome), test mode avion
+- [x] Manual: installation on iPad (Safari) and Pixel (Chrome), airplane mode test
 
-**Dependencies :** T3
-**Files :** `vite.config.ts`, `index.html`, `diagnostic.html`, `public/icons/*`
-**Scope :** M
+**Dependencies:** T3
+**Files:** `vite.config.ts`, `index.html`, `diagnostic.html`, `public/icons/*`
+**Scope:** M
 
 ---
 
-### - [x] T5 : Palm rejection — 3 stratégies (TDD) + sélecteur
+### - [x] T5: Palm rejection — 3 strategies (TDD) + selector
 
-**Description :** `src/input/palm-rejection.ts` écrit en TDD (stratégies `none`, `during-stroke` G=500 ms, `pen-session` S=10 s, cas obligatoires de la spec). Câblage dans `main.ts` : sélecteur, champs G/S, contacts ignorés marqués et comptés, indicateur « doigt actif / ignoré ».
+**Description:** `src/input/palm-rejection.ts` written TDD (strategies `none`, `during-stroke` G=500 ms, `pen-session` S=10 s, mandatory cases from the spec). Wiring in `main.ts`: selector, G/S fields, ignored contacts marked and counted, "finger active / ignored" indicator.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Tous les cas obligatoires de la spec sont couverts par des tests, couverture ≥ 90 % du module
-- [x] Changer de stratégie en direct change le comportement sans recharger
-- [x] Les contacts ignorés sont visibles et comptés par stratégie
+- [x] All mandatory cases of the spec are covered by tests, ≥ 90 % coverage of the module
+- [x] Changing strategy live changes the behavior without reloading
+- [x] Ignored contacts are visible and counted per strategy
 
-**Verification :**
+**Verification:**
 
 - [x] `npx vitest run src/input/palm-rejection.test.ts`
 - [x] `npm run check`
-- [x] Manuel iPad + Metapen : écrire paume posée avec chaque stratégie
+- [x] Manual iPad + Metapen: write with the palm resting, with each strategy
 
-**Dependencies :** T3
-**Files :** `src/input/palm-rejection.ts`, `src/input/palm-rejection.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
-**Scope :** M
+**Dependencies:** T3
+**Files:** `src/input/palm-rejection.ts`, `src/input/palm-rejection.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
+**Scope:** M
 
 ---
 
-### - [x] T6 : Renderer rAF, coalesced on/off, points bruts
+### - [x] T6: rAF renderer, coalesced on/off, raw points
 
-**Description :** `stroke-renderer.ts` : rendu incrémental dans `requestAnimationFrame`, canvas dimensionné en `devicePixelRatio`, redimensionnement/rotation gérés. Interrupteurs coalesced on/off et points bruts, bouton Effacer. Les écouteurs ne font plus qu'enregistrer dans des tampons ; panneaux throttlés ~10 Hz. Tiroir de panneaux repliable.
+**Description:** `stroke-renderer.ts`: incremental rendering in `requestAnimationFrame`, canvas sized in `devicePixelRatio`, resizing/rotation handled. Coalesced on/off and raw points switches, Clear button. Listeners now only record into buffers; panels throttled to ~10 Hz. Collapsible panel drawer.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [ ] Tracé net (pas flou) sur écran Retina et après rotation (rotation non testée)
-- [x] Coalesced off → points visiblement plus espacés en tracé rapide (si l'appareil fournit des coalesced events)
-- [x] Les panneaux ne se rafraîchissent pas plus de ~10 fois/s
+- [ ] Sharp (not blurry) stroke on a Retina screen and after rotation (rotation not tested)
+- [x] Coalesced off → points visibly more spaced out on a fast stroke (if the device provides coalesced events)
+- [x] The panels do not refresh more than ~10 times/s
 
-**Verification :**
+**Verification:**
 
 - [x] `npm run check`
-- [ ] Manuel : tracé rapide coalesced on/off avec points bruts, sur iPad et Pixel ; rotation de l'appareil (rotation non testée)
+- [ ] Manual: fast stroke with coalesced on/off with raw points, on iPad and Pixel; device rotation (rotation not tested)
 
-**Dependencies :** T3
-**Files :** `src/diagnostic/stroke-renderer.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
-**Scope :** M
+**Dependencies:** T3
+**Files:** `src/diagnostic/stroke-renderer.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
+**Scope:** M
 
-### Checkpoint B (sur appareils)
+### Checkpoint B (on devices)
 
-- [x] PWA installée sur les deux appareils, ouverture en mode avion OK
-- [x] Les 3 stratégies de palm rejection testées avec le Metapen ; impressions notées dans `docs/diagnostic/notes.md`
-- [x] Revue avec l'utilisateur
+- [x] PWA installed on both devices, opens in airplane mode OK
+- [x] The 3 palm rejection strategies tested with the Metapen; impressions noted in `docs/diagnostic/campaign-notes.md`
+- [x] Review with the user
 
 ---
 
-## Phase 3 : Mesures complètes et rapport
+## Phase 3: Full measurements and report
 
-### - [x] T7 : Mesures de fluidité (F3)
+### - [x] T7: Smoothness measurements (F3)
 
-**Description :** `timing-stats.ts` en TDD (fréquence Hz sur fenêtre glissante, moyenne et p95). Panneau F3 : Hz par `pointerType` avec/sans coalesced, moyenne de coalesced par move, durée de frame, délai événement → rendu.
+**Description:** `timing-stats.ts` in TDD (Hz rate over a sliding window, mean and p95). F3 panel: Hz per `pointerType` with/without coalesced, mean coalesced per move, frame duration, event → render delay.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Fonctions pures testées (séries vides, un seul échantillon, p95 sur valeurs connues)
-- [x] Panneau F3 cohérent : ~60 Hz souris/doigt typique, plus pour le stylet si l'appareil l'échantillonne plus vite
+- [x] Pure functions tested (empty series, a single sample, p95 on known values)
+- [x] Consistent F3 panel: ~60 Hz typical mouse/finger, more for the stylus if the device samples it faster
 
-**Verification :**
+**Verification:**
 
 - [x] `npx vitest run src/diagnostic/timing-stats.test.ts`
 - [x] `npm run check`
-- [x] Manuel : comparer les valeurs iPad stylet / iPad doigt / Pixel
+- [x] Manual: compare the iPad stylus / iPad finger / Pixel values
 
-**Dependencies :** T6
-**Files :** `src/diagnostic/timing-stats.ts`, `src/diagnostic/timing-stats.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
-**Scope :** M
+**Dependencies:** T6
+**Files:** `src/diagnostic/timing-stats.ts`, `src/diagnostic/timing-stats.test.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
+**Scope:** M
 
 ---
 
-### - [x] T8 : Gestes système — protections on/off + incidents (F5)
+### - [x] T8: System gestures — protections on/off + incidents (F5)
 
-**Description :** `incidents.ts` : compteurs purs testés + fonction d'abonnement DOM séparée (`pointercancel` par type, `touchcancel`, `contextmenu`, `selectionchange` non vide, `visualViewport.scale ≠ 1`, défilement, rechargement via `sessionStorage`). Interrupteur protections (classe CSS + écouteurs `preventDefault` ajoutés/retirés, viewport sans zoom).
+**Description:** `incidents.ts`: tested pure counters + separate DOM subscription function (`pointercancel` per type, `touchcancel`, `contextmenu`, non-empty `selectionchange`, `visualViewport.scale ≠ 1`, scrolling, reload via `sessionStorage`). Protections switch (CSS class + `preventDefault` listeners added/removed, viewport without zoom).
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Comptage testé unitairement (incrément, remise à zéro, état des protections inclus dans l'instantané)
-- [x] Protections off : appui long / double-tap provoquent des incidents comptés ; protections on : moins ou pas d'incidents
-- [x] Basculer l'interrupteur ne nécessite pas de recharger
+- [x] Counting unit-tested (increment, reset, protections state included in the snapshot)
+- [x] Protections off: long press / double-tap cause counted incidents; protections on: fewer or no incidents
+- [x] Toggling the switch does not require reloading
 
-**Verification :**
+**Verification:**
 
 - [x] `npx vitest run src/diagnostic/incidents.test.ts`
 - [x] `npm run check`
-- [x] Manuel : étape 3 du protocole sur un appareil
+- [x] Manual: step 3 of the protocol on one device
 
-**Dependencies :** T6
-**Files :** `src/diagnostic/incidents.ts`, `src/diagnostic/incidents.test.ts`, `src/diagnostic/gesture-protections.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
-**Scope :** M
+**Dependencies:** T6
+**Files:** `src/diagnostic/incidents.ts`, `src/diagnostic/incidents.test.ts`, `src/diagnostic/gesture-protections.ts`, `src/diagnostic/main.ts`, `src/diagnostic/diagnostic.css`, `diagnostic.html`
+**Scope:** M
 
 ---
 
-### - [x] T9 : Environnement PWA et stockage (F6)
+### - [x] T9: PWA environment and storage (F6)
 
-**Description :** `environment.ts` : mode d'affichage, `storage.persisted()` / bouton `persist()`, `storage.estimate()`, infos appareil (UA, `userAgentData`, écran/viewport, DPR, `maxTouchPoints`, media queries pointer/hover). Panneau F6.
+**Description:** `environment.ts`: display mode, `storage.persisted()` / `persist()` button, `storage.estimate()`, device info (UA, `userAgentData`, screen/viewport, DPR, `maxTouchPoints`, pointer/hover media queries). F6 panel.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Toutes les infos F6 affichées, valeurs absentes signalées « non disponible » (pas d'erreur)
-- [x] Le bouton « Demander la persistance » met à jour l'affichage
+- [x] All F6 info displayed, missing values flagged "non disponible" (not available) (no error)
+- [x] The "Demander la persistance" (Request persistence) button updates the display
 
-**Verification :**
+**Verification:**
 
 - [x] `npm run check`
-- [x] Manuel : comparer navigateur vs PWA installée sur iPad et Pixel
+- [x] Manual: compare browser vs installed PWA on iPad and Pixel
 
-**Dependencies :** T4
-**Files :** `src/diagnostic/environment.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
-**Scope :** S
+**Dependencies:** T4
+**Files:** `src/diagnostic/environment.ts`, `src/diagnostic/main.ts`, `diagnostic.html`
+**Scope:** S
 
 ---
 
-### - [x] T10 : Statistiques par pointerType + rapport JSON (F7)
+### - [x] T10: Per-pointerType statistics + JSON report (F7)
 
-**Description :** `pointer-stats.ts` (agrégation par `pointerType` : nombre, min/max/distinctes de pressure, tilt, altitude, twist, width/height) et `report.ts` (assemblage de F3/F4/F5/F6 + version + SHA) en TDD. Boutons Copier (Clipboard), Partager (Web Share si dispo), repli `<textarea>`, Réinitialiser les mesures.
+**Description:** `pointer-stats.ts` (aggregation per `pointerType`: count, min/max/distinct of pressure, tilt, altitude, twist, width/height) and `report.ts` (assembly of F3/F4/F5/F6 + version + SHA) in TDD. Copy (Clipboard), Share (Web Share if available), `<textarea>` fallback, Reset measurements buttons.
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] Rapport conforme à F7, JSON valide, champ `reportVersion`
-- [x] Copier ou Partager fonctionne sur iPad et Pixel ; sinon le `<textarea>` s'affiche
-- [x] Réinitialiser remet stats, compteurs et tracé à zéro
+- [x] Report compliant with F7, valid JSON, `reportVersion` field
+- [x] Copy or Share works on iPad and Pixel; otherwise the `<textarea>` is displayed
+- [x] Reset sets stats, counters and drawing back to zero
 
-**Verification :**
+**Verification:**
 
 - [x] `npx vitest run src/diagnostic/pointer-stats.test.ts src/diagnostic/report.test.ts`
-- [x] `npm run check` (couverture ≥ 90 % sur les modules purs)
-- [x] Manuel : copier un rapport sur chaque appareil et le coller ailleurs
+- [x] `npm run check` (coverage ≥ 90 % on the pure modules)
+- [x] Manual: copy a report on each device and paste it elsewhere
 
-**Dependencies :** T5, T7, T8, T9
-**Files :** `src/diagnostic/pointer-stats.ts`, `src/diagnostic/pointer-stats.test.ts`, `src/diagnostic/report.ts`, `src/diagnostic/report.test.ts`, `src/diagnostic/main.ts`
-**Scope :** M
+**Dependencies:** T5, T7, T8, T9
+**Files:** `src/diagnostic/pointer-stats.ts`, `src/diagnostic/pointer-stats.test.ts`, `src/diagnostic/report.ts`, `src/diagnostic/report.test.ts`, `src/diagnostic/main.ts`
+**Scope:** M
 
 ### Checkpoint C
 
-- [x] `npm run check` vert, couverture ≥ 90 % sur les modules purs
-- [x] Rapport copiable sur les deux appareils
-- [x] Revue avec l'utilisateur avant la campagne
+- [x] `npm run check` green, coverage ≥ 90 % on the pure modules
+- [x] Report copyable on both devices
+- [x] Review with the user before the campaign
 
 ---
 
-## Phase 4 : Campagne de mesure
+## Phase 4: Measurement campaign
 
-### - [x] T11 : Protocole manuel + conclusions
+### - [x] T11: Manual protocol + conclusions
 
-**Description :** L'utilisateur exécute le protocole en 6 étapes de la spec sur les 3 configurations et colle les rapports. Rédaction de `docs/diagnostic/conclusions.md` : oui/non argumenté pour chacune des 5 hypothèses, stratégie de palm rejection retenue, liste des protections anti-gestes nécessaires. Mise à jour de `CLAUDE.md` (commandes, structure, conclusions clés).
+**Description:** The user runs the 6-step protocol of the spec on the 3 configurations and pastes the reports. Writing of `docs/diagnostic/conclusions.md`: argued yes/no for each of the 5 hypotheses, chosen palm rejection strategy, list of necessary anti-gesture protections. Update of `CLAUDE.md` (commands, structure, key conclusions).
 
-**Acceptance criteria :**
+**Acceptance criteria:**
 
-- [x] 3 rapports dans `docs/diagnostic/` (`ipad11-metapen.json`, `ipad11-doigt.json`, `pixel9a-doigt.json`)
-- [x] `conclusions.md` répond aux 5 hypothèses avec références aux rapports
-- [x] `CLAUDE.md` à jour
+- [x] 3 reports in `docs/diagnostic/` (`ipad11-metapen.json`, `ipad11-doigt.json`, `pixel9a-doigt.json`)
+- [x] `conclusions.md` answers the 5 hypotheses with references to the reports
+- [x] `CLAUDE.md` up to date
 
-**Verification :**
+**Verification:**
 
-- [ ] Relecture des conclusions avec l'utilisateur
+- [ ] Review of the conclusions with the user
 
-**Dependencies :** T10
-**Files :** `docs/diagnostic/*.json`, `docs/diagnostic/conclusions.md`, `CLAUDE.md`
-**Scope :** S
+**Dependencies:** T10
+**Files:** `docs/diagnostic/*.json`, `docs/diagnostic/conclusions.md`, `CLAUDE.md`
+**Scope:** S
 
-### Checkpoint final
+### Final checkpoint
 
-- [ ] Les 8 Success Criteria de `spec/SPEC-diagnostic.md` sont remplis
-- [ ] Revue finale avec l'utilisateur → passage au MVP
+- [ ] The 8 Success Criteria of `spec/SPEC-diagnostic.md` are met
+- [ ] Final review with the user → move on to the MVP

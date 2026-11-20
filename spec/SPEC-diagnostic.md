@@ -1,130 +1,130 @@
-# Spec: Carnet magique — Page de diagnostic Pointer Events — V1
+# Spec: Carnet magique — Pointer Events Diagnostic Page — V1
 
-Étape 0 du projet (voir `docs/ideas/carnet-magique.md`). Elle pose aussi le socle technique définitif du dépôt : projet Vite + TypeScript, PWA, outillage qualité, déploiement continu.
+Step 0 of the project (see `docs/ideas/carnet-magique.md`). It also lays the final technical foundation of the repository: Vite + TypeScript project, PWA, quality tooling, continuous deployment.
 
 ## Objective
 
-**Pourquoi.** Toute l'architecture de saisie du Carnet magique repose sur des hypothèses non vérifiées sur les vrais appareils :
+**Why.** The whole input architecture of Carnet magique rests on assumptions not yet verified on real devices:
 
-1. le stylet Metapen est vu comme `pointerType: "pen"` par Safari iPadOS ;
-2. on peut ignorer la paume quand le stylet est actif sans que le doigt reste « bloqué » ;
-3. les gestes système (loupe, appui long, double-tap zoom, sélection, pull-to-refresh) sont neutralisables ;
-4. le tracé est fluide (fréquence d'échantillonnage, `getCoalescedEvents()`) ;
-5. en PWA installée, le stockage peut être rendu persistant.
+1. the Metapen stylus is seen as `pointerType: "pen"` by Safari iPadOS;
+2. the palm can be ignored while the stylus is active without the finger getting "stuck";
+3. system gestures (magnifier, long press, double-tap zoom, selection, pull-to-refresh) can be neutralized;
+4. drawing is smooth (sampling rate, `getCoalescedEvents()`);
+5. in an installed PWA, storage can be made persistent.
 
-**Quoi.** Une page `diagnostic.html`, installable en PWA, servie en HTTPS sur GitHub Pages, qui mesure ces points en direct sur l'appareil et produit un **rapport JSON** copiable/partageable.
+**What.** A `diagnostic.html` page, installable as a PWA, served over HTTPS on GitHub Pages, that measures these points live on the device and produces a copyable/shareable **JSON report**.
 
-**Pour qui.** Le développeur (pas l'enfant). La page reste dans le dépôt après l'étape 0 pour tester de nouveaux appareils.
+**For whom.** The developer (not the child). The page stays in the repository after step 0 to test new devices.
 
-**Appareils de référence :** iPad 11 + Metapen, iPad 11 au doigt, Pixel 9a au doigt.
+**Reference devices:** iPad 11 + Metapen, iPad 11 with finger, Pixel 9a with finger.
 
-### Fonctionnalités
+### Features
 
-**F1 — Lecture en direct des Pointer Events**
+**F1 — Live reading of Pointer Events**
 
-- Panneau affichant, pour chaque pointeur actif (`pointerId`) : `pointerType`, `isPrimary`, `pressure`, `tangentialPressure`, `tiltX`, `tiltY`, `twist`, `altitudeAngle`/`azimuthAngle` (si présents), `width`, `height`, `buttons`.
-- Nombre de coalesced events du dernier `pointermove`, et support de `getCoalescedEvents()` / `getPredictedEvents()` (détection par fonctionnalité).
+- Panel showing, for each active pointer (`pointerId`): `pointerType`, `isPrimary`, `pressure`, `tangentialPressure`, `tiltX`, `tiltY`, `twist`, `altitudeAngle`/`azimuthAngle` (if present), `width`, `height`, `buttons`.
+- Number of coalesced events of the last `pointermove`, and support for `getCoalescedEvents()` / `getPredictedEvents()` (feature detection).
 
-**F2 — Surface de tracé**
+**F2 — Drawing surface**
 
-- Canvas plein écran (hors panneaux), `touch-action: none`, rendu tenant compte de `devicePixelRatio`, rendu dans une boucle `requestAnimationFrame`.
-- Un trait par `pointerId`, couleur selon `pointerType` (pen / touch / mouse), épaisseur fixe.
-- Interrupteur **coalesced on/off** ; option d'affichage des points bruts (un point par échantillon) pour voir la densité.
-- Bouton « Effacer ».
+- Full-screen canvas (outside the panels), `touch-action: none`, rendering that accounts for `devicePixelRatio`, rendered in a `requestAnimationFrame` loop.
+- One stroke per `pointerId`, color by `pointerType` (pen / touch / mouse), fixed width.
+- **Coalesced on/off** switch; option to display raw points (one point per sample) to see the density.
+- "Effacer" (Clear) button.
 
-**F3 — Mesures de fluidité**
+**F3 — Smoothness measurements**
 
-- Par `pointerType` : fréquence d'échantillonnage en Hz (avec et sans coalesced), nombre moyen de coalesced events par `pointermove`.
-- Durée de frame (moyenne, p95) et délai événement → rendu estimé (`performance.now()` au rendu − `event.timeStamp`).
+- Per `pointerType`: sampling rate in Hz (with and without coalesced events), average number of coalesced events per `pointermove`.
+- Frame duration (average, p95) and estimated event → render delay (`performance.now()` at render − `event.timeStamp`).
 
-**F4 — Stratégies de palm rejection (comparables en direct)**
-Sélecteur à 3 positions :
+**F4 — Palm rejection strategies (comparable live)**
+3-position selector:
 
-- **Aucune** : tout pointeur dessine.
-- **Pendant le trait** : tant qu'un `pen` est en contact, et pendant une grâce de `G` ms après son `pointerup` (défaut 500 ms), les `touch` sont ignorés.
-- **Session stylet** : dès qu'un `pen` est vu, les `touch` sont ignorés jusqu'à `S` s sans activité stylet (défaut 10 s).
-- **Un seul doigt à la fois** (case à cocher, combinable avec les 3 stratégies ; ajoutée pendant la campagne T11) : le premier `touch` garde la priorité jusqu'à son `pointerup`, tout autre `touch` posé entre-temps (paume) est ignoré.
-  `G` et `S` sont réglables. Les contacts ignorés sont visualisés (marqueur discret) et comptés. Un indicateur montre l'état courant (« doigt actif » / « doigt ignoré »).
+- **None**: every pointer draws.
+- **During stroke**: while a `pen` is in contact, and during a grace period of `G` ms after its `pointerup` (default 500 ms), `touch` pointers are ignored.
+- **Pen session**: as soon as a `pen` is seen, `touch` pointers are ignored until `S` s without pen activity (default 10 s).
+- **One finger at a time** (checkbox, combinable with the 3 strategies; added during the T11 campaign): the first `touch` keeps priority until its `pointerup`, any other `touch` put down in the meantime (palm) is ignored.
+  `G` and `S` are adjustable. Ignored contacts are visualized (discreet marker) and counted. An indicator shows the current state ("finger active" / "finger ignored").
 
-**F5 — Gestes système**
+**F5 — System gestures**
 
-- Interrupteur **protections anti-gestes on/off** (on par défaut) regroupant : `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, `overscroll-behavior: none`, viewport sans zoom, `preventDefault` sur `contextmenu`, `selectstart`, `dblclick`, `gesturestart` (iOS), `touchstart`/`touchmove` non passifs sur la surface.
-- Compteurs d'**incidents** : `pointercancel` (par `pointerType`), `touchcancel`, `contextmenu`, `selectionchange` avec sélection non vide, `visualViewport.scale ≠ 1`, défilement de la page, rechargement involontaire (compteur en `sessionStorage`).
+- **Anti-gesture protections on/off** switch (on by default) grouping: `touch-action: none`, `user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`, `overscroll-behavior: none`, viewport without zoom, `preventDefault` on `contextmenu`, `selectstart`, `dblclick`, `gesturestart` (iOS), non-passive `touchstart`/`touchmove` on the surface.
+- **Incident** counters: `pointercancel` (per `pointerType`), `touchcancel`, `contextmenu`, `selectionchange` with a non-empty selection, `visualViewport.scale ≠ 1`, page scrolling, unintended reload (counter in `sessionStorage`).
 
-**F6 — Environnement PWA et stockage**
+**F6 — PWA environment and storage**
 
-- Mode d'affichage (`display-mode: standalone` / `navigator.standalone`), `navigator.storage.persisted()`, bouton « Demander la persistance » (`persist()`), `navigator.storage.estimate()`.
-- Infos appareil : `userAgent`, `userAgentData` si dispo, taille d'écran et de viewport, `devicePixelRatio`, `maxTouchPoints`, `matchMedia('(pointer: fine|coarse)')`, `(any-hover)`.
+- Display mode (`display-mode: standalone` / `navigator.standalone`), `navigator.storage.persisted()`, "Demander la persistance" (Request persistence) button (`persist()`), `navigator.storage.estimate()`.
+- Device info: `userAgent`, `userAgentData` if available, screen and viewport size, `devicePixelRatio`, `maxTouchPoints`, `matchMedia('(pointer: fine|coarse)')`, `(any-hover)`.
 
-**F7 — Rapport**
+**F7 — Report**
 
-- Bouton « Copier le rapport » (Clipboard API) et « Partager » (Web Share API, si dispo) ; repli : rapport affiché dans un `<textarea>` sélectionnable.
-- Contenu JSON : version du rapport, date, infos appareil (F6), et pour chaque `pointerType` vu : nombre d'événements, min/max/valeurs distinctes de `pressure`, min/max de `tiltX`/`tiltY`/`altitudeAngle`, présence de `twist`, `width/height` min/max, fréquences (F3), compteurs d'incidents (F5) avec l'état des protections, compteurs de contacts ignorés par stratégie et par l'option « un seul doigt » (F4).
-- Bouton « Réinitialiser les mesures ».
+- "Copier le rapport" (Copy the report) button (Clipboard API) and "Partager" (Share) button (Web Share API, if available); fallback: report displayed in a selectable `<textarea>`.
+- JSON content: report version, date, device info (F6), and for each `pointerType` seen: number of events, min/max/distinct values of `pressure`, min/max of `tiltX`/`tiltY`/`altitudeAngle`, presence of `twist`, min/max `width/height`, rates (F3), incident counters (F5) with the state of the protections, counts of ignored contacts per strategy and by the "one finger" option (F4).
+- "Réinitialiser les mesures" (Reset measurements) button.
 
-**F8 — PWA et page d'accueil provisoire**
+**F8 — PWA and provisional home page**
 
-- Manifest + service worker (`vite-plugin-pwa`, precache de tous les assets) : l'app est installable et la page de diagnostic fonctionne hors ligne une fois installée.
-- `index.html` provisoire : titre « Carnet magique », lien vers le diagnostic. `start_url` et `scope` = racine de l'app, pour que la navigation reste en mode standalone.
-- Icônes provisoires (192, 512, maskable, `apple-touch-icon` 180) produites une fois depuis un SVG et commitées.
-- Mise à jour (ajoutée pendant la campagne T11, l'app installée sur iPad restant bloquée sur l'ancienne version) : recherche d'une nouvelle version à chaque retour au premier plan, bouton « Rechercher une mise à jour », et bouton de secours « Vider le cache et recharger » (désinscrit le service worker, vide les caches, recharge depuis le réseau).
+- Manifest + service worker (`vite-plugin-pwa`, precache of all assets): the app is installable and the diagnostic page works offline once installed.
+- Provisional `index.html`: title "Carnet magique", link to the diagnostic. `start_url` and `scope` = app root, so that navigation stays in standalone mode.
+- Provisional icons (192, 512, maskable, `apple-touch-icon` 180) produced once from an SVG and committed.
+- Update (added during the T11 campaign, as the app installed on the iPad stayed stuck on the old version): check for a new version every time the app returns to the foreground, a "Rechercher une mise à jour" (Check for update) button, and a fallback "Vider le cache et recharger" (Clear cache and reload) button (unregisters the service worker, clears the caches, reloads from the network).
 
 ## Tech Stack
 
 - **Node 24**, **npm**.
-- **Vite** + **TypeScript** (`strict: true`), sans framework UI, sans Bootstrap pour cette page.
+- **Vite** + **TypeScript** (`strict: true`), no UI framework, no Bootstrap for this page.
 - **vite-plugin-pwa** (Workbox, `generateSW`).
-- **Vitest** (environnement `node` pour la logique pure), **ESLint** (flat config + `typescript-eslint`), **Prettier**.
-- Versions : dernière version stable de chaque paquet au moment du scaffolding, figées par `package-lock.json`.
-- Déploiement : **GitHub Pages via GitHub Actions**, URL `https://charlesdevandiere.github.io/draw/` → `base: '/draw/'` dans Vite.
+- **Vitest** (`node` environment for pure logic), **ESLint** (flat config + `typescript-eslint`), **Prettier**.
+- Versions: latest stable version of each package at scaffolding time, pinned by `package-lock.json`.
+- Deployment: **GitHub Pages via GitHub Actions**, URL `https://charlesdevandiere.github.io/draw/` → `base: '/draw/'` in Vite.
 
 ## Commands
 
 ```
-Installer :        npm ci
-Dev (réseau local): npm run dev            # vite --host
-Build :            npm run build           # tsc --noEmit && vite build
-Prévisualiser :    npm run preview         # vite preview --host (teste le SW en local)
-Tests :            npm test                # vitest run
-Tests (watch) :    npm run test:watch      # vitest
-Un seul test :     npx vitest run src/input/palm-rejection.test.ts -t "ignore le doigt pendant la grâce"
-Lint :             npm run lint            # eslint .
-Format :           npm run format          # prettier --write .
-Tout vérifier :    npm run check           # lint + format --check + test (couverture ≥ 90 %) + build
+Install:           npm ci
+Dev (local network): npm run dev           # vite --host
+Build:             npm run build           # tsc --noEmit && vite build
+Preview:           npm run preview         # vite preview --host (tests the SW locally)
+Tests:             npm test                # vitest run
+Tests (watch):     npm run test:watch      # vitest
+Single test:       npx vitest run src/input/palm-rejection.test.ts -t "ignores a touch during the grace period"
+Lint:              npm run lint            # eslint .
+Format:            npm run format          # prettier --write .
+Check everything:  npm run check           # lint + format --check + test (coverage ≥ 90 %) + build
 ```
 
 ## Project Structure
 
 ```
-index.html                       → Accueil provisoire (lien vers le diagnostic)
-diagnostic.html                  → Page de diagnostic (entrée Vite multi-pages)
-vite.config.ts                   → base '/draw/', entrées multiples, vite-plugin-pwa
-public/icons/                    → Icônes PWA provisoires (PNG) + source SVG
+index.html                       → Provisional home page (link to the diagnostic)
+diagnostic.html                  → Diagnostic page (Vite multi-page entry)
+vite.config.ts                   → base '/draw/', multiple entries, vite-plugin-pwa
+public/icons/                    → Provisional PWA icons (PNG) + SVG source
 src/
-  input/                         → Logique de saisie RÉUTILISÉE par le futur moteur
-    palm-rejection.ts            → Stratégies none / during-stroke / pen-session (pur)
+  input/                         → Input logic REUSED by the future engine
+    palm-rejection.ts            → none / during-stroke / pen-session strategies (pure)
     palm-rejection.test.ts
-  diagnostic/                    → Spécifique à la page de diagnostic
-    main.ts                      → Câblage DOM, écouteurs, boucle rAF
-    pointer-sample.ts            → Extraction d'un échantillon sérialisable depuis un PointerEvent
-    pointer-stats.ts             → Agrégation des échantillons → statistiques (pur)
+  diagnostic/                    → Specific to the diagnostic page
+    main.ts                      → DOM wiring, listeners, rAF loop
+    pointer-sample.ts            → Extracts a serializable sample from a PointerEvent
+    pointer-stats.ts             → Aggregates samples → statistics (pure)
     pointer-stats.test.ts
-    timing-stats.ts              → Fréquences, moyenne/p95 de durées (pur)
+    timing-stats.ts              → Rates, mean/p95 of durations (pure)
     timing-stats.test.ts
-    incidents.ts                 → Compteurs d'incidents de gestes (pur)
+    incidents.ts                 → Gesture incident counters (pure)
     incidents.test.ts
-    gesture-protections.ts       → Protections anti-gestes on/off + écoute des incidents (DOM)
-    environment.ts               → Infos appareil / PWA / stockage (DOM)
-    report.ts                    → Construction du rapport JSON (pur)
+    gesture-protections.ts       → Anti-gesture protections on/off + incident listening (DOM)
+    environment.ts               → Device / PWA / storage info (DOM)
+    report.ts                    → JSON report construction (pure)
     report.test.ts
-    stroke-renderer.ts           → Rendu canvas des traits (DOM)
+    stroke-renderer.ts           → Canvas stroke rendering (DOM)
     diagnostic.css
-.github/workflows/deploy.yml     → check + build + déploiement Pages sur push master
-docs/ideas/                      → Notes de cadrage
-docs/diagnostic/                 → Rapports JSON collectés sur les appareils + conclusions
+.github/workflows/deploy.yml     → check + build + Pages deployment on push to master
+docs/ideas/                      → Scoping notes
+docs/diagnostic/                 → JSON reports collected on devices + conclusions
 ```
 
-Règle : tout ce qui est **pur** (sans DOM) est testé unitairement ; le DOM est confiné à `main.ts`, `environment.ts`, `stroke-renderer.ts` et `gesture-protections.ts`.
+Rule: everything **pure** (no DOM) is unit-tested; the DOM is confined to `main.ts`, `environment.ts`, `stroke-renderer.ts` and `gesture-protections.ts`.
 
 ## Code Style
 
@@ -134,9 +134,9 @@ export type PalmRejectionStrategy = 'none' | 'during-stroke' | 'pen-session';
 
 export interface PalmRejectionOptions {
   strategy: PalmRejectionStrategy;
-  /** Grâce après le dernier pointerup du stylet (stratégie during-stroke). */
+  /** Grace period after the stylus's last pointerup (during-stroke strategy). */
   graceMs: number;
-  /** Durée sans activité stylet avant de réactiver le doigt (stratégie pen-session). */
+  /** Time without stylus activity before the finger is re-enabled (pen-session strategy). */
   sessionMs: number;
 }
 
@@ -146,7 +146,7 @@ export interface PointerInput {
   timeStamp: number;
 }
 
-/** Décide si un contact doit dessiner. État interne mis à jour à chaque appel. */
+/** Decides whether a contact should draw. Internal state is updated on each call. */
 export function createPalmRejector(options: PalmRejectionOptions) {
   let pensDown = 0;
   let lastPenActivity = Number.NEGATIVE_INFINITY;
@@ -164,55 +164,55 @@ export function createPalmRejector(options: PalmRejectionOptions) {
 }
 ```
 
-- Fichiers en `kebab-case.ts`, tests à côté (`*.test.ts`).
-- Fonctions et fabriques plutôt que classes ; état explicite et local.
-- Pas de `any`, pas de `@ts-ignore` ; détection par fonctionnalité (`'getCoalescedEvents' in event`), **jamais par user-agent** pour changer un comportement (UA uniquement dans le rapport).
-- Le temps est injecté (`timeStamp` en paramètre), jamais lu via `Date.now()` dans la logique pure : tests déterministes.
-- Identifiants et commentaires de code en anglais ; textes UI et docs en français.
-- Formatage : Prettier par défaut (`singleQuote: true`, `printWidth: 100`).
+- Files in `kebab-case.ts`, tests next to them (`*.test.ts`).
+- Functions and factories rather than classes; explicit, local state.
+- No `any`, no `@ts-ignore`; feature detection (`'getCoalescedEvents' in event`), **never user-agent sniffing** to change a behavior (UA only in the report).
+- Time is injected (`timeStamp` as a parameter), never read via `Date.now()` in pure logic: deterministic tests.
+- Identifiers and code comments in English; at the time, UI text and docs were in French (since the MVP, the whole repository is in English, UI text through the i18n catalogs).
+- Formatting: default Prettier (`singleQuote: true`, `printWidth: 100`).
 
 ## Testing Strategy
 
-- **Unitaire (Vitest, env `node`)** : `palm-rejection`, `pointer-stats`, `timing-stats`, `incidents` (comptage), `report`. Entrées = objets simples simulant des échantillons ; aucune dépendance au DOM. Couverture visée : ≥ 90 % des lignes de `src/input/` et des modules purs de `src/diagnostic/`.
-- **Cas obligatoires pour `palm-rejection`** : chaque stratégie ; doigt accepté avant tout stylet ; doigt ignoré pendant le contact stylet ; doigt ignoré pendant la grâce puis accepté après ; session expirée après `sessionMs` ; deux stylets ; souris jamais rejetée ; `up` sans `down` ne rend pas le compteur négatif.
-- **Pas de tests E2E automatisés** : la vraie validation est **manuelle sur appareils** (le comportement de Safari iPadOS n'est pas reproductible en émulateur).
-- **Protocole manuel** (à exécuter sur chacune des 3 configurations, PWA installée) :
-  1. Installer depuis `https://charlesdevandiere.github.io/draw/`, ouvrir le diagnostic en mode standalone, demander la persistance.
-  2. Tracer 30 s (écriture, gribouillage rapide, cercles lents), coalesced on puis off.
-  3. Protections on : appui long 3 s, double-tap, pincement, glissé depuis chaque bord, glissé vers le bas en haut de page. Noter les incidents. Recommencer protections off.
-  4. (iPad + stylet) Écrire paume posée avec chaque stratégie ; puis alterner stylet / doigt seul et vérifier que le doigt redevient actif.
-  5. Passer en mode avion, relancer l'app : elle doit s'ouvrir.
-  6. Copier le rapport et l'enregistrer dans `docs/diagnostic/<appareil>-<config>.json`.
+- **Unit (Vitest, `node` env)**: `palm-rejection`, `pointer-stats`, `timing-stats`, `incidents` (counting), `report`. Inputs = plain objects simulating samples; no DOM dependency. Target coverage: ≥ 90 % of the lines of `src/input/` and of the pure modules of `src/diagnostic/`.
+- **Mandatory cases for `palm-rejection`**: each strategy; finger accepted before any stylus; finger ignored during stylus contact; finger ignored during the grace period then accepted after; session expired after `sessionMs`; two styluses; mouse never rejected; `up` without `down` does not make the counter negative.
+- **No automated E2E tests**: the real validation is **manual on devices** (Safari iPadOS behavior cannot be reproduced in an emulator).
+- **Manual protocol** (to run on each of the 3 configurations, PWA installed):
+  1. Install from `https://charlesdevandiere.github.io/draw/`, open the diagnostic in standalone mode, request persistence.
+  2. Draw for 30 s (writing, fast scribbling, slow circles), coalesced on then off.
+  3. Protections on: 3 s long press, double-tap, pinch, swipe from each edge, swipe down at the top of the page. Note the incidents. Repeat with protections off.
+  4. (iPad + stylus) Write with the palm resting, with each strategy; then alternate stylus / finger alone and check that the finger becomes active again.
+  5. Switch to airplane mode, relaunch the app: it must open.
+  6. Copy the report and save it as `docs/diagnostic/<device>-<config>.json`.
 
 ## Boundaries
 
-- **Always** : `npm run check` vert avant tout commit ; logique pure testée avant d'être câblée au DOM ; détection par fonctionnalité ; toute API utilisée vérifiée pour Safari iOS ; enregistrer les rapports d'appareils et les conclusions dans `docs/diagnostic/`.
-- **Ask first** : ajouter une dépendance hors de la liste Tech Stack ; changer `base`, l'URL de déploiement ou le workflow GitHub Actions au-delà de sa création ; modifier les valeurs par défaut `G`/`S` ; toute UI destinée à l'enfant (hors périmètre).
-- **Never** : committer de secret ; brancher un comportement sur le user-agent ; dépendre de `pressure`/`tilt` pour une décision de saisie ; désactiver une règle de lint ou un test pour passer au vert ; pousser sur `master` sans accord.
+- **Always**: `npm run check` green before any commit; pure logic tested before being wired to the DOM; feature detection; every API used verified for Safari iOS; save device reports and conclusions in `docs/diagnostic/`.
+- **Ask first**: adding a dependency outside the Tech Stack list; changing `base`, the deployment URL or the GitHub Actions workflow beyond its creation; changing the default `G`/`S` values; any child-facing UI (out of scope).
+- **Never**: commit a secret; hook a behavior to the user-agent; depend on `pressure`/`tilt` for an input decision; disable a lint rule or a test to get to green; push to `master` without agreement.
 
 ## Success Criteria
 
-1. `npm run check` passe en local et dans GitHub Actions ; tout push sur `master` publie sur `https://charlesdevandiere.github.io/draw/`.
-2. Lighthouse (Chrome desktop) ne signale aucun défaut d'installabilité PWA ; l'app s'installe sur l'iPad 11 (Safari « Sur l'écran d'accueil ») et sur le Pixel 9a (Chrome « Installer l'application »).
-3. Une fois installée et ouverte une fois, la page de diagnostic se charge en mode avion sur les deux appareils.
-4. Sur chaque appareil, les panneaux F1/F3/F6 se mettent à jour en direct pendant le tracé sans saccade visible, et le tracé suit le stylet/doigt sans défilement ni zoom de la page (protections on).
-5. Les trois stratégies de F4 sont sélectionnables et leurs effets visibles (contacts ignorés marqués et comptés).
-6. Le bouton « Copier le rapport » produit un JSON valide contenant tous les champs de F7, sur les 3 configurations (ou le repli `<textarea>` fonctionne).
-7. Tests unitaires couvrant les cas obligatoires de `palm-rejection`, couverture ≥ 90 % sur les modules purs.
-8. **Livrable final** : 3 rapports dans `docs/diagnostic/` + un `docs/diagnostic/conclusions.md` répondant oui/non à chacune des 5 hypothèses de l'Objective, avec la stratégie de palm rejection retenue et la liste des protections anti-gestes nécessaires.
+1. `npm run check` passes locally and in GitHub Actions; every push to `master` publishes to `https://charlesdevandiere.github.io/draw/`.
+2. Lighthouse (Chrome desktop) reports no PWA installability defect; the app installs on the iPad 11 (Safari "Add to Home Screen") and on the Pixel 9a (Chrome "Install app").
+3. Once installed and opened once, the diagnostic page loads in airplane mode on both devices.
+4. On each device, the F1/F3/F6 panels update live while drawing without visible jank, and the stroke follows the stylus/finger without page scrolling or zooming (protections on).
+5. The three F4 strategies are selectable and their effects visible (ignored contacts marked and counted).
+6. The "Copier le rapport" button produces valid JSON containing all F7 fields, on the 3 configurations (or the `<textarea>` fallback works).
+7. Unit tests covering the mandatory `palm-rejection` cases, coverage ≥ 90 % on the pure modules.
+8. **Final deliverable**: 3 reports in `docs/diagnostic/` + a `docs/diagnostic/conclusions.md` answering yes/no to each of the 5 hypotheses of the Objective, with the chosen palm rejection strategy and the list of necessary anti-gesture protections.
 
 ## Out of Scope (Deferred)
 
-- Moteur de dessin du MVP (couleurs, gomme, annuler, formats de page) — après les conclusions du diagnostic.
-- Stockage IndexedDB des dessins, galerie, replay — MVP.
-- Bootstrap et UI enfant — MVP.
-- Lissage du trait, simulation d'épaisseur par la vitesse — MVP, selon les mesures F3.
-- Tests ciblés PC souris / tactile — après le MVP (cf. note de cadrage).
-- Tests E2E automatisés (Playwright) — peu de valeur tant que la cible critique est Safari iPadOS réel.
-- Mesure de latence physique (caméra haute vitesse) — l'estimation logicielle de F3 suffit.
+- MVP drawing engine (colors, eraser, undo, page formats) — after the diagnostic conclusions.
+- IndexedDB storage of drawings, gallery, replay — MVP.
+- Bootstrap and child UI — MVP.
+- Stroke smoothing, speed-based width simulation — MVP, depending on the F3 measurements.
+- Targeted PC mouse / touch tests — after the MVP (see scoping note).
+- Automated E2E tests (Playwright) — little value as long as the critical target is real Safari iPadOS.
+- Physical latency measurement (high-speed camera) — the software estimate of F3 is enough.
 
 ## Open Questions
 
-1. **Activation de Pages** : il faudra régler une fois _Settings → Pages → Source : GitHub Actions_ sur le dépôt (action manuelle de votre côté).
+1. **Enabling Pages**: _Settings → Pages → Source: GitHub Actions_ must be set once on the repository (manual action on your side).
 
-Résolues : dépôt public (GitHub Pages gratuit) ; valeurs par défaut `G = 500 ms` et `S = 10 s` validées.
+Resolved: public repository (GitHub Pages free); default values `G = 500 ms` and `S = 10 s` validated.

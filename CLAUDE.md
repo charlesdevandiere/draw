@@ -2,71 +2,77 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## État du projet
+## Project status
 
-Projet Vite + TypeScript (sans framework). L'étape 0, la page de diagnostic Pointer Events (`spec/SPEC-diagnostic.md`, `diagnostic.html`), est terminée : rapports et **conclusions dans `docs/diagnostic/conclusions.md`**, à lire avant de concevoir la saisie du MVP. Plan et tâches de l'étape 0 : `tasks/diagnostic/`. Prochaine étape : le MVP, spécifié dans **`spec/SPEC-mvp.md`**, plan dans `tasks/plan.md` et tâches dans `tasks/todo.md`.
+Vite + TypeScript project (no framework). Step 0, the Pointer Events diagnostic page (`spec/SPEC-diagnostic.md`, `diagnostic.html`), is done: device reports and **conclusions in `docs/diagnostic/conclusions.md`**, to read before touching input handling. Step 0 plan and tasks: `tasks/diagnostic/`. Current work: the MVP, specified in **`spec/SPEC-mvp.md`**, plan in `tasks/plan.md`, tasks in `tasks/todo.md`.
 
-Commandes :
+Commands:
 
 ```
-npm ci                 # installer
-npm run dev            # serveur de dev (exposé sur le réseau local)
+npm ci                 # install
+npm run dev            # dev server (exposed on the local network)
 npm run build          # tsc --noEmit && vite build → dist/ (base '/draw/')
-npm run preview        # prévisualiser le build
-npm test               # vitest run (env node)
-npx vitest run src/chemin/fichier.test.ts -t "nom du test"   # un seul test
+npm run preview        # serve the build
+npm test               # vitest run (node env)
+npx vitest run src/path/file.test.ts -t "test name"   # a single test
 npm run lint           # eslint .
 npm run format         # prettier --write .
-npm run check          # lint + format:check + tests avec couverture (seuil 90 %) + build
+npm run check          # lint + format:check + tests with coverage (90 % threshold) + build
+npm run e2e            # Playwright end-to-end tests (Chromium + WebKit), local only (from task T5b)
 ```
 
-Structure : `index.html` (accueil provisoire), `diagnostic.html` + `src/diagnostic/` (page de diagnostic, à garder pour tester de nouveaux appareils), `src/input/palm-rejection.ts` (logique pure de filtrage), `vite.config.ts` (base `/draw/`, entrées multi-pages, PWA, config Vitest), tests `src/**/*.test.ts`. Le DOM est confiné à quelques fichiers exclus de la couverture (liste dans `vite.config.ts`) ; tout le reste est pur et testé (seuil 90 %).
+Structure: `index.html` (temporary home page), `diagnostic.html` + `src/diagnostic/` (diagnostic page, kept to test new devices), `src/input/palm-rejection.ts` (pure filtering logic), `vite.config.ts` (base `/draw/`, multi-page entries, PWA, Vitest config), tests `src/**/*.test.ts`. The DOM is confined to a few files excluded from coverage (list in `vite.config.ts`); everything else is pure and tested (90 % threshold). Target layout for the MVP: `spec/SPEC-mvp.md`, section Project Structure.
 
-Déploiement : chaque push sur `master` passe `npm run check` puis publie sur `https://charlesdevandiere.github.io/draw/` (GitHub Actions). **Ne jamais pousser : l'utilisateur pousse lui-même.**
+Deployment: every push to `master` runs `npm run check`, then publishes to `https://charlesdevandiere.github.io/draw/` (GitHub Actions). **Never push: the user pushes.**
 
-Fin de chaque tâche : exécuter `/code-review --fix`, relancer `npm run check`, puis committer la tâche (un commit par tâche).
+End of every task: run `/code-review --fix`, run `npm run check` again (and `npm run e2e` once it exists), then commit the task (one commit per task).
 
-La vision produit, le périmètre MVP, les hypothèses à valider et la liste « Not Doing » sont dans **`docs/ideas/carnet-magique.md`** — à lire avant toute décision de fonctionnalité ou d'architecture.
+**The repository is public and written entirely in English**: code, comments, docs, specs, commit messages. User-facing text goes through the i18n catalogs (English and French in the MVP, more European languages later). Conversations with the user are in French.
 
-## Objectif
+Product vision, MVP scope, assumptions and the "Not Doing" list: **`docs/ideas/carnet-magique.md`** (partly superseded by `spec/SPEC-mvp.md`, which wins).
 
-« Carnet magique » : PWA de dessin pour enfants de 5 ans et plus (dessin libre, coloriages anti-dépassement, modèles de lettres à tracer), sans compte, sans backend, hors ligne. Cibles :
+## Goal
 
-- iPad (Safari iPadOS, PWA installée), au stylet **et** au doigt ;
-- smartphones iOS et Android (Safari / Chrome), au doigt.
+"Carnet magique" (English: "Magic Sketchbook"): a drawing PWA for children aged 5 and up (free drawing, coloring pages with overflow protection, letters to trace), no account, no backend, offline. Targets:
 
-PC (souris / tactile) : non ciblé pour la validation, mais le code doit rester standard pour ne pas l'exclure.
+- iPad (Safari iPadOS, installed PWA), with a pen **and** by finger;
+- iOS and Android phones (Safari / Chrome), by finger.
 
-**Appareils de référence** — une fonctionnalité n'est terminée que lorsqu'elle est validée sur les trois :
+PC (mouse / touch): not targeted for validation, but the code stays standard so as not to exclude it.
 
-1. iPad 11 + stylet Metapen ;
-2. iPad 11 au doigt ;
-3. Google Pixel 9a au doigt.
+**Reference devices** — a feature is done only when validated on all three:
+
+1. iPad 11 + Metapen stylus;
+2. iPad 11 by finger;
+3. Google Pixel 9a by finger.
 
 ## Stack
 
-- **Vite + TypeScript, sans framework UI** (Angular écarté : aucune plus-value pour une app essentiellement canvas).
-- `vite-plugin-pwa` (Workbox) pour le service worker et le manifeste.
-- **Bootstrap uniquement pour les écrans « adulte »** (galerie détaillée, réglages, export). L'écran de dessin enfant utilise du CSS sur mesure : pictogrammes sans texte, cibles tactiles ≥ 48 px.
-- Stockage : IndexedDB.
+- **Vite + TypeScript, no UI framework** (Angular ruled out: no benefit for a mostly-canvas app).
+- `vite-plugin-pwa` (Workbox) for the service worker; manifests written by hand, one per language folder.
+- **Bootstrap 6 (alpha, exact version) compiled from Sass**, importing only the modules used, with a custom theme. CSS everywhere, Bootstrap JS only where a component needs it. The child screens have no visible text: pictograms, touch targets ≥ 48 px.
+- Storage: IndexedDB (database `draw`), hand-written promise wrapper.
+- i18n: JSON catalogs with an ICU MessageFormat subset (placeholders, plural, select), small hand-written formatter.
+- Tests: Vitest (pure code), Playwright (end-to-end, Chromium + WebKit, local).
 
-## Contraintes techniques structurantes
+## Structural technical constraints
 
-- **Moteur de dessin en TypeScript pur**, découplé de l'UI (pas de dépendance DOM hors canvas fourni), testable unitairement.
-- **Pointer Events** comme API d'entrée unique ; `touch-action: none` sur la surface de dessin ; `getCoalescedEvents()` quand disponible, avec fallback.
-- **Un trait en cours par `pointerId`** (jamais un « trait courant » unique) : prépare le multi-doigts simultané.
-- **Mode de saisie au choix : « Stylet » / « Doigt » / « Multi doigts »** (détail dans `docs/diagnostic/conclusions.md`). Stylet : seuls les `pen` dessinent (proposé dès qu'un `pen` est détecté). Doigt : un seul contact dessine, la place ne se libère que quand plus rien ne touche l'écran ; filtre de largeur de contact contre la paume à tester avec des mains d'enfant. Multi doigts : tous les contacts dessinent. **Aucun geste au doigt réservé au pan/zoom** : pas de zoom, la page a la taille de l'écran.
-- **`getCoalescedEvents()` indispensable** (le Metapen n'envoie que 60 événements/s, 4 points chacun). **Un appui sans mouvement dessine un point** (le canvas ignore les segments de longueur nulle).
-- **Ne pas dépendre de `pressure`/`tilt`** : valeurs factices et fixes au Metapen (mesuré), nulles au doigt sur iPad. Épaisseur fixe (ou simulée par la vitesse). Ne jamais se fier au user-agent (Safari iPad se dit `Macintosh`).
-- **Format de page fixe, choisi à la création** : carré, A4 portrait ou A4 paysage (ratio 1:√2). La page est mise à l'échelle et centrée dans l'écran (letterboxing). **Les points sont stockés en coordonnées de page, jamais en pixels écran** : conversion écran → page à l'entrée, page → écran au rendu (tenir compte de `devicePixelRatio`). Chaque coloriage / modèle de lettres déclare son format.
-- **Dessins stockés en vectoriel** (points + horodatage) — indispensable au replay, aux calques de fond (coloriages, modèles de lettres) et à l'export. Surveiller la taille, simplifier les points si besoin.
-- **Anti-dépassement** : coloriages SVG dont chaque zone est un chemin fermé ; au `pointerdown`, détecter la zone (`isPointInPath`) et clipper le trait dessus.
-- **Neutraliser les gestes système** (loupe/appui long, double-tap zoom, sélection, menu contextuel, pull-to-refresh) sur iOS et Android : protections obligatoires, liste dans `docs/diagnostic/conclusions.md`. Les glissés depuis les bords haut et bas sont au système et non bloquables : **aucune commande près de ces bords**.
-- **Mise à jour de la PWA** : rechercher une nouvelle version à chaque retour au premier plan (une PWA iOS reprend sans naviguer et reste sinon sur l'ancienne version), plus un moyen manuel dans l'écran adulte.
-- **Persistance** : `navigator.storage.persist()` (accordé en PWA installée sur iPad et sur Chrome Android ; refusé par Brave, Chrome est la cible Android), sauvegarde automatique silencieuse, export/import manuel de la galerie comme filet de sécurité.
-- **UI adaptative** smartphone portrait ↔ tablette paysage.
-- Safari iOS est la cible la plus restrictive : vérifier la compatibilité iOS de toute API web utilisée.
+- **Drawing engine in pure TypeScript**, decoupled from the UI (no DOM dependency beyond a provided canvas context), unit-testable.
+- **Pointer Events** as the only input API; `touch-action: none` on the drawing surface; `getCoalescedEvents()` when available, with a fallback.
+- **One stroke in progress per `pointerId`** (never a single "current stroke"): multi-finger ready.
+- **Input mode: "Pen" / "Finger" / "Multi-finger"** (details in `spec/SPEC-mvp.md` and `docs/diagnostic/conclusions.md`). Pen: only `pen` pointers draw (automatic switch on the first `pen` until a mode is chosen by hand). Finger: one contact draws; the slot is released only when nothing touches the screen any more; contact-width filter against the palm, to tune with a child's hand. Multi-finger: every contact draws. Offered on every platform (Apple Pencil, Logitech Crayon, S Pen, USI pens, Surface Pen all report `pen`). **No finger gesture reserved for pan / zoom**: no zoom, the page fits the screen. Hover (`buttons === 0`) never draws.
+- **`getCoalescedEvents()` is essential** (the Metapen sends only 60 events/s, 4 points each). **A tap without movement draws a dot** (the canvas ignores zero-length segments).
+- **Never depend on `pressure` / `tilt`**: fake constant values with the Metapen (measured), zero by finger on iPad. Fixed width. Never trust the user agent (Safari on iPad says `Macintosh`).
+- **Square page only** (1000 × 1000 page units), scaled and centered in the screen. **Points are stored in page coordinates, never screen pixels**: screen → page on input, page → screen on render (honor `devicePixelRatio`).
+- **Drawings stored as vectors** (points + timestamps): required for replay, background layers (coloring pages, letters) and export. Watch the size, simplify points if needed.
+- **Magic PNG**: the file format for sharing and export / import is a normal PNG carrying the vector drawing in an `iTXt` chunk (keyword `carnet-magique`). Import accepts only valid magic PNGs.
+- **Overflow protection** (milestone 2): SVG coloring pages where each area is a closed path; on `pointerdown`, find the area (`isPointInPath`) and clip the stroke to it.
+- **Neutralize system gestures** (magnifier / long press, double-tap zoom, selection, context menu, pull-to-refresh) on iOS and Android: mandatory protections, list in `docs/diagnostic/conclusions.md`. Swipes from the top and bottom edges belong to the system and cannot be blocked: **no control near those edges**.
+- **PWA update**: check for a new version every time the app returns to the foreground (an iOS PWA resumes without navigating and otherwise stays on the old version), plus a manual way in the parent page.
+- **Persistence**: `navigator.storage.persist()` (granted for the installed PWA on iPad and on Chrome Android; refused by Brave, Chrome is the Android target), silent autosave, manual export / import of the gallery as a safety net.
+- **Adaptive UI**: phone portrait ↔ tablet landscape.
+- iOS Safari is the most restrictive target: check iOS support for every web API used.
 
-## Première étape (terminée)
+## Step 0 (done)
 
-Page de diagnostic testée sur les trois configurations de référence : le Metapen est bien vu comme `pen` par Safari. Résultats et décisions : `docs/diagnostic/conclusions.md`.
+Diagnostic page tested on the three reference configurations: Safari sees the Metapen as `pen`. Results and decisions: `docs/diagnostic/conclusions.md`.
