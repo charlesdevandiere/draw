@@ -53,6 +53,11 @@ export interface InputFilter {
   setFingerSettings(settings: FingerSettings): void;
 }
 
+/** The mode after `mode` when the mode button is tapped: finger → multi → pen → finger. */
+export function nextInputMode(mode: InputMode): InputMode {
+  return mode === 'finger' ? 'multi' : mode === 'multi' ? 'pen' : 'finger';
+}
+
 export function isInputMode(value: unknown): value is InputMode {
   return typeof value === 'string' && (INPUT_MODES as readonly string[]).includes(value);
 }

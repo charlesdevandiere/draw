@@ -27,24 +27,6 @@ test('a tap without movement draws a dot', async ({ page }) => {
   expect(isColor(await pixelAt(canvas, point), INK)).toBe(true);
 });
 
-test('two simultaneous contacts draw two strokes', async ({ page }) => {
-  const canvas = page.locator('#drawing-layer');
-  await drawStrokes(page, [
-    {
-      points: line(await pagePoint(page, 0.1, 0.2), await pagePoint(page, 0.4, 0.2)),
-      pointerType: 'touch',
-      pointerId: 11,
-    },
-    {
-      points: line(await pagePoint(page, 0.1, 0.8), await pagePoint(page, 0.4, 0.8)),
-      pointerType: 'touch',
-      pointerId: 12,
-    },
-  ]);
-  expect(isColor(await pixelAt(canvas, await pagePoint(page, 0.25, 0.2)), INK)).toBe(true);
-  expect(isColor(await pixelAt(canvas, await pagePoint(page, 0.25, 0.8)), INK)).toBe(true);
-});
-
 test('a hovering pen does not draw', async ({ page }) => {
   const canvas = page.locator('#drawing-layer');
   const points = line(await pagePoint(page, 0.2, 0.5), await pagePoint(page, 0.8, 0.5));

@@ -233,12 +233,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Button shows the current mode; tapping cycles or opens the three choices; translated `aria-label`s.
-- [ ] Automatic switch visibly updates the button.
+- [x] Button shows the current mode; tapping cycles or opens the three choices; translated `aria-label`s.
+- [x] Automatic switch visibly updates the button.
 
 **Verification:**
 
-- [ ] `npm run check`; manual check with touch emulation and a pen if available.
+- [x] `npm run check`; manual check with touch emulation and a pen if available.
 
 **Dependencies:** T8, T9
 

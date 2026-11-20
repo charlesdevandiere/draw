@@ -63,5 +63,8 @@
   "tools.drawing": "Drawing tools",
   "tools.actions": "Actions",
   "tools.gallery": "My drawings",
-  "gallery.back": "Back to drawing"
+  "gallery.back": "Back to drawing",
+  "mode.pen": "Input: pen only (tap to change)",
+  "mode.finger": "Input: one finger (tap to change)",
+  "mode.multi": "Input: several fingers (tap to change)"
 }

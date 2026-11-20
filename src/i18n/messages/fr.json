@@ -63,5 +63,8 @@
   "tools.drawing": "Outils de dessin",
   "tools.actions": "Actions",
   "tools.gallery": "Mes dessins",
-  "gallery.back": "Retour au dessin"
+  "gallery.back": "Retour au dessin",
+  "mode.pen": "Saisie : stylet seul (toucher pour changer)",
+  "mode.finger": "Saisie : un doigt (toucher pour changer)",
+  "mode.multi": "Saisie : plusieurs doigts (toucher pour changer)"
 }

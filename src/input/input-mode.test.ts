@@ -3,6 +3,7 @@ import {
   DEFAULT_FINGER_SETTINGS,
   createInputFilter,
   isInputMode,
+  nextInputMode,
   type ContactInput,
   type InputMode,
 } from './input-mode';
@@ -186,5 +187,13 @@ describe('isInputMode', () => {
       false,
       false,
     ]);
+  });
+});
+
+describe('nextInputMode', () => {
+  it('cycles finger → multi → pen → finger', () => {
+    expect(nextInputMode('finger')).toBe('multi');
+    expect(nextInputMode('multi')).toBe('pen');
+    expect(nextInputMode('pen')).toBe('finger');
   });
 });

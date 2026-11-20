@@ -5,9 +5,11 @@
 import '../styles/app.scss';
 import { applyTranslations, documentLanguage } from '../i18n/apply';
 import { createTranslator } from '../i18n/i18n';
+import { createInputFilter } from '../input/input-mode';
 import { checkForUpdate } from '../pwa/app-update';
 import appHtml from './app.html?raw';
 import { initDrawScreen } from './draw-screen';
+import { initModeButton } from './mode-button';
 import { protectGestures } from './gesture-protections';
 import { showScreen } from './screens';
 
@@ -20,9 +22,26 @@ if (page) protectGestures(page);
 
 const canvas = document.getElementById('drawing-layer');
 if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Drawing canvas missing');
+const modeButtonElement = document.getElementById('mode-button');
+if (!(modeButtonElement instanceof HTMLButtonElement)) throw new Error('Mode button missing');
+const inputFilter = createInputFilter({ mode: 'finger', chosenByHand: false });
+const modeButton = initModeButton(modeButtonElement, inputFilter, translator.t, () => undefined);
+
 const drawScreen = initDrawScreen({
   canvas,
   style: () => ({ tool: 'pen', color: '#212121', width: 8 }),
+  accepts: (event, phase) => {
+    const drawing = inputFilter.accepts({
+      pointerId: event.pointerId,
+      pointerType: event.pointerType,
+      phase,
+      timeStamp: event.timeStamp,
+      width: event.width,
+    });
+    // The first pen may have switched the mode on its own.
+    if (phase === 'down') modeButton.refresh();
+    return drawing;
+  },
 });
 
 // The button pressed is hidden with its screen: move the focus to the other screen's button.

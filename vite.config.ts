@@ -48,6 +48,7 @@ export default defineConfig({
         'src/app/gesture-protections.ts',
         'src/app/screens.ts',
         'src/app/draw-screen.ts',
+        'src/app/mode-button.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',
