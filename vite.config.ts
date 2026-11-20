@@ -53,7 +53,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      // Seuil sur les modules purs uniquement : le DOM est confiné à ces fichiers (SPEC.md).
+      // Seuil sur les modules purs uniquement : le DOM est confiné à ces fichiers (spec/SPEC-diagnostic.md).
       exclude: [
         'src/**/*.test.ts',
         'src/**/main.ts',

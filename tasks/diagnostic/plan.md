@@ -1,6 +1,6 @@
 # Implementation Plan: Page de diagnostic Pointer Events
 
-Source spec: `SPEC.md`
+Source spec: `spec/SPEC-diagnostic.md`
 
 ## Overview
 
@@ -76,7 +76,7 @@ Détail des tâches : `tasks/todo.md`.
 
 ### Checkpoint final
 
-- [ ] Les 8 Success Criteria de `SPEC.md` sont remplis (reste : Lighthouse non lancé, pas de Chrome local)
+- [ ] Les 8 Success Criteria de `spec/SPEC-diagnostic.md` sont remplis (reste : Lighthouse non lancé, pas de Chrome local)
 - [x] `CLAUDE.md` mis à jour (commandes, structure, conclusions clés)
 
 ## Risks and Mitigations

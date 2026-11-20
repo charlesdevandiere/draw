@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État du projet
 
-Projet Vite + TypeScript (sans framework). L'étape 0, la page de diagnostic Pointer Events (`SPEC.md`, `diagnostic.html`), est terminée : rapports et **conclusions dans `docs/diagnostic/conclusions.md`**, à lire avant de concevoir la saisie du MVP. Plan et tâches de l'étape 0 : `tasks/plan.md`, `tasks/todo.md`. Prochaine étape : le MVP.
+Projet Vite + TypeScript (sans framework). L'étape 0, la page de diagnostic Pointer Events (`spec/SPEC-diagnostic.md`, `diagnostic.html`), est terminée : rapports et **conclusions dans `docs/diagnostic/conclusions.md`**, à lire avant de concevoir la saisie du MVP. Plan et tâches de l'étape 0 : `tasks/diagnostic/`. Prochaine étape : le MVP, spécifié dans **`spec/SPEC-mvp.md`**.
 
 Commandes :
 

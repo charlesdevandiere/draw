@@ -1,0 +1,340 @@
+# Spec: Carnet magique — MVP "the sketchbook" — V1
+
+Status: **proposed**, awaiting approval.
+
+Sources: `docs/ideas/carnet-magique.md` (vision, scope, "Not Doing") and `docs/diagnostic/conclusions.md` (device measurements, input rules). This spec wins where they disagree.
+
+## Objective
+
+**What.** The first real Carnet magique: a drawing slate for children aged 5 and up, with a gallery that keeps every drawing. Installable PWA, works offline, no account, no backend. Available in **English and French**, built so that more European languages are just one dictionary file each.
+
+**For whom.**
+
+- **The child**: drawing screen and gallery. No visible text, pictograms only, touch targets ≥ 48 px.
+- **The parent**: a protected "adult" page to delete, export, import, configure and update.
+
+**Reference devices** (a feature is done only when validated on all three): iPad 11 + Metapen, iPad 11 by finger, Pixel 9a by finger (Chrome, installed PWA).
+
+**Two delivery phases**, each validated on the three devices before starting the next:
+
+- **Phase A — the sketchbook**: slate, input modes, autosave, gallery, PNG sharing, languages, PWA.
+- **Phase B — the magic and the parent**: replay, parent page, gallery export / import.
+
+### Decisions (2026-11-20)
+
+- **Square page only**: one format, 1000 × 1000 page units. The format picker from the framing note is dropped.
+- **"Pencil" eraser**: rubbing erases what is underneath. In vector terms it is an eraser stroke rendered with `destination-out`, and replayable.
+- **Accelerated replay**: pauses between strokes shortened, total duration capped at ~15 s.
+- **Parent access**: press and hold a small padlock icon for 3 s, with a filling progress ring.
+- **Input mode** Pen / Finger / Multi-finger, offered on **every platform**: Apple Pencil, Logitech Crayon, Metapen, S Pen (Galaxy Tab), USI 2.0 pens (Pixel Tablet) and Surface Pen all report `pen`. Passive styluses report `touch`. Automatic switch to Pen only until a mode has been chosen by hand.
+- **Bootstrap 6.0.0-alpha.1**, exact version, **compiled from Sass**, importing only the modules we use, with our own theme. Its CSS is used everywhere; its JavaScript only where a component needs it.
+- **"Magic PNG"**: a drawing file is a normal PNG that also carries the vector drawing in a metadata chunk. It is the format for sharing (phase A) and for export / import (phase B).
+- **Everything in the repository is in English** (code, comments, docs, specs, commit messages). Git history already published stays as is. The UI is translated.
+- **One URL and one manifest per language** (`/draw/en/`, `/draw/fr/`), so the installed app has a name in the user's language: "Magic Sketchbook" / "Carnet magique".
+- **Translations in JSON with an ICU MessageFormat subset** (placeholders, plural, select), formatted by a small hand-written module.
+- **Screens are static HTML sections**, initialized once and switched with the `hidden` attribute. No router, no component system.
+
+### Phase A — the sketchbook
+
+**A1 — Page and rendering**
+
+- The square page is scaled and centered in the drawing area. Points are stored in **page coordinates** (0–1000): converted on input (screen → page) and on render (page → screen, honoring `devicePixelRatio`).
+- Two stacked canvases: the **drawing** layer (finished strokes, redrawn from vectors only when needed: undo, resize, open) and the **live** layer (strokes in progress, redrawn on every `requestAnimationFrame`). The white page background sits under both, so the eraser clears down to white without erasing the background itself.
+- A tap without movement draws a **dot** (a disc of the stroke diameter).
+- Resizing or rotating the screen redraws the page at its new size, losing nothing.
+
+**A2 — Slate tools**
+
+- **8 colors** as large swatches: black, red, orange, yellow, green, blue, purple, brown (exact values in the plan).
+- **2 widths**: thin and thick (around 8 and 24 page units, tuned on device).
+- **Eraser**, "pencil" style, fixed and wider (~48 units).
+- **Undo / Redo**: undo removes the last finished stroke (eraser strokes included), redo puts it back. Any new stroke clears the redo stack. History covers the whole drawing, including after reopening it.
+- **New page**: the current drawing is already saved; a blank page opens. A drawing with no strokes is never stored in the gallery.
+- Current color and width always visible (active swatch highlighted).
+
+**A3 — Input modes**
+
+A button always visible on the drawing screen, with 3 pictograms. The choice is remembered.
+
+| Mode             | Who draws                                                                                    | Default |
+| ---------------- | -------------------------------------------------------------------------------------------- | ------- |
+| **Pen**          | Only `pen` pointers; every `touch` is ignored (palm included, even before the first stroke). | —       |
+| **Finger**       | One contact at a time (rules below).                                                         | Yes     |
+| **Multi-finger** | Every contact, one stroke per `pointerId`.                                                   | —       |
+
+- **Automatic switch**: on the first `pen` seen, if no mode was ever chosen by hand, the app switches to Pen (the pen stroke draws). Once a mode is chosen by hand, no more automatic switching.
+- **Finger mode rules** (improving the diagnostic's "single touch" option):
+  - the first contact keeps the slot until **no contact at all** touches the screen, then the slot stays locked for **300 ms** more (configurable);
+  - **width filter**: a contact wider than a threshold (default 80 CSS px; measured iPad finger 42–63 px, palm up to 292 px) is ignored and holds the slot like any other contact. No effect on Android (reported widths ≤ 61 px); threshold to revisit with a child's hand;
+  - `pen` pointers also draw in Finger mode.
+- All platforms: drawing happens only between `pointerdown` and `pointerup` / `pointercancel`. Movement without contact (**hover** of Android / Windows pens, `buttons === 0`) is ignored. `pointercancel` ends the stroke and keeps it.
+- `getCoalescedEvents()` when available, falling back to the event itself.
+- Never `pressure`, `tilt` or the user agent.
+
+**A4 — Drawing screen and layout**
+
+- **Portrait phone**: the page spans the full width, tools below. **Landscape tablet**: the page spans the full height, tools on the sides. The layout follows the screen's aspect ratio, not the device type.
+- **No control** within a margin near the top and bottom edges (≥ 32 px plus `safe-area-inset`).
+- **Gesture protections** always on (list in `docs/diagnostic/conclusions.md`).
+- No visible text: inline SVG pictograms, targets ≥ 48 px, translated `aria-label`s.
+
+**A5 — Autosave**
+
+- Each drawing is an IndexedDB record: id, created and modified dates, schema version, strokes, PNG thumbnail. The database is named `draw`: the origin `charlesdevandiere.github.io` is shared with every other GitHub Pages project of the account.
+- A stroke = tool (`pen` or `eraser`), color, width, points `[x, y, t]` (t in ms since the drawing started, for replay). Coordinates rounded to 0.1 unit.
+- Saved **after each finished stroke** (batched over ~1 s) and when the app goes to the background (`visibilitychange`). No UI, no message.
+- On launch, the app reopens the **last drawing**.
+- `navigator.storage.persist()` requested on first launch in standalone mode.
+
+**A6 — Gallery and sharing**
+
+- A button on the drawing screen opens the gallery: grid of thumbnails, newest first.
+- Tapping a thumbnail reopens the drawing to continue it.
+- A "new page" button is also in the gallery.
+- **Share**: a button on the selected thumbnail produces a **magic PNG** (2048 × 2048, white background, vector drawing embedded) and opens the native share sheet (`navigator.share` with a file). Fallback when file sharing is unavailable: download the PNG.
+- No deletion in the child UI (phase B, parent page).
+
+**A7 — Magic PNG**
+
+- A standard PNG with an `iTXt` chunk, keyword `carnet-magique`, zlib-compressed text (compression flag 1) holding the drawing as JSON with its schema version.
+- Compression through `CompressionStream('deflate')`, which produces the zlib format PNG expects (Safari ≥ 16.4).
+- The chunk encoder / decoder (chunk layout, CRC-32, validation) is pure and unit-tested.
+- Any image viewer shows the drawing. Apps that re-encode images (messaging apps, possibly Photos) drop the chunk: the image stays viewable but is no longer importable. To check on devices.
+
+**A8 — Languages**
+
+- **One JSON file per language** (`src/i18n/messages/en.json`, `fr.json`), flat keys, values in **ICU MessageFormat** (the syntax Angular i18n uses), limited to a small subset:
+  - placeholders: `{name}`;
+  - plural: `{count, plural, =0 {…} one {# drawing} other {# drawings}}`, categories from the native `Intl.PluralRules` (correct for every European language);
+  - select (gender or any variant): `{gender, select, female {…} male {…} other {…}}`.
+- A hand-written formatter (~100 lines, pure, tested) parses this subset; no dependency. If needs ever grow, `intl-messageformat` reads the same syntax: the JSON files would not change.
+- `en.json` is the reference. The build fails if another language misses a key (TypeScript type of `en.json`) and a unit test refuses extra keys and malformed messages.
+- All languages are bundled (a few dozen strings) and the language is chosen at runtime, unlike Angular's per-locale build: one build, and the parent page can switch language without reloading another URL. English is the fallback.
+- In the HTML, `data-i18n="key"` (text) and `data-i18n-aria="key"` (accessible label), filled at startup.
+- **One folder per language**: `/draw/en/` and `/draw/fr/`, each with its own HTML entry and its own manifest (name, `lang`, `start_url`, `scope`). Both load the same code, which reads the language from `<html lang>`.
+- The root `/draw/` picks the language from `navigator.languages` and redirects to `/draw/fr/` or `/draw/en/`. The app is installed from there, so its name under the icon is in the right language.
+- The diagnostic page also exists in both folders and uses the same dictionaries.
+- A single service worker at `/draw/` caches both languages.
+
+**A9 — PWA**
+
+- Installable, works offline (drawing screen, gallery, diagnostic; parent page in phase B).
+- Update check every time the app returns to the foreground. When a new version installs, the page reloads **only if no stroke is in progress** (otherwise on the next return to the foreground), after saving.
+- The current temporary home page is replaced by the language redirect.
+
+### Phase B — the magic and the parent
+
+**B1 — Replay**
+
+- From the gallery, a "play" button on the selected thumbnail replays the drawing stroke by stroke, eraser included, on a full-screen page.
+- **Speed**: inside a stroke, real time is kept; every pause between strokes is shortened to 300 ms at most; if the result still exceeds **15 s**, everything is sped up uniformly to fit 15 s.
+- Touching the screen during replay stops it and returns to the gallery. A "play again" button at the end.
+
+**B2 — Parent access**
+
+- A small padlock icon in the gallery. **Press and hold for 3 s**, with a filling ring; releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
+
+**B3 — Parent page** (Bootstrap, translated)
+
+- **Drawings**: list with thumbnails, multiple selection, delete after confirmation.
+- **Export**: the selected drawings (or all of them) as magic PNGs, through the share sheet ("Save to Files" in a folder of one's choice on iPad, file manager on Android) or as downloads.
+- **Import**: pick one or several PNGs. Only magic PNGs with a valid chunk and a known schema version are accepted; other images are refused with a clear message. Merge by id: a drawing already present is not duplicated. Size limit per file.
+- **Language**: override the UI language (otherwise the folder's language).
+- **Storage**: persistence status, space used, button to request persistence again.
+- **Input**: width filter threshold (or off), Finger mode release delay.
+- **App**: version (`APP_VERSION`), "Check for updates", "Clear cache and reload", link to the diagnostic page.
+- "Back to the sketchbook" button.
+
+## Tech Stack
+
+- **Node 24**, npm, **Vite 8** + **TypeScript 6** (`strict`), no UI framework.
+- Already in place: `vite-plugin-pwa` (Workbox, `generateSW`), Vitest 5, ESLint 10 + `typescript-eslint`, Prettier 3.
+- **New**: `bootstrap@6.0.0-alpha.1` (exact version, with its peers `@floating-ui/dom` and `vanilla-calendar-pro`), `sass` (Vite compiles `.scss` natively once it is installed).
+- IndexedDB **without a library**: a small hand-written promise wrapper.
+- Manifests written by hand per language (`vite-plugin-pwa` keeps the service worker only, `manifest: false`).
+- Deployment unchanged: GitHub Pages via GitHub Actions, `base: '/draw/'`.
+
+## Commands
+
+Unchanged:
+
+```
+npm ci                 # install
+npm run dev            # dev server (local network)
+npm run build          # tsc --noEmit && vite build
+npm run preview        # test the build and the service worker
+npm test               # vitest run
+npx vitest run src/engine/history.test.ts -t "undo removes the last stroke"
+npm run lint
+npm run format
+npm run check          # lint + format:check + tests with coverage ≥ 90 % + build
+```
+
+## Project Structure
+
+Deliberately simple: **pure, tested modules, and a few thin DOM files that wire them up**. No router, no state library.
+
+```
+index.html                 → Language redirect (/draw/ → /draw/fr/ or /draw/en/)
+en/index.html, fr/index.html          → The child app (drawing + gallery), lang + manifest link
+en/parent.html, fr/parent.html        → Parent page (phase B)
+en/diagnostic.html, fr/diagnostic.html → Diagnostic page
+public/en/manifest.webmanifest, public/fr/manifest.webmanifest
+src/
+  engine/                  → PURE — the drawing engine
+    types.ts               → Point, Stroke, Drawing, Tool, page constants
+    page-transform.ts      → Screen ↔ page (scale, centering, devicePixelRatio)
+    stroke-builder.ts      → Builds a stroke from samples
+    history.ts             → Undo / redo
+    render.ts              → Draws strokes on a provided 2D context (minimal interface)
+    replay.ts              → Replay schedule (phase B)
+  input/                   → PURE — input decisions
+    input-mode.ts          → Pen / Finger / Multi-finger, width filter, hover
+    palm-rejection.ts      → (diagnostic, kept)
+  store/
+    schema.ts              → PURE — stored format, version, validation, migration
+    png-chunk.ts           → PURE — read / write the iTXt chunk, CRC-32
+    db.ts                  → DOM — IndexedDB access (drawings, settings)
+    magic-png.ts           → DOM — canvas → PNG, compression, chunk insertion
+  i18n/
+    messages/en.json, fr.json → Translations (ICU MessageFormat subset)
+    format.ts              → PURE — parses and formats placeholders, plural, select
+    i18n.ts                → PURE — language choice, lookup, typed keys
+    apply.ts               → DOM — fills [data-i18n] texts and aria-labels
+  app/                     → DOM — child app
+    main.ts                → Startup, screen switching (hidden), autosave
+    draw-screen.ts         → Canvases, tools, Pointer Events → engine
+    gallery-screen.ts      → Grid, open, share, replay, padlock
+    icons.ts               → SVG pictograms
+  parent/main.ts           → DOM — parent page (phase B)
+  pwa/app-update.ts        → Moved from src/diagnostic/, shared
+  styles/                  → Sass: theme variables, Bootstrap modules used, app styles
+  diagnostic/              → Existing, translated through i18n
+```
+
+Rules:
+
+- `engine/`, `input/` and files marked PURE **never** import the DOM or `window`: tested in the `node` environment, coverage ≥ 90 %.
+- DOM files stay thin and are added to the coverage exclusion list in `vite.config.ts`.
+- Each screen is a static `<section>` in the HTML, set up once at startup by an `initX()` function; switching screens toggles `hidden`.
+
+## Code Style
+
+Step 0 conventions: `kebab-case.ts` files, tests next to them; functions and factories over classes; no `any` or `@ts-ignore`; time injected (never `Date.now()` in pure code); Prettier (`singleQuote`, `printWidth: 100`). Now **English everywhere** in the repository; user-facing text only through the dictionaries.
+
+```ts
+// src/engine/types.ts
+export const PAGE_SIZE = 1000;
+
+export type Tool = 'pen' | 'eraser';
+
+export interface Stroke {
+  tool: Tool;
+  color: string;
+  /** Diameter in page units. */
+  width: number;
+  /** Flat list of x, y, t triplets: page units, ms since the drawing started. */
+  points: number[];
+}
+
+// src/engine/history.ts
+export interface History {
+  strokes: readonly Stroke[];
+  redo: readonly Stroke[];
+}
+
+export function commitStroke(history: History, stroke: Stroke): History {
+  return { strokes: [...history.strokes, stroke], redo: [] };
+}
+
+export function undo(history: History): History {
+  const last = history.strokes.at(-1);
+  if (!last) return history;
+  return { strokes: history.strokes.slice(0, -1), redo: [...history.redo, last] };
+}
+
+// src/i18n/messages/fr.json
+// {
+//   "tool.undo": "Annuler",
+//   "parent.selected": "{count, plural, =0 {Aucun dessin sélectionné} one {# dessin sélectionné} other {# dessins sélectionnés}}"
+// }
+
+// src/i18n/i18n.ts
+import en from './messages/en.json';
+import fr from './messages/fr.json';
+
+export type MessageKey = keyof typeof en;
+type Messages = Record<MessageKey, string>;
+
+// A key missing from fr.json is a type error here.
+const catalogs: Record<Language, Messages> = { en, fr };
+
+// Usage: t('parent.selected', { count: 3 }) → "3 dessins sélectionnés"
+```
+
+## Testing Strategy
+
+- **Unit (Vitest, `node` env)** on all pure code:
+  - `page-transform`: screen → page → screen round trip, portrait and landscape centering, `devicePixelRatio` 1, 2, 3;
+  - `stroke-builder`: coalesced and fallback, tap without movement → one dot, rounding;
+  - `history`: undo, redo, new stroke clears redo, undo on empty;
+  - `render`: with a fake context recording calls (color, `destination-out` for the eraser, disc for a dot);
+  - `input-mode`: each mode; automatic switch on first `pen` and not after a manual choice; Finger mode (slot kept, released only when everything is lifted + delay, width filter, `pen` accepted); hover ignored; `pointercancel`;
+  - `schema`: validation, unknown version refused, migration;
+  - `png-chunk`: write then read back, CRC-32 against known values, missing chunk, corrupt chunk, oversized chunk;
+  - `i18n`: language choice from `navigator.languages`, fallback to English; formatter: placeholders, plural (`=0`, `one`, `other`, `#`) in English and French, select, nested plural inside select, malformed message rejected; every catalog has exactly the keys of `en.json`;
+  - `replay`: pauses capped at 300 ms, 15 s cap, empty drawing.
+- **No automated E2E**: validation is **manual on the 3 devices**, installed PWA, following the protocol in the plan.
+- **Size check**: a 10-minute scribble must weigh < 500 KB.
+
+## Boundaries
+
+- **Always**: `npm run check` green before any commit; pure logic tested before it is wired to the DOM; feature detection; check every web API on iOS Safari; points in page coordinates; gesture protections on in the child UI; English in the repository; user-facing text through the dictionaries.
+- **Ask first**: adding a dependency outside the Tech Stack; changing the stored format once phase A has shipped (it then needs a migration); changing `base`, the URL or the deployment workflow; adding visible text to the child UI; adding a language.
+- **Never**: `git push` (the user pushes); commit a secret; branch behavior on the user agent; use `pressure` / `tilt`; put a control near the top or bottom edge; disable a lint rule or a test to get green; lose a drawing (every schema migration is tested); import an image that is not a valid magic PNG.
+
+## Success Criteria
+
+**Phase A**
+
+1. `npm run check` passes; a push to `master` publishes the app at `https://charlesdevandiere.github.io/draw/`.
+2. `/draw/` opens `/draw/fr/` on a French browser and `/draw/en/` otherwise; installed from there, the app is named in that language, and its pictogram labels are translated.
+3. On the 3 devices, installed PWA: draw with the 8 colors, both widths and the eraser; dot an "i"; undo and redo 10 times in a row without error.
+4. The stroke follows the pen / finger with no perceptible lag and no angular segments; no zoom, scroll, selection or system menu during 5 min of scribbling.
+5. **Pen mode** (iPad + Metapen): writing with the palm resting, **including before the first stroke**, leaves no palm mark.
+6. **Finger mode** (iPad by finger): clearly fewer palm strokes than the diagnostic's "single touch" option, especially when lifting the finger.
+7. **Multi-finger**: two fingers draw two simultaneous strokes.
+8. Automatic switch to Pen happens on the Metapen's first stroke; after choosing Finger by hand, the finger always draws.
+9. Killing the app mid-drawing and relaunching it: the drawing is there, to the last stroke. Drawings survive a device restart.
+10. Rotating the iPad or the phone: the layout adapts, the drawing is intact.
+11. Gallery: reopen an old drawing and continue it; share a PNG to another app (Photos, messaging) on iPad and on Pixel. The shared PNG still holds its chunk when saved to Files.
+12. In airplane mode, the installed app opens and works (drawing, gallery).
+13. A newly published version is picked up on return to the foreground, without losing the current drawing.
+
+**Phase B**
+
+14. Replaying a 10-minute drawing takes ~15 s, eraser included; a 20-second drawing replays at real speed (shortened pauses).
+15. A child tapping the padlock does not open the parent page; a 3-second press does.
+16. Delete a drawing, export the gallery to Files, delete everything, import the PNGs back: every drawing returns, identical and replayable. Importing a photo is refused.
+17. **Child test**: a 5-year-old draws, finds and reopens a drawing alone, without explanation, on the iPad and on a phone.
+
+## Out of Scope (Deferred)
+
+- **Milestone 2**: coloring pages with overflow protection, capital letters to trace.
+- **Milestone 3**: cursive, replay export as video / GIF.
+- **Synced folder**: automatically writing magic PNGs to a chosen folder (`showDirectoryPicker`). Chrome Android ≥ 155 and desktop only; impossible on iOS Safari. To check on the Pixel first.
+- More European languages: one dictionary and one folder each, after the MVP.
+- A4 formats: dropped for the square; reopen only on real need.
+- Stroke smoothing, width simulated from speed: only if the raw stroke disappoints on device.
+- Point simplification (Ramer–Douglas–Peucker): only if the size check exceeds 500 KB.
+- Pressure, tilt, layers, brushes, zoom: see "Not Doing" in the framing note.
+- PDF export, printing.
+- Validation on Android tablets and PC mouse / touch: no test device; the code stays standard.
+- Palm width tuning with a child: measured during the phase B child test, then the threshold is adjusted.
+
+## Open Questions
+
+None. Resolved on 2026-11-20:
+
+- **App name**: "Carnet magique" in French, "Magic Sketchbook" in English. The repository stays `draw`.
+- **Translating the existing repository** (CLAUDE.md, framing note, diagnostic spec, conclusions, campaign notes, diagnostic page): first task of the plan, before any MVP code.

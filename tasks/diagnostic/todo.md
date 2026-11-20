@@ -1,6 +1,6 @@
 # Tâches — Page de diagnostic Pointer Events
 
-Spec : `SPEC.md` · Plan : `tasks/plan.md`
+Spec : `spec/SPEC-diagnostic.md` · Plan : `tasks/diagnostic/plan.md`
 
 Definition of Done commune : `npm run check` vert, code conforme à la section Code Style de la spec, commit atomique.
 
@@ -264,5 +264,5 @@ Definition of Done commune : `npm run check` vert, code conforme à la section C
 
 ### Checkpoint final
 
-- [ ] Les 8 Success Criteria de `SPEC.md` sont remplis
+- [ ] Les 8 Success Criteria de `spec/SPEC-diagnostic.md` sont remplis
 - [ ] Revue finale avec l'utilisateur → passage au MVP
