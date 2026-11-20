@@ -81,5 +81,7 @@
   "tools.undo": "Undo",
   "tools.redo": "Redo",
   "tools.newPage": "New page",
-  "gallery.open": "Open the drawing of {date}"
+  "gallery.open": "Open the drawing of {date}",
+  "gallery.share": "Share this drawing",
+  "file.prefix": "magic-sketchbook"
 }

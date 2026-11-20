@@ -28,15 +28,27 @@ export function rasterize(strokes: readonly Stroke[], size: number): HTMLCanvasE
   context.fillStyle = PAGE_COLOR;
   context.fillRect(0, 0, size, size);
   context.drawImage(layer, 0, 0);
+  release(layer);
   return page;
 }
 
+/**
+ * Frees a canvas' pixels now: iOS Safari caps the total canvas memory and collects
+ * detached canvases late, so repeated exports would otherwise make getContext fail.
+ */
+function release(canvas: HTMLCanvasElement): void {
+  canvas.width = 0;
+  canvas.height = 0;
+}
+
+/** Encodes the canvas as PNG, then releases its pixels: the canvas is not usable after. */
 export function canvasToPng(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('PNG encoding failed'))),
-      'image/png',
-    );
+    canvas.toBlob((blob) => {
+      release(canvas);
+      if (blob) resolve(blob);
+      else reject(new Error('PNG encoding failed'));
+    }, 'image/png');
   });
 }
 

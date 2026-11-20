@@ -81,5 +81,7 @@
   "tools.undo": "Annuler",
   "tools.redo": "Rétablir",
   "tools.newPage": "Nouvelle page",
-  "gallery.open": "Ouvrir le dessin du {date}"
+  "gallery.open": "Ouvrir le dessin du {date}",
+  "gallery.share": "Partager ce dessin",
+  "file.prefix": "carnet-magique"
 }

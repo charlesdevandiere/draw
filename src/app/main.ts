@@ -43,6 +43,9 @@ import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
 import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
+import { shareFile } from './share';
+import { encodeMagicPng } from '../store/magic-png';
+import { drawingFileName } from '../store/file-name';
 import { showScreen } from './screens';
 
 const translator = createTranslator(documentLanguage());
@@ -181,6 +184,43 @@ function showDrawScreen(): void {
   openGallery.focus();
 }
 
+/** A gallery card's share button: the drawing as a magic PNG. */
+function shareButton(drawing: Drawing): HTMLButtonElement {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'tool-button';
+  button.setAttribute('aria-label', translator.t('gallery.share'));
+  button.innerHTML = '<svg><use href="#icon-share" /></svg>';
+  // The share sheet needs a recent user gesture (iOS Safari): start encoding as soon as the
+  // finger lands, so the PNG is ready (or nearly) when the click arrives.
+  let file: Promise<File> | null = null;
+  const prepare = (): Promise<File> =>
+    (file ??= encodeMagicPng(drawing).then(
+      (blob) =>
+        new File(
+          [blob],
+          drawingFileName(translator.t('file.prefix'), new Date(drawing.updatedAt)),
+          { type: 'image/png' },
+        ),
+    ));
+  const forget = (): void => {
+    file = null;
+  };
+  button.addEventListener('pointerdown', () => {
+    prepare().catch(forget);
+  });
+  button.addEventListener('click', () => {
+    button.disabled = true;
+    prepare()
+      .then(shareFile)
+      .catch(forget)
+      .finally(() => {
+        button.disabled = false;
+      });
+  });
+  return button;
+}
+
 const gallery = initGallery({
   grid: requireElement('gallery-grid', HTMLElement),
   t: translator.t,
@@ -197,6 +237,7 @@ const gallery = initGallery({
             },
       ),
     ),
+  actions: (drawing) => [shareButton(drawing)],
   onOpen: (drawing) => {
     if (drawing.id !== current.id) {
       switchDrawing(drawing)

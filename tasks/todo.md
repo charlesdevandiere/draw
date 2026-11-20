@@ -355,12 +355,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `magic-png.ts` produces a PNG whose chunk decodes back to the identical drawing (round-trip check in the browser).
-- [ ] Share button on the selected gallery thumbnail; `navigator.share` with a file when `canShare` allows it, download otherwise.
+- [x] `magic-png.ts` produces a PNG whose chunk decodes back to the identical drawing (round-trip check in the browser).
+- [x] Share button on the selected gallery thumbnail; `navigator.share` with a file when `canShare` allows it, download otherwise.
 
 **Verification:**
 
-- [ ] `npm run check`; manual: share on desktop (download), inspect the chunk.
+- [x] `npm run check`; manual: share on desktop (download), inspect the chunk.
 
 **Dependencies:** T14, T15
 
