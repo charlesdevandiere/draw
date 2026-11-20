@@ -13,8 +13,9 @@ import {
 } from '../i18n/apply';
 import { createTranslator, isLanguage } from '../i18n/i18n';
 import { checkForUpdate, resetAppCache } from '../pwa/app-update';
-import { deleteDrawing, listDrawings, saveDrawing } from '../store/db';
+import { deleteDrawing, listDrawings, readSetting, saveDrawing, writeSetting } from '../store/db';
 import { initDrawingsSection } from './drawings';
+import { initInputSettings } from './input-settings';
 import { initTransferSection } from './transfer';
 import { renderThumbnail } from '../app/raster';
 import parentHtml from './parent.html?raw';
@@ -46,6 +47,9 @@ initTransferSection({
     saveDrawing(drawing, await renderThumbnail(drawing.strokes).catch(() => null)),
   onImported: () => void drawings.refresh().catch(() => undefined),
 });
+
+// Finger mode settings.
+initInputSettings({ read: readSetting, write: writeSetting }).catch(() => undefined);
 
 // Language: an override of the folder's language, for this browser.
 const languageSelect = requireElement('language-select', HTMLSelectElement);

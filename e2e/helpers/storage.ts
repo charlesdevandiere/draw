@@ -36,10 +36,10 @@ export async function savedStrokes(page: Page): Promise<number> {
   return Object.values(await savedStrokeCounts(page)).reduce((sum, count) => sum + count, 0);
 }
 
-/** The `lastDrawingId` setting: the drawing the app reopens at launch. */
-export async function lastDrawingId(page: Page): Promise<unknown> {
+/** A setting stored in IndexedDB (undefined when absent). */
+export async function storedSetting(page: Page, key: string): Promise<unknown> {
   return page.evaluate(
-    () =>
+    (key) =>
       new Promise<unknown>((resolve, reject) => {
         const open = indexedDB.open('draw');
         open.onupgradeneeded = () => open.transaction?.abort();
@@ -51,7 +51,7 @@ export async function lastDrawingId(page: Page): Promise<unknown> {
             resolve(undefined);
             return;
           }
-          const get = db.transaction('settings').objectStore('settings').get('lastDrawingId');
+          const get = db.transaction('settings').objectStore('settings').get(key);
           get.onerror = () => reject(get.error);
           get.onsuccess = () => {
             db.close();
@@ -59,5 +59,11 @@ export async function lastDrawingId(page: Page): Promise<unknown> {
           };
         };
       }),
+    key,
   );
+}
+
+/** The `lastDrawingId` setting: the drawing the app reopens at launch. */
+export async function lastDrawingId(page: Page): Promise<unknown> {
+  return storedSetting(page, 'lastDrawingId');
 }

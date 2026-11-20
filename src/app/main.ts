@@ -20,6 +20,7 @@ import {
   DEFAULT_INPUT_MODE,
   SETTING_KEYS,
   parseDrawingId,
+  parseFingerSettings,
   parseInputModeState,
   parseToolState,
 } from '../store/settings';
@@ -367,11 +368,13 @@ function reloadWhenIdle(): void {
 /** Restores the settings and the last drawing, unless the child already started drawing. */
 async function restore(): Promise<void> {
   const slate = current.id;
-  const [modeValue, toolsValue, lastIdValue] = await Promise.all([
+  const [modeValue, toolsValue, lastIdValue, fingerValue] = await Promise.all([
     readSetting(SETTING_KEYS.inputMode),
     readSetting(SETTING_KEYS.tools),
     readSetting(SETTING_KEYS.lastDrawingId),
+    readSetting(SETTING_KEYS.fingerSettings),
   ]);
+  inputFilter.setFingerSettings(parseFingerSettings(fingerValue));
   // A mode or tool chosen (or a pen switch) while reading wins over the stored one.
   if (!changedBeforeRestore.mode) {
     const mode = parseInputModeState(modeValue);

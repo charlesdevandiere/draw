@@ -61,6 +61,7 @@ export default defineConfig({
         'src/app/padlock.ts',
         'src/parent/drawings.ts',
         'src/parent/transfer.ts',
+        'src/parent/input-settings.ts',
         'src/app/magic-image.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',

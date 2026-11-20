@@ -119,5 +119,11 @@
   "parent.transfer.imported": "{added, plural, =0 {No drawing imported} one {# drawing imported} other {# drawings imported}}{already, plural, =0 {} one {, # already there} other {, # already there}}{refused, plural, =0 {} one {, # file refused (not a sketchbook drawing)} other {, # files refused (not sketchbook drawings)}}.",
   "parent.transfer.importFailed": "Import failed.",
   "parent.transfer.ready": "{count, plural, one {# picture ready.} other {# pictures ready.}}",
-  "parent.transfer.share": "Share {count, plural, one {# picture} other {# pictures}}"
+  "parent.transfer.share": "Share {count, plural, one {# picture} other {# pictures}}",
+  "parent.input": "Drawing with a finger",
+  "parent.input.help": "For the Finger mode: one contact draws at a time, and a contact as wide as a palm is ignored. Changes apply the next time the sketchbook opens.",
+  "parent.input.widthFilter": "Ignore contacts as wide as a palm",
+  "parent.input.widthThreshold": "Widest contact that still draws (px)",
+  "parent.input.releaseDelay": "Wait after lifting everything before a new stroke (ms)",
+  "parent.input.defaults": "Restore the defaults"
 }

@@ -495,11 +495,11 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Values persisted and applied on the next drawing session; defaults restorable.
+- [x] Values persisted and applied on the next drawing session; defaults restorable.
 
 **Verification:**
 
-- [ ] `npm run check`; manual change then drawing.
+- [x] `npm run check`; manual change then drawing.
 
 **Dependencies:** T20
 

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TOOLS } from '../engine/palette';
+import { DEFAULT_FINGER_SETTINGS } from '../input/input-mode';
 import {
   DEFAULT_INPUT_MODE,
+  clampFingerSettings,
+  parseFingerSettings,
   parseDrawingId,
   parseInputModeState,
   parseToolState,
@@ -46,5 +49,38 @@ describe('parseDrawingId', () => {
     expect(parseDrawingId('')).toBeNull();
     expect(parseDrawingId('x'.repeat(65))).toBeNull();
     expect(parseDrawingId(42)).toBeNull();
+  });
+});
+
+describe('finger settings', () => {
+  it('reads stored settings, the filter off included', () => {
+    expect(parseFingerSettings({ widthThreshold: 120, releaseDelayMs: 500 })).toEqual({
+      widthThreshold: 120,
+      releaseDelayMs: 500,
+    });
+    expect(parseFingerSettings({ widthThreshold: null, releaseDelayMs: 0 })).toEqual({
+      widthThreshold: null,
+      releaseDelayMs: 0,
+    });
+  });
+
+  it.each([undefined, { widthThreshold: 'big', releaseDelayMs: 1 }, { widthThreshold: 50 }])(
+    'falls back to the defaults for %j',
+    (value) => {
+      expect(parseFingerSettings(value)).toEqual(DEFAULT_FINGER_SETTINGS);
+    },
+  );
+
+  it('keeps values within bounds', () => {
+    expect(clampFingerSettings({ widthThreshold: 5, releaseDelayMs: 99_999 })).toEqual({
+      widthThreshold: 20,
+      releaseDelayMs: 3000,
+    });
+    expect(clampFingerSettings({ widthThreshold: Number.NaN, releaseDelayMs: Number.NaN })).toEqual(
+      DEFAULT_FINGER_SETTINGS,
+    );
+    expect(clampFingerSettings({ widthThreshold: 80.6, releaseDelayMs: 300 }).widthThreshold).toBe(
+      81,
+    );
   });
 });
