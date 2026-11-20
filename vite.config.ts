@@ -50,6 +50,7 @@ export default defineConfig({
         'src/app/draw-screen.ts',
         'src/app/mode-button.ts',
         'src/app/tools.ts',
+        'src/app/dom.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

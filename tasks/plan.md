@@ -72,7 +72,7 @@ Checkpoint A1 — drawing is fluid on the three devices
 - [x] T9: Input modes logic
 - [x] T10: Mode button
 - [x] T11: Colors, widths and eraser
-- [ ] T12: Undo, redo and new page
+- [x] T12: Undo, redo and new page
 
 Checkpoint A2 — the slate is complete
 

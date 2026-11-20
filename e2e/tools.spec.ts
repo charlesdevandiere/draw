@@ -31,8 +31,11 @@ test('the tool bar shows 8 colors, 2 widths and the eraser, all large enough', a
 });
 
 test('a picked color draws in that color', async ({ page }) => {
-  await page.getByRole('button', { name: 'Red' }).click();
-  await expect(page.getByRole('button', { name: 'Red' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Red', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Red', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await stroke(page, 0.5);
   const pixel = await pixelAt(page.locator('#drawing-layer'), await pagePoint(page, 0.5, 0.5));
   expect(isColor(pixel, RED)).toBe(true);

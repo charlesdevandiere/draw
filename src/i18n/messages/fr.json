@@ -77,5 +77,8 @@
   "color.brown": "Marron",
   "tools.thin": "Trait fin",
   "tools.thick": "Trait épais",
-  "tools.eraser": "Gomme"
+  "tools.eraser": "Gomme",
+  "tools.undo": "Annuler",
+  "tools.redo": "Rétablir",
+  "tools.newPage": "Nouvelle page"
 }

@@ -8,7 +8,17 @@ import { createTranslator } from '../i18n/i18n';
 import { createInputFilter } from '../input/input-mode';
 import { checkForUpdate } from '../pwa/app-update';
 import appHtml from './app.html?raw';
+import {
+  canRedo,
+  canUndo,
+  commitStroke,
+  createHistory,
+  redo,
+  undo,
+  type History,
+} from '../engine/history';
 import { DEFAULT_TOOLS, styleFor } from '../engine/palette';
+import { requireElement } from './dom';
 import { initDrawScreen } from './draw-screen';
 import { initModeButton } from './mode-button';
 import { initTools } from './tools';
@@ -33,8 +43,36 @@ const toolsContainer = document.getElementById('tools-primary');
 if (!toolsContainer) throw new Error('Tool bar missing');
 const tools = initTools(toolsContainer, DEFAULT_TOOLS, translator.t, () => undefined);
 
+let history: History = createHistory();
+const undoButton = requireElement('undo', HTMLButtonElement);
+const redoButton = requireElement('redo', HTMLButtonElement);
+const newPageButton = requireElement('new-page', HTMLButtonElement);
+
+function refreshHistoryButtons(): void {
+  const focused = document.activeElement;
+  undoButton.disabled = !canUndo(history);
+  redoButton.disabled = !canRedo(history);
+  newPageButton.disabled = !canUndo(history);
+  // A focused button that gets disabled drops the focus to the body: keep it in the tool bar.
+  if (focused instanceof HTMLButtonElement && focused.disabled) {
+    const fallback = [undoButton, redoButton].find((button) => !button.disabled);
+    (fallback ?? document.getElementById('mode-button'))?.focus();
+  }
+}
+
+/** Shows a new history (undo, redo, new page): the canvas is repainted from its vectors. */
+function setHistory(next: History): void {
+  history = next;
+  drawScreen.setStrokes(history.strokes);
+  refreshHistoryButtons();
+}
+
 const drawScreen = initDrawScreen({
   canvas,
+  onStroke: (stroke) => {
+    history = commitStroke(history, stroke);
+    refreshHistoryButtons();
+  },
   style: () => styleFor(tools.state()),
   accepts: (event, phase) => {
     const drawing = inputFilter.accepts({
@@ -48,6 +86,17 @@ const drawScreen = initDrawScreen({
     if (phase === 'down') modeButton.refresh();
     return drawing;
   },
+});
+
+// History buttons wait for strokes in progress to end: they would be lost otherwise.
+undoButton.addEventListener('click', () => {
+  if (!drawScreen.isDrawing()) setHistory(undo(history));
+});
+redoButton.addEventListener('click', () => {
+  if (!drawScreen.isDrawing()) setHistory(redo(history));
+});
+newPageButton.addEventListener('click', () => {
+  if (!drawScreen.isDrawing()) setHistory(createHistory());
 });
 
 // The button pressed is hidden with its screen: move the focus to the other screen's button.

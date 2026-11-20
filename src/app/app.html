@@ -25,6 +25,19 @@
     />
     <path d="M9.5 10.5l5 5" />
   </symbol>
+  <symbol id="icon-undo" viewBox="0 0 24 24">
+    <path d="M9 14L4 9l5-5" />
+    <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+  </symbol>
+  <symbol id="icon-redo" viewBox="0 0 24 24">
+    <path d="M15 14l5-5-5-5" />
+    <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
+  </symbol>
+  <symbol id="icon-new-page" viewBox="0 0 24 24">
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+    <path d="M14 3v5h5" />
+    <path d="M12 11v6M9 14h6" />
+  </symbol>
   <symbol id="icon-back" viewBox="0 0 24 24">
     <path d="M15 5l-7 7 7 7" />
   </symbol>
@@ -50,8 +63,17 @@
     role="toolbar"
     data-i18n-aria="tools.actions"
   >
+    <button id="undo" class="tool-button" type="button" data-i18n-aria="tools.undo" disabled>
+      <svg><use href="#icon-undo" /></svg>
+    </button>
+    <button id="redo" class="tool-button" type="button" data-i18n-aria="tools.redo" disabled>
+      <svg><use href="#icon-redo" /></svg>
+    </button>
     <button id="mode-button" class="tool-button" type="button">
       <svg><use href="#icon-mode-finger" /></svg>
+    </button>
+    <button id="new-page" class="tool-button" type="button" data-i18n-aria="tools.newPage" disabled>
+      <svg><use href="#icon-new-page" /></svg>
     </button>
     <button id="open-gallery" class="tool-button" type="button" data-i18n-aria="tools.gallery">
       <svg><use href="#icon-gallery" /></svg>

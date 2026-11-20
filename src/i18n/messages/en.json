@@ -77,5 +77,8 @@
   "color.brown": "Brown",
   "tools.thin": "Thin line",
   "tools.thick": "Thick line",
-  "tools.eraser": "Eraser"
+  "tools.eraser": "Eraser",
+  "tools.undo": "Undo",
+  "tools.redo": "Redo",
+  "tools.newPage": "New page"
 }

@@ -272,13 +272,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Undo removes the last finished stroke, redo restores it, a new stroke clears redo, undo on empty does nothing (tests).
-- [ ] Undo / redo buttons disabled when not applicable; drawing layer redrawn from vectors.
-- [ ] New page starts an empty drawing (in memory until T13).
+- [x] Undo removes the last finished stroke, redo restores it, a new stroke clears redo, undo on empty does nothing (tests).
+- [x] Undo / redo buttons disabled when not applicable; drawing layer redrawn from vectors.
+- [x] New page starts an empty drawing (in memory until T13).
 
 **Verification:**
 
-- [ ] `npx vitest run src/engine/history.test.ts`; `npm run check`; undo / redo 10 times in the browser.
+- [x] `npx vitest run src/engine/history.test.ts`; `npm run check`; undo / redo 10 times in the browser.
 
 **Dependencies:** T11
 
