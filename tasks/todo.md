@@ -213,13 +213,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Pen: only `pen` draws. Multi-finger: everything draws. Finger: one slot, released only when no contact remains plus the delay (default 300 ms); contacts wider than the threshold (default 80 px, or off) ignored but holding the slot; `pen` accepted.
-- [ ] Automatic switch to Pen on the first `pen` while no mode was chosen by hand; never after a manual choice.
-- [ ] Time injected; tests cover every rule above, hover and cancel.
+- [x] Pen: only `pen` draws. Multi-finger: everything draws. Finger: one slot, released only when no contact remains plus the delay (default 300 ms); contacts wider than the threshold (default 80 px, or off) ignored but holding the slot; `pen` accepted.
+- [x] Automatic switch to Pen on the first `pen` while no mode was chosen by hand; never after a manual choice.
+- [x] Time injected; tests cover every rule above, hover and cancel.
 
 **Verification:**
 
-- [ ] `npx vitest run src/input/input-mode.test.ts`; `npm run check`
+- [x] `npx vitest run src/input/input-mode.test.ts`; `npm run check`
 
 **Dependencies:** T7
 

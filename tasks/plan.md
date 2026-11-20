@@ -69,7 +69,7 @@ Phase A — the sketchbook
 
 Checkpoint A1 — drawing is fluid on the three devices
 
-- [ ] T9: Input modes logic
+- [x] T9: Input modes logic
 - [ ] T10: Mode button
 - [ ] T11: Colors, widths and eraser
 - [ ] T12: Undo, redo and new page

@@ -282,7 +282,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
   - `stroke-builder`: coalesced and fallback, tap without movement → one dot, rounding;
   - `history`: undo, redo, new stroke clears redo, undo on empty;
   - `render`: with a fake context recording calls (color, `destination-out` for the eraser, disc for a dot);
-  - `input-mode`: each mode; automatic switch on first `pen` and not after a manual choice; Finger mode (slot kept, released only when everything is lifted + delay, width filter, `pen` accepted); hover ignored; `pointercancel`;
+  - `input-mode`: each mode; automatic switch on first `pen` and not after a manual choice; Finger mode (slot kept, released only when everything is lifted + delay, width filter, `pen` accepted, palm spreading after touch-down); hover and `pointercancel` are handled by the drawing screen (cancel = up) and covered end to end;
   - `schema`: validation, unknown version refused, migration;
   - `png-chunk`: write then read back, CRC-32 against known values, missing chunk, corrupt chunk, oversized chunk;
   - `i18n`: language choice from `navigator.languages`, fallback to English; formatter: placeholders, plural (`=0`, `one`, `other`, `#`) in English and French, select, nested plural inside select, malformed message rejected; every catalog has exactly the keys of `en.json`;
