@@ -57,7 +57,7 @@ Phase 0 — English repository and languages
 - [x] T3: i18n core (ICU subset formatter, catalogs, language choice)
 - [x] T4: Language folders, manifests and root redirect
 - [x] T5: Diagnostic page through i18n, in both folders
-- [ ] T5b: Playwright setup and first end-to-end tests
+- [x] T5b: Playwright setup and first end-to-end tests
 
 Checkpoint 0 — install `/draw/fr/` and `/draw/en/` on the devices
 

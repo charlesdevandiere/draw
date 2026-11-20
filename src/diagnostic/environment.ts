@@ -1,5 +1,5 @@
-import type { Translator } from '../i18n/i18n';
 /** F6: device, PWA and storage information (DOM / browser APIs only). */
+import type { Translator } from '../i18n/i18n';
 
 export interface EnvironmentInfo {
   displayMode: 'standalone' | 'fullscreen' | 'minimal-ui' | 'browser';

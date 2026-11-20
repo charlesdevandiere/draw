@@ -1,13 +1,13 @@
-# Dépendances
+# Dependencies
 /node_modules/
 
-# Build et rapports
+# Build and reports
 /dist/
 /dev-dist/
 /coverage/
 *.tsbuildinfo
 
-# Environnement
+# Environment
 /.env
 /.env.*
 !/.env.example
@@ -15,8 +15,10 @@
 # Logs
 npm-debug.log*
 
-# OS / éditeurs
+# OS / editors
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
 .idea/
+/test-results/
+/playwright-report/

@@ -117,14 +117,14 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `playwright.config.ts`: `webServer` runs `vite preview`; projects Chromium and WebKit; iPad landscape and Pixel portrait viewports with touch; screenshots kept on failure.
-- [ ] `e2e/helpers/pointer.ts`: draws a path with `pen` or `touch` pointer events (several pointers at once), reads canvas pixels.
-- [ ] Tests: `/draw/` redirects by `locale`; both manifests valid with the right names; diagnostic page translated in both languages and draws; offline reload served by the service worker.
-- [ ] `npm run e2e` script; `e2e/` linted and formatted; Vitest ignores `e2e/`; `test-results/` and `playwright-report/` git-ignored.
+- [x] `playwright.config.ts`: `webServer` runs `vite preview`; projects Chromium and WebKit; iPad landscape and Pixel portrait viewports with touch; screenshots kept on failure.
+- [x] `e2e/helpers/pointer.ts`: draws a path with `pen` or `touch` pointer events (several pointers at once), reads canvas pixels.
+- [x] Tests: `/draw/` redirects by `locale`; both manifests valid with the right names; diagnostic page translated in both languages and draws; offline reload served by the service worker.
+- [x] `npm run e2e` script; `e2e/` linted and formatted; Vitest ignores `e2e/`; `test-results/` and `playwright-report/` git-ignored.
 
 **Verification:**
 
-- [ ] `npm run e2e` green on both browsers; `npm run check` green.
+- [x] `npm run e2e` green on both browsers; `npm run check` green.
 
 **Dependencies:** T5
 
