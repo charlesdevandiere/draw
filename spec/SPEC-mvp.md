@@ -151,6 +151,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - Already in place: `vite-plugin-pwa` (Workbox, `generateSW`), Vitest 5, ESLint 10 + `typescript-eslint`, Prettier 3.
 - **New**: `bootstrap@6.0.0-alpha.1` (exact version, with its peers `@floating-ui/dom` and `vanilla-calendar-pro`), `sass` (Vite compiles `.scss` natively once it is installed).
 - IndexedDB **without a library**: a small hand-written promise wrapper.
+- **`@playwright/test` 1.65** (dev only) for end-to-end tests on Chromium and WebKit, run locally.
 - Manifests written by hand per language (`vite-plugin-pwa` keeps the service worker only, `manifest: false`).
 - Deployment unchanged: GitHub Pages via GitHub Actions, `base: '/draw/'`.
 
@@ -168,6 +169,8 @@ npx vitest run src/engine/history.test.ts -t "undo removes the last stroke"
 npm run lint
 npm run format
 npm run check          # lint + format:check + tests with coverage ≥ 90 % + build
+npm run e2e            # build, then Playwright on Chromium and WebKit against vite preview
+npx playwright test e2e/draw.spec.ts --project=webkit   # one file, one browser
 ```
 
 ## Project Structure
@@ -284,7 +287,13 @@ const catalogs: Record<Language, Messages> = { en, fr };
   - `png-chunk`: write then read back, CRC-32 against known values, missing chunk, corrupt chunk, oversized chunk;
   - `i18n`: language choice from `navigator.languages`, fallback to English; formatter: placeholders, plural (`=0`, `one`, `other`, `#`) in English and French, select, nested plural inside select, malformed message rejected; every catalog has exactly the keys of `en.json`;
   - `replay`: pauses capped at 300 ms, 15 s cap, empty drawing.
-- **No automated E2E**: validation is **manual on the 3 devices**, installed PWA, following the protocol in the plan.
+- **End-to-end (Playwright, local only)** in `e2e/`, against the production build served by `vite preview`, on **Chromium and WebKit** (WebKit is Safari's engine, not iPadOS Safari):
+  - viewports: iPad 11 landscape and Pixel 9a portrait, touch enabled;
+  - synthetic `pen` and `touch` pointer events (multi-touch included), canvas pixels read back to check strokes, dots, eraser, undo, input modes;
+  - reload persistence, gallery, replay, language redirect (`locale` `fr-FR` / `en-US`), manifests, offline launch through the service worker, magic PNG round trip and refusal of a plain image;
+  - screenshots per screen and layout, reviewed by eye during each UI task.
+  - Not in GitHub Actions for now (deployment speed); can be added later.
+- **Manual validation on the 3 devices** stays required (installed PWA, system gestures, real palm, Metapen, fluidity), following the protocol in the plan.
 - **Size check**: a 10-minute scribble must weigh < 500 KB.
 
 ## Boundaries

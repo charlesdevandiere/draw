@@ -2,7 +2,7 @@
 
 Spec: `spec/SPEC-mvp.md` · Plan: `tasks/plan.md`
 
-Every task also meets the standing bar: `npm run check` green, English in the repository, user-facing text through the catalogs (from T3 on).
+Every task also meets the standing bar: `npm run check` green, English in the repository, user-facing text through the catalogs (from T3 on). From T5b on, every task that changes the UI adds or updates its Playwright tests, `npm run e2e` passes, and its screenshots are reviewed.
 
 **End of every task:** run `/code-review --fix`, re-run `npm run check`, then commit the task (one commit per task; the user pushes).
 
@@ -111,7 +111,28 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Estimated scope:** Medium
 
-### Checkpoint 0 — after T1–T5
+### T5b: Playwright setup and first end-to-end tests
+
+**Description:** Configure Playwright (already installed, browsers downloaded) against the production build, with helpers for synthetic pointers, and cover what exists after T5.
+
+**Acceptance criteria:**
+
+- [ ] `playwright.config.ts`: `webServer` runs `vite preview`; projects Chromium and WebKit; iPad landscape and Pixel portrait viewports with touch; screenshots kept on failure.
+- [ ] `e2e/helpers/pointer.ts`: draws a path with `pen` or `touch` pointer events (several pointers at once), reads canvas pixels.
+- [ ] Tests: `/draw/` redirects by `locale`; both manifests valid with the right names; diagnostic page translated in both languages and draws; offline reload served by the service worker.
+- [ ] `npm run e2e` script; `e2e/` linted and formatted; Vitest ignores `e2e/`; `test-results/` and `playwright-report/` git-ignored.
+
+**Verification:**
+
+- [ ] `npm run e2e` green on both browsers; `npm run check` green.
+
+**Dependencies:** T5
+
+**Files likely touched:** `playwright.config.ts`, `e2e/helpers/pointer.ts`, `e2e/languages.spec.ts`, `e2e/diagnostic.spec.ts`, `package.json`, `.gitignore`
+
+**Estimated scope:** Medium
+
+### Checkpoint 0 — after T1–T5b
 
 - [ ] `npm run check` green; the user pushes; deployment succeeds.
 - [ ] Remove the old `/draw/` install, then install from `/draw/fr/` on the iPad and the Pixel: the name under the icon is "Carnet magique"; with an English browser, "Magic Sketchbook".
