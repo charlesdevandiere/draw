@@ -54,7 +54,7 @@ Phase 0 — English repository and languages
 
 - [x] T1: Translate the documentation to English
 - [x] T2: Translate the code base leftovers and the deployment workflow
-- [ ] T3: i18n core (ICU subset formatter, catalogs, language choice)
+- [x] T3: i18n core (ICU subset formatter, catalogs, language choice)
 - [ ] T4: Language folders, manifests and root redirect
 - [ ] T5: Diagnostic page through i18n, in both folders
 - [ ] T5b: Playwright setup and first end-to-end tests

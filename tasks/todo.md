@@ -14,14 +14,14 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `CLAUDE.md`, `docs/ideas/carnet-magique.md`, `spec/SPEC-diagnostic.md`, `docs/diagnostic/conclusions.md`, `docs/diagnostic/notes-campagne.md` (→ `campaign-notes.md`), `tasks/diagnostic/plan.md`, `tasks/diagnostic/todo.md` are in English.
-- [ ] Links between documents still resolve; the JSON reports are untouched.
-- [ ] `CLAUDE.md` states the new rules: English repository, i18n catalogs, MVP spec and plan locations.
+- [x] `CLAUDE.md`, `docs/ideas/carnet-magique.md`, `spec/SPEC-diagnostic.md`, `docs/diagnostic/conclusions.md`, `docs/diagnostic/notes-campagne.md` (→ `campaign-notes.md`), `tasks/diagnostic/plan.md`, `tasks/diagnostic/todo.md` are in English.
+- [x] Links between documents still resolve; the JSON reports are untouched.
+- [x] `CLAUDE.md` states the new rules: English repository, i18n catalogs, MVP spec and plan locations.
 
 **Verification:**
 
-- [ ] `npm run format:check`
-- [ ] `grep -rlP "[àâçéèêëîïôùûü]" --include=*.md .` (outside `node_modules`) only lists files that quote French UI text on purpose.
+- [x] `npm run format:check`
+- [x] `grep -rlP "[àâçéèêëîïôùûü]" --include=*.md .` (outside `node_modules`) only lists files that quote French UI text on purpose.
 
 **Dependencies:** None
 
@@ -35,13 +35,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] No French in `src/**/*.ts` except UI strings, listed for T5.
-- [ ] Report incident keys in English, `REPORT_VERSION = 3`, tests updated.
-- [ ] Workflow `deploy.yml` named in English.
+- [x] No French in `src/**/*.ts` except UI strings, listed for T5.
+- [x] Report incident keys in English, `REPORT_VERSION = 3`, tests updated.
+- [x] Workflow `deploy.yml` named in English.
 
 **Verification:**
 
-- [ ] `npm run check`
+- [x] `npm run check`
 
 **Dependencies:** None
 
@@ -55,14 +55,14 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `format.ts` handles placeholders `{name}`, `plural` (`=N`, CLDR categories via `Intl.PluralRules`, `#`), `select`, nesting, and throws on malformed messages.
-- [ ] `i18n.ts`: `t(key, params)` with keys typed from `en.json`; a key missing in `fr.json` is a type error; language chosen from `<html lang>` / override / `navigator.languages`, fallback English.
-- [ ] A test checks that every catalog has exactly the keys of `en.json` and that every message parses.
+- [x] `format.ts` handles placeholders `{name}`, `plural` (`=N`, CLDR categories via `Intl.PluralRules`, `#`), `select`, nesting, and throws on malformed messages.
+- [x] `i18n.ts`: `t(key, params)` with keys typed from `en.json`; a key missing in `fr.json` is a type error; language chosen from `<html lang>` / override / `navigator.languages`, fallback English.
+- [x] A test checks that every catalog has exactly the keys of `en.json` and that every message parses.
 
 **Verification:**
 
-- [ ] `npx vitest run src/i18n`
-- [ ] `npm run check`
+- [x] `npx vitest run src/i18n`
+- [x] `npm run check`
 
 **Dependencies:** None
 
