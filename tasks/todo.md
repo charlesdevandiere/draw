@@ -97,13 +97,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `en/diagnostic.html` and `fr/diagnostic.html` share the same code; every visible string comes from the catalogs (counters with plural).
-- [ ] The root `diagnostic.html` is removed (or redirects to the language folder).
-- [ ] `src/pwa/app-update.ts` used by the diagnostic page.
+- [x] `en/diagnostic.html` and `fr/diagnostic.html` share the same code; every visible string comes from the catalogs (counters with plural).
+- [x] The root `diagnostic.html` is removed (or redirects to the language folder).
+- [x] `src/pwa/app-update.ts` used by the diagnostic page.
 
 **Verification:**
 
-- [ ] `npm run check`; in the browser, both pages work and are fully translated.
+- [x] `npm run check`; in the browser, both pages work and are fully translated.
 
 **Dependencies:** T4
 

@@ -1,0 +1,78 @@
+<canvas id="surface"></canvas>
+<aside id="panel" aria-live="off">
+  <header>
+    <strong>Diagnostic</strong>
+    <span id="version"></span>
+    <button id="clear" type="button" data-i18n="diag.clear"></button>
+    <button
+      id="toggle-panel"
+      type="button"
+      aria-expanded="true"
+      aria-controls="panel-body"
+      data-i18n="diag.collapse"
+    ></button>
+  </header>
+  <div id="panel-body">
+    <fieldset id="drawing">
+      <legend data-i18n="diag.drawing"></legend>
+      <label
+        ><input id="coalesced" type="checkbox" checked /> <span data-i18n="diag.coalesced"></span
+      ></label>
+      <label
+        ><input id="raw-points" type="checkbox" /> <span data-i18n="diag.rawPoints"></span
+      ></label>
+    </fieldset>
+    <fieldset id="gestures">
+      <legend data-i18n="diag.gestures"></legend>
+      <label
+        ><input id="protections" type="checkbox" checked />
+        <span data-i18n="diag.protections"></span
+      ></label>
+      <pre id="incidents"></pre>
+    </fieldset>
+    <fieldset id="palm">
+      <legend data-i18n="diag.palm"></legend>
+      <label
+        ><span data-i18n="diag.strategy"></span>
+        <select id="strategy">
+          <option value="none" data-i18n="diag.strategy.none"></option>
+          <option value="during-stroke" selected data-i18n="diag.strategy.duringStroke"></option>
+          <option value="pen-session" data-i18n="diag.strategy.penSession"></option>
+        </select>
+      </label>
+      <label
+        ><span data-i18n="diag.grace"></span>
+        <input id="grace" type="number" min="0" step="50" value="500"
+      /></label>
+      <label
+        ><span data-i18n="diag.session"></span>
+        <input id="session" type="number" min="0" step="1" value="10"
+      /></label>
+      <label
+        ><span data-i18n="diag.singleTouch"></span> <input id="single-touch" type="checkbox"
+      /></label>
+      <output id="touch-state"></output>
+    </fieldset>
+    <fieldset id="env">
+      <legend data-i18n="diag.environment"></legend>
+      <button id="persist" type="button" data-i18n="diag.persist"></button>
+      <pre id="environment" data-i18n="diag.loading"></pre>
+      <button id="check-update" type="button" data-i18n="update.check"></button>
+      <button id="reset-cache" type="button" data-i18n="update.resetCache"></button>
+      <output id="update-status"></output>
+    </fieldset>
+    <pre id="support"></pre>
+    <pre id="timing"></pre>
+    <fieldset id="report">
+      <legend data-i18n="diag.report"></legend>
+      <div class="buttons">
+        <button id="copy-report" type="button" data-i18n="diag.copyReport"></button>
+        <button id="share-report" type="button" data-i18n="diag.share"></button>
+        <button id="reset" type="button" data-i18n="diag.reset"></button>
+      </div>
+      <output id="report-status"></output>
+      <textarea id="report-fallback" rows="8" readonly hidden></textarea>
+    </fieldset>
+    <pre id="pointers" data-i18n="diag.pointersHint"></pre>
+  </div>
+</aside>

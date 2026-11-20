@@ -17,7 +17,10 @@ import {
   resetReloadCount,
   watchIncidents,
 } from './gesture-protections';
-import { checkForUpdate, resetAppCache } from './app-update';
+import { checkForUpdate, resetAppCache } from '../pwa/app-update';
+import { applyTranslations, documentLanguage } from '../i18n/apply';
+import { createTranslator } from '../i18n/i18n';
+import diagnosticHtml from './diagnostic.html?raw';
 import { createIncidentCounter } from './incidents';
 import { createPointerStats } from './pointer-stats';
 import { buildReport } from './report';
@@ -40,6 +43,10 @@ const ROLLING_CAPACITY = 500;
 const MAX_FRAME_GAP_MS = 250;
 /** How often the "finger ignored" indicator is re-evaluated while it is on. */
 const TOUCH_STATE_REFRESH_MS = 250;
+
+const { t } = createTranslator(documentLanguage());
+document.body.innerHTML = diagnosticHtml;
+applyTranslations(document.body, t);
 
 function requireElement<T extends Element>(selector: string, type: new () => T): T {
   const element = document.querySelector(selector);
@@ -149,7 +156,7 @@ async function refreshEnvironment(): Promise<void> {
   const info = await collectEnvironment();
   if (request !== environmentRequest) return;
   latestEnvironment = info;
-  environmentOutput.textContent = formatEnvironment(info);
+  environmentOutput.textContent = formatEnvironment(info, t);
 }
 
 /** Coalesces bursts of resize events (rotation, toolbar animation) into one refresh. */
@@ -281,17 +288,24 @@ function schedulePanel(): void {
 function renderTouchState(): void {
   const blocked = rejector.isTouchBlocked(performance.now());
   touchStateOutput.dataset['blocked'] = String(blocked);
-  touchStateOutput.textContent =
-    `Doigt : ${blocked ? 'ignoré' : 'actif'} — ignorés : ` +
-    `aucune ${ignoredCounts.none} · trait ${ignoredCounts['during-stroke']} · ` +
-    `session ${ignoredCounts['pen-session']} · un seul doigt ${ignoredBySingleTouch}`;
+  touchStateOutput.textContent = t('diag.touchState', {
+    state: blocked ? 'blocked' : 'active',
+    none: ignoredCounts.none,
+    stroke: ignoredCounts['during-stroke'],
+    session: ignoredCounts['pen-session'],
+    single: ignoredBySingleTouch,
+  });
   // While blocked, re-check periodically so the indicator flips back without new input.
   window.clearTimeout(touchStateTimer);
   if (blocked) touchStateTimer = window.setTimeout(schedulePanel, TOUCH_STATE_REFRESH_MS);
 }
 
+function yesNo(value: boolean): string {
+  return t(value ? 'common.yes' : 'common.no');
+}
+
 function formatNumber(value: number | null, digits = 1): string {
-  return value === null ? 'n/d' : value.toFixed(digits);
+  return value === null ? t('common.notAvailableShort') : value.toFixed(digits);
 }
 
 function renderTiming(): void {
@@ -299,16 +313,19 @@ function renderTiming(): void {
   for (const [type, timing] of timingByType) {
     const coalesced = summarize(timing.coalescedPerMove.values());
     lines.push(
-      `${type} : ${formatNumber(timing.events.rate(), 0)} Hz sans coalesced, ` +
-        `${formatNumber(timing.samples.rate(), 0)} Hz avec — ` +
-        `coalesced/move moy. ${formatNumber(coalesced.mean)}`,
+      t('diag.timingType', {
+        type,
+        events: formatNumber(timing.events.rate(), 0),
+        samples: formatNumber(timing.samples.rate(), 0),
+        coalesced: formatNumber(coalesced.mean),
+      }),
     );
   }
   const frames = summarize(frameDurations.values());
   const latency = summarize(inputLatencies.values());
   lines.push(
-    `intervalle entre frames peintes : moy. ${formatNumber(frames.mean)} ms, p95 ${formatNumber(frames.p95)} ms`,
-    `événement → rendu : moy. ${formatNumber(latency.mean)} ms, p95 ${formatNumber(latency.p95)} ms`,
+    t('diag.frameInterval', { mean: formatNumber(frames.mean), p95: formatNumber(frames.p95) }),
+    t('diag.eventToRender', { mean: formatNumber(latency.mean), p95: formatNumber(latency.p95) }),
   );
   timingOutput.textContent = lines.join('\n');
 }
@@ -316,15 +333,15 @@ function renderTiming(): void {
 function formatIncidents(counts: Record<string, number>): string {
   const entries = Object.entries(counts);
   return entries.length === 0
-    ? 'aucun'
+    ? t('diag.none')
     : entries.map(([kind, count]) => `${kind} ${count}`).join(', ');
 }
 
 function renderIncidents(): void {
   const { protectionsOn, protectionsOff } = incidents.snapshot();
   incidentsOutput.textContent = [
-    `Incidents (protections on) : ${formatIncidents(protectionsOn)}`,
-    `Incidents (protections off) : ${formatIncidents(protectionsOff)}`,
+    t('diag.incidentsOn', { list: formatIncidents(protectionsOn) }),
+    t('diag.incidentsOff', { list: formatIncidents(protectionsOff) }),
   ].join('\n');
 }
 
@@ -334,17 +351,18 @@ function renderPanel(): void {
   renderTiming();
   renderTouchState();
   supportOutput.textContent = [
-    `getCoalescedEvents: ${hasCoalesced ? 'oui' : 'non'}`,
-    `getPredictedEvents: ${hasPredicted ? 'oui' : 'non'}`,
-    `coalesced (dernier move): ${lastCoalescedCount}`,
+    `getCoalescedEvents: ${yesNo(hasCoalesced)}`,
+    `getPredictedEvents: ${yesNo(hasPredicted)}`,
+    t('diag.lastCoalesced', { count: lastCoalescedCount }),
   ].join('\n');
   pointersOutput.textContent =
     active.size === 0
-      ? 'Aucun pointeur actif.'
+      ? t('diag.noPointer')
       : [...active.entries()]
           .map(
             ([id, { sample, ignored }]) =>
-              `— pointerId ${id}${ignored ? ' (ignoré)' : ''}\n${formatSample(sample)}`,
+              `— pointerId ${id}${ignored ? ` ${t('diag.ignored')}` : ''}\n` +
+              formatSample(sample, t('common.notAvailableShort')),
           )
           .join('\n\n');
 }
@@ -398,9 +416,9 @@ async function copyReport(): Promise<void> {
   try {
     await navigator.clipboard.writeText(json);
     reportFallback.hidden = true;
-    reportStatus.textContent = 'Rapport copié.';
+    reportStatus.textContent = t('diag.reportCopied');
   } catch {
-    reportStatus.textContent = 'Copie impossible : sélectionnez le texte ci-dessous.';
+    reportStatus.textContent = t('diag.copyFailed');
     showReportFallback(json);
   }
 }
@@ -408,12 +426,12 @@ async function copyReport(): Promise<void> {
 async function shareReport(): Promise<void> {
   const json = JSON.stringify(currentReport(), null, 2);
   try {
-    await navigator.share({ title: `Diagnostic Carnet magique ${APP_VERSION}`, text: json });
+    await navigator.share({ title: `Diagnostic ${t('app.name')} ${APP_VERSION}`, text: json });
     reportFallback.hidden = true;
-    reportStatus.textContent = 'Rapport partagé.';
+    reportStatus.textContent = t('diag.reportShared');
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') return;
-    reportStatus.textContent = 'Partage impossible : sélectionnez le texte ci-dessous.';
+    reportStatus.textContent = t('diag.shareFailed');
     showReportFallback(json);
   }
 }
@@ -438,7 +456,7 @@ function resetMeasurements(): void {
   lastCoalescedCount = 0;
   renderer.clear();
   reportFallback.hidden = true;
-  reportStatus.textContent = 'Mesures réinitialisées.';
+  reportStatus.textContent = t('diag.measurementsReset');
   schedulePanel();
 }
 
@@ -452,7 +470,7 @@ requireElement('#toggle-panel', HTMLButtonElement).addEventListener('click', (ev
   const collapsed = panel.classList.toggle('collapsed');
   if (event.currentTarget instanceof HTMLButtonElement) {
     event.currentTarget.setAttribute('aria-expanded', String(!collapsed));
-    event.currentTarget.textContent = collapsed ? 'Ouvrir' : 'Replier';
+    event.currentTarget.textContent = t(collapsed ? 'diag.expand' : 'diag.collapse');
   }
 });
 rawPointsToggle.addEventListener('change', () =>
@@ -470,7 +488,9 @@ persistButton.addEventListener('click', async () => {
   persistButton.disabled = true;
   try {
     const granted = await requestPersistence();
-    persistButton.textContent = `Persistance : ${granted === null ? 'non disponible' : granted ? 'accordée' : 'refusée'}`;
+    persistButton.textContent = t('diag.persistResult', {
+      state: granted === null ? 'unavailable' : granted ? 'granted' : 'refused',
+    });
     await refreshEnvironment();
   } finally {
     persistButton.disabled = false;
@@ -510,18 +530,18 @@ for (const control of [strategySelect, graceInput, sessionInput, singleTouchTogg
 }
 
 const UPDATE_MESSAGES = {
-  updating: 'Nouvelle version trouvée, rechargement…',
-  'up-to-date': `Déjà à jour (${APP_VERSION}).`,
-  'no-service-worker': 'Aucun service worker : rechargez la page.',
+  updating: t('update.updating'),
+  'up-to-date': t('update.upToDate', { version: APP_VERSION }),
+  'no-service-worker': t('update.noServiceWorker'),
 } as const;
 
 checkUpdateButton.addEventListener('click', async () => {
   checkUpdateButton.disabled = true;
-  updateStatus.textContent = 'Recherche…';
+  updateStatus.textContent = t('update.checking');
   try {
     updateStatus.textContent = UPDATE_MESSAGES[await checkForUpdate()];
   } catch {
-    updateStatus.textContent = 'Recherche impossible (hors ligne ?).';
+    updateStatus.textContent = t('update.checkFailed');
   } finally {
     checkUpdateButton.disabled = false;
   }
@@ -529,11 +549,11 @@ checkUpdateButton.addEventListener('click', async () => {
 
 resetCacheButton.addEventListener('click', async () => {
   resetCacheButton.disabled = true;
-  updateStatus.textContent = 'Vidage du cache…';
+  updateStatus.textContent = t('update.clearing');
   try {
     await resetAppCache(markIntentionalReload);
   } catch {
-    updateStatus.textContent = 'Échec du vidage du cache.';
+    updateStatus.textContent = t('update.clearFailed');
     resetCacheButton.disabled = false;
   }
 });

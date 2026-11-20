@@ -74,13 +74,15 @@ const DISPLAYED_KEYS = [
   'buttons',
 ] as const satisfies readonly (keyof PointerSample)[];
 
-function formatValue(value: PointerSample[keyof PointerSample]): string {
-  if (value === null) return 'n/d';
+function formatValue(value: PointerSample[keyof PointerSample], notAvailable: string): string {
+  if (value === null) return notAvailable;
   if (typeof value === 'number') return Number.isInteger(value) ? String(value) : value.toFixed(3);
   return String(value);
 }
 
-/** Human-readable multi-line description of a sample. */
-export function formatSample(sample: PointerSample): string {
-  return DISPLAYED_KEYS.map((key) => `${key}: ${formatValue(sample[key])}`).join('\n');
+/** Human-readable multi-line description of a sample; `notAvailable` marks missing values. */
+export function formatSample(sample: PointerSample, notAvailable = 'n/a'): string {
+  return DISPLAYED_KEYS.map((key) => `${key}: ${formatValue(sample[key], notAvailable)}`).join(
+    '\n',
+  );
 }

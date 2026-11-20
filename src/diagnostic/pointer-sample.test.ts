@@ -69,9 +69,10 @@ describe('formatSample', () => {
     expect(text).toContain('altitudeAngle: 1.235');
   });
 
-  it('shows « n/d » for properties the browser does not provide', () => {
+  it('marks properties the browser does not provide', () => {
     const text = formatSample(toSample(penEvent()));
 
-    expect(text).toContain('azimuthAngle: n/d');
+    expect(text).toContain('azimuthAngle: n/a');
+    expect(formatSample(toSample(penEvent()), 'n/d')).toContain('azimuthAngle: n/d');
   });
 });

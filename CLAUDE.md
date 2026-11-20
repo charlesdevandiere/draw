@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Vite + TypeScript project (no framework). Step 0, the Pointer Events diagnostic page (`spec/SPEC-diagnostic.md`, `diagnostic.html`), is done: device reports and **conclusions in `docs/diagnostic/conclusions.md`**, to read before touching input handling. Step 0 plan and tasks: `tasks/diagnostic/`. Current work: the MVP, specified in **`spec/SPEC-mvp.md`**, plan in `tasks/plan.md`, tasks in `tasks/todo.md`.
+Vite + TypeScript project (no framework). Step 0, the Pointer Events diagnostic page (`spec/SPEC-diagnostic.md`, now `/draw/<lang>/diagnostic.html`), is done: device reports and **conclusions in `docs/diagnostic/conclusions.md`**, to read before touching input handling. Step 0 plan and tasks: `tasks/diagnostic/`. Current work: the MVP, specified in **`spec/SPEC-mvp.md`**, plan in `tasks/plan.md`, tasks in `tasks/todo.md`.
 
 Commands:
 
@@ -21,7 +21,7 @@ npm run check          # lint + format:check + tests with coverage (90 % thresho
 npm run e2e            # Playwright end-to-end tests (Chromium + WebKit), local only (from task T5b)
 ```
 
-Structure: `index.html` (temporary home page), `diagnostic.html` + `src/diagnostic/` (diagnostic page, kept to test new devices), `src/input/palm-rejection.ts` (pure filtering logic), `vite.config.ts` (base `/draw/`, multi-page entries, PWA, Vitest config), tests `src/**/*.test.ts`. The DOM is confined to a few files excluded from coverage (list in `vite.config.ts`); everything else is pure and tested (90 % threshold). Target layout for the MVP: `spec/SPEC-mvp.md`, section Project Structure.
+Structure: `index.html` (root page: redirects to the browser's language folder), `en/` and `fr/` (one folder per language: `index.html` app shell, `diagnostic.html`; manifests in `public/en/`, `public/fr/`), `src/app/` (child app, markup in `app.html`), `src/diagnostic/` (diagnostic page, markup in `diagnostic.html`, kept to test new devices), `src/i18n/` (catalogs `messages/*.json`, ICU subset formatter), `src/input/palm-rejection.ts` (pure filtering logic), `src/pwa/` (update helpers), `vite.config.ts` (base `/draw/`, multi-page entries, PWA service worker, Vitest config), tests `src/**/*.test.ts`. Shared markup lives in `.html` templates imported with `?raw`; language shells only carry `<html lang>`, manifest and title. The DOM is confined to a few files excluded from coverage (list in `vite.config.ts`); everything else is pure and tested (90 % threshold). Target layout for the MVP: `spec/SPEC-mvp.md`, section Project Structure.
 
 Deployment: every push to `master` runs `npm run check`, then publishes to `https://charlesdevandiere.github.io/draw/` (GitHub Actions). **Never push: the user pushes.**
 

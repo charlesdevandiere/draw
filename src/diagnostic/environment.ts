@@ -1,3 +1,4 @@
+import type { Translator } from '../i18n/i18n';
 /** F6: device, PWA and storage information (DOM / browser APIs only). */
 
 export interface EnvironmentInfo {
@@ -99,35 +100,47 @@ export async function requestPersistence(): Promise<boolean | null> {
   }
 }
 
-function yesNo(value: boolean | null): string {
-  return value === null ? 'non disponible' : value ? 'oui' : 'non';
-}
-
-function megabytes(bytes: number | null): string {
-  return bytes === null ? 'n/d' : `${(bytes / 1_048_576).toFixed(1)} Mo`;
-}
-
-export function formatEnvironment(info: EnvironmentInfo): string {
+/** Human-readable environment, in the page's language. */
+export function formatEnvironment(info: EnvironmentInfo, t: Translator['t']): string {
+  const yesNo = (value: boolean | null): string =>
+    t(value === null ? 'common.notAvailable' : value ? 'common.yes' : 'common.no');
+  const megabytes = (bytes: number | null): string =>
+    bytes === null
+      ? t('common.notAvailableShort')
+      : t('diag.env.megabytes', { value: (bytes / 1_048_576).toFixed(1) });
+  const line = (label: string, value: string): string => t('diag.env.line', { label, value });
   const { media } = info;
   return [
-    `mode d'affichage : ${info.displayMode}`,
-    `navigator.standalone (iOS) : ${yesNo(info.iosStandalone)}`,
-    `stockage persistant : ${yesNo(info.storagePersisted)}`,
-    `stockage : ${
-      info.storageEstimate
+    t('diag.env.displayMode', { value: info.displayMode }),
+    t('diag.env.iosStandalone', { value: yesNo(info.iosStandalone) }),
+    t('diag.env.persisted', { value: yesNo(info.storagePersisted) }),
+    t('diag.env.storage', {
+      value: info.storageEstimate
         ? `${megabytes(info.storageEstimate.usage)} / ${megabytes(info.storageEstimate.quota)}`
-        : 'non disponible'
-    }`,
-    `écran : ${info.screen.width}×${info.screen.height}, viewport : ${info.viewport.width}×${info.viewport.height}, DPR ${info.devicePixelRatio}`,
-    `maxTouchPoints : ${info.maxTouchPoints}`,
-    `pointer fine/coarse : ${yesNo(media.pointerFine)}/${yesNo(media.pointerCoarse)}, ` +
-      `any-pointer fine/coarse : ${yesNo(media.anyPointerFine)}/${yesNo(media.anyPointerCoarse)}`,
-    `hover / any-hover : ${yesNo(media.hover)} / ${yesNo(media.anyHover)}`,
-    `userAgentData : ${
+        : t('common.notAvailable'),
+    }),
+    t('diag.env.screen', {
+      screen: `${info.screen.width}×${info.screen.height}`,
+      viewport: `${info.viewport.width}×${info.viewport.height}`,
+      // A string: Intl would localize the separator ("2,625") unlike the other values.
+      dpr: String(info.devicePixelRatio),
+    }),
+    line('maxTouchPoints', String(info.maxTouchPoints)),
+    line(
+      'pointer fine/coarse',
+      `${yesNo(media.pointerFine)}/${yesNo(media.pointerCoarse)}, ` +
+        line(
+          'any-pointer fine/coarse',
+          `${yesNo(media.anyPointerFine)}/${yesNo(media.anyPointerCoarse)}`,
+        ),
+    ),
+    line('hover / any-hover', `${yesNo(media.hover)} / ${yesNo(media.anyHover)}`),
+    line(
+      'userAgentData',
       info.userAgentData
         ? `${info.userAgentData.platform}, mobile ${yesNo(info.userAgentData.mobile)}, ${info.userAgentData.brands.join(' · ')}`
-        : 'non disponible'
-    }`,
-    `UA : ${info.userAgent}`,
+        : t('common.notAvailable'),
+    ),
+    line('UA', info.userAgent),
   ].join('\n');
 }

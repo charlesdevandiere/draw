@@ -1,82 +1,18 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en" data-page="diagnostic.html">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#fff4d6" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Carnet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
-    <title>Diagnostic — Carnet magique</title>
-    <link rel="stylesheet" href="/src/diagnostic/diagnostic.css" />
+    <title>Diagnostic</title>
+    <script type="module" src="/src/redirect.ts"></script>
   </head>
   <body>
-    <canvas id="surface"></canvas>
-    <aside id="panel" aria-live="off">
-      <header>
-        <strong>Diagnostic</strong>
-        <span id="version"></span>
-        <button id="clear" type="button">Effacer</button>
-        <button id="toggle-panel" type="button" aria-expanded="true" aria-controls="panel-body">
-          Replier
-        </button>
-      </header>
-      <div id="panel-body">
-        <fieldset id="drawing">
-          <legend>Tracé</legend>
-          <label><input id="coalesced" type="checkbox" checked /> Coalesced events</label>
-          <label><input id="raw-points" type="checkbox" /> Points bruts</label>
-        </fieldset>
-        <fieldset id="gestures">
-          <legend>Gestes système</legend>
-          <label><input id="protections" type="checkbox" checked /> Protections anti-gestes</label>
-          <pre id="incidents"></pre>
-        </fieldset>
-        <fieldset id="palm">
-          <legend>Palm rejection</legend>
-          <label
-            >Stratégie
-            <select id="strategy">
-              <option value="none">Aucune</option>
-              <option value="during-stroke" selected>Pendant le trait</option>
-              <option value="pen-session">Session stylet</option>
-            </select>
-          </label>
-          <label
-            >Grâce G (ms) <input id="grace" type="number" min="0" step="50" value="500"
-          /></label>
-          <label
-            >Session S (s) <input id="session" type="number" min="0" step="1" value="10"
-          /></label>
-          <label>Un seul doigt à la fois <input id="single-touch" type="checkbox" /></label>
-          <output id="touch-state"></output>
-        </fieldset>
-        <fieldset id="env">
-          <legend>Environnement</legend>
-          <button id="persist" type="button">Demander la persistance</button>
-          <pre id="environment">Chargement…</pre>
-          <button id="check-update" type="button">Rechercher une mise à jour</button>
-          <button id="reset-cache" type="button">Vider le cache et recharger</button>
-          <output id="update-status"></output>
-        </fieldset>
-        <pre id="support"></pre>
-        <pre id="timing"></pre>
-        <fieldset id="report">
-          <legend>Rapport</legend>
-          <div class="buttons">
-            <button id="copy-report" type="button">Copier le rapport</button>
-            <button id="share-report" type="button">Partager</button>
-            <button id="reset" type="button">Réinitialiser les mesures</button>
-          </div>
-          <output id="report-status"></output>
-          <textarea id="report-fallback" rows="8" readonly hidden></textarea>
-        </fieldset>
-        <pre id="pointers">Posez un stylet ou un doigt sur l'écran.</pre>
-      </div>
-    </aside>
-    <script type="module" src="/src/diagnostic/main.ts"></script>
+    <noscript>
+      <p>
+        <a href="en/diagnostic.html">English</a> ·
+        <a href="fr/diagnostic.html" lang="fr">Français</a>
+      </p>
+    </noscript>
   </body>
 </html>
