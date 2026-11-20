@@ -38,12 +38,12 @@ const RATE_WINDOW_MS = 1000;
 const ROLLING_CAPACITY = 500;
 /** Gaps longer than this between two painted frames are idle time, not frame durations. */
 const MAX_FRAME_GAP_MS = 250;
-/** How often the « doigt ignoré » indicator is re-evaluated while it is on. */
+/** How often the "finger ignored" indicator is re-evaluated while it is on. */
 const TOUCH_STATE_REFRESH_MS = 250;
 
 function requireElement<T extends Element>(selector: string, type: new () => T): T {
   const element = document.querySelector(selector);
-  if (!(element instanceof type)) throw new Error(`Élément introuvable : ${selector}`);
+  if (!(element instanceof type)) throw new Error(`Element not found: ${selector}`);
   return element;
 }
 

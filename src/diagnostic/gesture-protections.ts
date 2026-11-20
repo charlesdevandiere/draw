@@ -55,7 +55,7 @@ const DOCUMENT_EVENTS = ['contextmenu', 'selectstart', 'dblclick', 'gesturestart
 /** Surface-level touch events cancelled (non-passive) to stop callouts and magnifier. */
 const SURFACE_EVENTS = ['touchstart', 'touchmove'] as const;
 
-/** Forgets the reloads counted in this tab session (« Réinitialiser les mesures »). */
+/** Forgets the reloads counted in this tab session (the "reset measurements" button). */
 export function resetReloadCount(): void {
   writeSession(RELOADS_KEY, null);
 }
@@ -96,7 +96,7 @@ export function createGestureProtections(surface: HTMLElement): GestureProtectio
  */
 export function watchIncidents(onIncident: (kind: string, protectionsOn?: boolean) => void): void {
   window.addEventListener('pointercancel', (event) => {
-    onIncident(`pointercancel:${event.pointerType || 'inconnu'}`);
+    onIncident(`pointercancel:${event.pointerType || 'unknown'}`);
   });
   window.addEventListener('touchcancel', () => onIncident('touchcancel'), { passive: true });
   // Capture phase so the event is seen even when the protections cancel it.
@@ -106,7 +106,7 @@ export function watchIncidents(onIncident: (kind: string, protectionsOn?: boolea
     document.addEventListener(
       type,
       (event) => {
-        setTimeout(() => onIncident(event.defaultPrevented ? `${type}:bloqué` : type), 0);
+        setTimeout(() => onIncident(event.defaultPrevented ? `${type}:blocked` : type), 0);
       },
       { capture: true },
     );

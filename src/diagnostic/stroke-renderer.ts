@@ -60,7 +60,7 @@ export function createStrokeRenderer(canvas: HTMLCanvasElement): StrokeRenderer 
       ctx.lineTo(stroke.points[i * 2] ?? 0, stroke.points[i * 2 + 1] ?? 0);
     }
     ctx.stroke();
-    // Canvas prunes zero-length segments, so a tap (the dot of an « i ») would paint
+    // Canvas prunes zero-length segments, so a tap (the dot of an "i") would paint
     // nothing: draw the first point as a disc the width of the line.
     if (stroke.drawn === 0) {
       ctx.fillStyle = stroke.color;

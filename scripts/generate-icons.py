@@ -1,4 +1,4 @@
-"""Rend public/icons/icon.svg (mêmes formes) en PNG avec Pillow. Usage : python3 scripts/generate-icons.py public/icons"""
+"""Renders public/icons/icon.svg (same shapes) to PNG with Pillow. Usage: python3 scripts/generate-icons.py public/icons"""
 import sys
 from PIL import Image, ImageDraw
 
@@ -12,7 +12,7 @@ def bez(p0, p1, p2, p3, n=400):
                     u**3*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t**3*p3[1]))
     return out
 
-# Courbe orange : C puis S (S réfléchit le 2e point de contrôle précédent)
+# Orange curve: C then S (S reflects the previous second control point)
 orange = bez((120,330),(170,200),(230,380),(290,250)) + bez((290,250),(350,120),(380,170),(400,230))[1:]
 blue = bez((130,390),(200,340),(300,420),(390,350))
 

@@ -4,8 +4,12 @@ import type { IncidentSnapshot } from './incidents';
 import type { TypeStats } from './pointer-stats';
 import type { Summary } from './timing-stats';
 
-/** Bump when the report's shape changes, so collected reports stay interpretable. */
-export const REPORT_VERSION = 2;
+/**
+ * Bump when the report's shape changes, so collected reports stay interpretable.
+ * v2: single-touch option. v3: incident keys in English (`gesturestart:blocked`, was `:bloqué`;
+ * `pointercancel:unknown`, was `:inconnu`).
+ */
+export const REPORT_VERSION = 3;
 
 export interface ReportInput {
   generatedAt: string;

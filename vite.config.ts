@@ -17,7 +17,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer',
-      // Les icônes du manifest et le manifest lui-même sont déjà couverts par globPatterns.
+      // The manifest icons and the manifest itself are already covered by globPatterns.
       includeManifestIcons: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg}'],
@@ -53,7 +53,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      // Seuil sur les modules purs uniquement : le DOM est confiné à ces fichiers (spec/SPEC-diagnostic.md).
+      // Threshold on pure modules only: the DOM is confined to these files (spec/SPEC-mvp.md).
       exclude: [
         'src/**/*.test.ts',
         'src/**/main.ts',
