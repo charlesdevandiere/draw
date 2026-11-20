@@ -13,8 +13,10 @@ import {
 } from '../i18n/apply';
 import { createTranslator, isLanguage } from '../i18n/i18n';
 import { checkForUpdate, resetAppCache } from '../pwa/app-update';
-import { deleteDrawing, listDrawings } from '../store/db';
+import { deleteDrawing, listDrawings, saveDrawing } from '../store/db';
 import { initDrawingsSection } from './drawings';
+import { initTransferSection } from './transfer';
+import { renderThumbnail } from '../app/raster';
 import parentHtml from './parent.html?raw';
 
 const translator = createTranslator(documentLanguage());
@@ -32,6 +34,18 @@ const drawings = initDrawingsSection({
   remove: deleteDrawing,
 });
 drawings.refresh().catch(() => undefined);
+
+// Export and import of magic PNGs.
+initTransferSection({
+  t,
+  list: listDrawings,
+  selected: () => drawings.selected(),
+  // Thumbnail rendered now, so the list here and the gallery show it (null if it fails:
+  // the gallery then renders one).
+  save: async (drawing) =>
+    saveDrawing(drawing, await renderThumbnail(drawing.strokes).catch(() => null)),
+  onImported: () => void drawings.refresh().catch(() => undefined),
+});
 
 // Language: an override of the folder's language, for this browser.
 const languageSelect = requireElement('language-select', HTMLSelectElement);

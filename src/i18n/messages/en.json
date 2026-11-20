@@ -107,5 +107,17 @@
   "parent.drawings.confirmTitle": "Delete drawings?",
   "parent.drawings.confirm": "{count, plural, one {This drawing will be deleted for good.} other {These # drawings will be deleted for good.}}",
   "parent.drawings.none": "No drawings yet.",
-  "common.cancel": "Cancel"
+  "common.cancel": "Cancel",
+  "parent.transfer": "Export and import",
+  "parent.transfer.help": "Drawings are exported as pictures that also carry the drawing itself: keep them in Files or on a computer, and import them back here.",
+  "parent.transfer.export": "Export (selection, or all)",
+  "parent.transfer.import": "Import pictures",
+  "parent.transfer.preparing": "Preparing the pictures…",
+  "parent.transfer.reading": "Reading the pictures…",
+  "parent.transfer.exported": "{count, plural, one {# drawing exported.} other {# drawings exported.}}",
+  "parent.transfer.exportFailed": "Export failed.",
+  "parent.transfer.imported": "{added, plural, =0 {No drawing imported} one {# drawing imported} other {# drawings imported}}{already, plural, =0 {} one {, # already there} other {, # already there}}{refused, plural, =0 {} one {, # file refused (not a sketchbook drawing)} other {, # files refused (not sketchbook drawings)}}.",
+  "parent.transfer.importFailed": "Import failed.",
+  "parent.transfer.ready": "{count, plural, one {# picture ready.} other {# pictures ready.}}",
+  "parent.transfer.share": "Share {count, plural, one {# picture} other {# pictures}}"
 }

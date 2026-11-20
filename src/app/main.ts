@@ -46,7 +46,7 @@ import { renderThumbnail } from './raster';
 import { initPadlock } from './padlock';
 import { initReplayScreen } from './replay-screen';
 import { shareFile } from './share';
-import { encodeMagicPng } from '../store/magic-png';
+import { encodeMagicPng } from './magic-image';
 import { drawingFileName } from '../store/file-name';
 import { showScreen } from './screens';
 

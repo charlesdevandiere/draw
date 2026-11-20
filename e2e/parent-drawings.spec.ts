@@ -17,7 +17,10 @@ async function makeDrawings(page: Page, count: number) {
     ]);
     await page.getByRole('button', { name: 'New page' }).click();
   }
-  await expect.poll(async () => Object.keys(await savedStrokeCounts(page)).length).toBe(count);
+  // Saves include a thumbnail: allow time when the machine is busy (parallel tests).
+  await expect
+    .poll(async () => Object.keys(await savedStrokeCounts(page)).length, { timeout: 15_000 })
+    .toBe(count);
 }
 
 test('the parent page lists the drawings and deletes the selected ones after confirmation', async ({

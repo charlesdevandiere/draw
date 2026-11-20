@@ -90,7 +90,7 @@ Phase B — the magic and the parent
 - [x] T19: Replay screen
 - [x] T20: Padlock and parent page shell
 - [x] T21: Drawings list and deletion
-- [ ] T22: Export and import of magic PNGs
+- [x] T22: Export and import of magic PNGs
 - [ ] T23: Input settings
 
 Checkpoint B — phase B validated (spec criteria 14–17)

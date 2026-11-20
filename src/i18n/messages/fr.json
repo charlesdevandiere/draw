@@ -107,5 +107,17 @@
   "parent.drawings.confirmTitle": "Supprimer des dessins ?",
   "parent.drawings.confirm": "{count, plural, one {Ce dessin sera supprimé définitivement.} other {Ces # dessins seront supprimés définitivement.}}",
   "parent.drawings.none": "Aucun dessin pour l'instant.",
-  "common.cancel": "Annuler"
+  "common.cancel": "Annuler",
+  "parent.transfer": "Exporter et importer",
+  "parent.transfer.help": "Les dessins sont exportés en images qui contiennent aussi le dessin lui-même : gardez-les dans Fichiers ou sur un ordinateur, et réimportez-les ici.",
+  "parent.transfer.export": "Exporter (la sélection, ou tout)",
+  "parent.transfer.import": "Importer des images",
+  "parent.transfer.preparing": "Préparation des images…",
+  "parent.transfer.reading": "Lecture des images…",
+  "parent.transfer.exported": "{count, plural, one {# dessin exporté.} other {# dessins exportés.}}",
+  "parent.transfer.exportFailed": "L'export a échoué.",
+  "parent.transfer.imported": "{added, plural, =0 {Aucun dessin importé} one {# dessin importé} other {# dessins importés}}{already, plural, =0 {} one {, # déjà présent} other {, # déjà présents}}{refused, plural, =0 {} one {, # fichier refusé (pas un dessin du carnet)} other {, # fichiers refusés (pas des dessins du carnet)}}.",
+  "parent.transfer.importFailed": "L'import a échoué.",
+  "parent.transfer.ready": "{count, plural, one {# image prête.} other {# images prêtes.}}",
+  "parent.transfer.share": "Partager {count, plural, one {# image} other {# images}}"
 }

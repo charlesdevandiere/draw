@@ -1,19 +1,30 @@
 /**
- * The magic PNG (DOM): a normal PNG of the drawing on its white page, carrying the vector
+ * The magic PNG: a normal PNG of the drawing on its white page, carrying the vector
  * drawing in an iTXt chunk (keyword `carnet-magique`, zlib-compressed JSON of the stored
- * schema). Shared from the gallery; imported back by the parent page.
+ * schema). Shared from the gallery; exported and imported back by the parent page.
+ *
+ * No DOM here (Blob and compression streams exist in Node too): the image itself is
+ * rendered by app/magic-image.ts.
  */
-import { canvasToPng, rasterize } from '../app/raster';
 import type { Drawing } from '../engine/types';
 import { MAGIC_KEYWORD, PngFormatError, readItxt, writeItxt } from './png-chunk';
 import { parseDrawing, toStored } from './schema';
 
 /** Side of the exported image, in pixels. */
 export const EXPORT_SIZE = 2048;
+
 /** Refuse bigger files and payloads: protects memory against hostile files. */
-export const MAX_FILE_BYTES = 40 * 1024 * 1024;
-export const MAX_CHUNK_BYTES = 20 * 1024 * 1024;
-export const MAX_JSON_BYTES = 80 * 1024 * 1024;
+export interface MagicLimits {
+  fileBytes: number;
+  chunkBytes: number;
+  jsonBytes: number;
+}
+
+export const MAGIC_LIMITS: MagicLimits = {
+  fileBytes: 40 * 1024 * 1024,
+  chunkBytes: 20 * 1024 * 1024,
+  jsonBytes: 80 * 1024 * 1024,
+};
 
 export type MagicPngProblem = 'not-png' | 'not-magic' | 'invalid' | 'too-large';
 
@@ -55,27 +66,29 @@ async function pipe(
   return out;
 }
 
-const canCompress = typeof CompressionStream === 'function';
-
-export async function encodeMagicPng(drawing: Drawing): Promise<Blob> {
-  const image = await canvasToPng(rasterize(drawing.strokes, EXPORT_SIZE));
-  const png = new Uint8Array(await image.arrayBuffer());
+/**
+ * Adds the drawing to the bytes of its rendered PNG. Compressed when the platform has
+ * CompressionStream ('deflate' is the zlib format the iTXt chunk expects).
+ */
+export async function embedDrawing(png: Uint8Array, drawing: Drawing): Promise<Uint8Array> {
   const json = new TextEncoder().encode(JSON.stringify(toStored(drawing)));
-  // 'deflate' is the zlib format the iTXt chunk expects.
-  const payload = canCompress
+  const compress = typeof CompressionStream === 'function';
+  const payload = compress
     ? await pipe(json, new CompressionStream('deflate'), Number.POSITIVE_INFINITY)
     : json;
-  const bytes = writeItxt(png, MAGIC_KEYWORD, payload, canCompress);
-  return new Blob([new Uint8Array(bytes)], { type: 'image/png' });
+  return writeItxt(png, MAGIC_KEYWORD, payload, compress);
 }
 
 /** Reads the drawing back from a magic PNG; throws MagicPngError for anything else. */
-export async function decodeMagicPng(file: Blob): Promise<Drawing> {
-  if (file.size > MAX_FILE_BYTES) throw new MagicPngError('too-large');
+export async function decodeMagicPng(
+  file: Blob,
+  limits: MagicLimits = MAGIC_LIMITS,
+): Promise<Drawing> {
+  if (file.size > limits.fileBytes) throw new MagicPngError('too-large');
   const png = new Uint8Array(await file.arrayBuffer());
   let chunk: ReturnType<typeof readItxt>;
   try {
-    chunk = readItxt(png, MAGIC_KEYWORD, MAX_CHUNK_BYTES);
+    chunk = readItxt(png, MAGIC_KEYWORD, limits.chunkBytes);
   } catch (error) {
     if (error instanceof PngFormatError && error.message.includes('too large')) {
       throw new MagicPngError('too-large', error);
@@ -88,7 +101,7 @@ export async function decodeMagicPng(file: Blob): Promise<Drawing> {
       ? await pipe(
           new Uint8Array(chunk.payload),
           new DecompressionStream('deflate'),
-          MAX_JSON_BYTES,
+          limits.jsonBytes,
         )
       : chunk.payload;
     return parseDrawing(JSON.parse(new TextDecoder().decode(json)));

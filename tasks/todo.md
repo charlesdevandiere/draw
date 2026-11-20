@@ -476,12 +476,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Export through the share sheet (several files) or downloads.
-- [ ] Import accepts only valid magic PNGs with a known schema version and under the size limit; merge by id (pure, tested); clear report of imported / skipped / refused files.
+- [x] Export through the share sheet (several files) or downloads.
+- [x] Import accepts only valid magic PNGs with a known schema version and under the size limit; merge by id (pure, tested); clear report of imported / skipped / refused files.
 
 **Verification:**
 
-- [ ] `npm run check`; manual: export, delete all, import back, replay one; import a photo → refused.
+- [x] `npm run check`; manual: export, delete all, import back, replay one; import a photo → refused.
 
 **Dependencies:** T16, T21
 
