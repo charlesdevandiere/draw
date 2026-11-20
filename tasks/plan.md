@@ -64,7 +64,7 @@ Checkpoint 0 — install `/draw/fr/` and `/draw/en/` on the devices
 Phase A — the sketchbook
 
 - [x] T6: Sass + Bootstrap theme and the app shell
-- [ ] T7: Engine foundations (types, page transform, stroke builder)
+- [x] T7: Engine foundations (types, page transform, stroke builder)
 - [ ] T8: First stroke on screen (render + drawing screen)
 
 Checkpoint A1 — drawing is fluid on the three devices

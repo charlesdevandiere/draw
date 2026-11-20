@@ -168,13 +168,13 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `types.ts`: `PAGE_SIZE`, `Tool`, `Stroke` (flat `x, y, t` points), `Drawing`.
-- [ ] `page-transform.ts`: fit + center of the square page in an area, screen → page and page → screen, `devicePixelRatio`; round trip tested in portrait and landscape.
-- [ ] `stroke-builder.ts`: starts, extends (coalesced samples or single), ends a stroke; rounds to 0.1 unit; a stroke with one point is valid (dot).
+- [x] `types.ts`: `PAGE_SIZE`, `Tool`, `Stroke` (flat `x, y, t` points), `Drawing`.
+- [x] `page-transform.ts`: fit + center of the square page in an area, screen → page and page → screen, `devicePixelRatio`; round trip tested in portrait and landscape.
+- [x] `stroke-builder.ts`: starts, extends (coalesced samples or single), ends a stroke; rounds to 0.1 unit; a stroke with one point is valid (dot).
 
 **Verification:**
 
-- [ ] `npx vitest run src/engine`; `npm run check`
+- [x] `npx vitest run src/engine`; `npm run check`
 
 **Dependencies:** None (can start after T2)
 
