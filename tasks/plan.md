@@ -95,6 +95,20 @@ Phase B — the magic and the parent
 
 Checkpoint B — phase B validated (spec criteria 14–17)
 
+## Status (2026-11-21)
+
+All tasks T1–T23 are implemented, reviewed (`/code-review --fix`) and committed; 273 unit tests and 196 end-to-end runs (Chromium + WebKit, tablet + phone) pass. **Not done yet: every device checkpoint** (0, A1, A2, A3, B) and the child test: they need the reference devices, see `docs/mvp-device-test.md`.
+
+Decisions taken during the build (all recorded in the spec or the code):
+
+- One drawing canvas instead of two layers (an eraser stroke in progress must act on what is drawn).
+- Replay also shortens a finger held still for more than 1 s inside a stroke.
+- Thumbnails are stored as PNG bytes, not Blob (WebKit refused Blobs in IndexedDB).
+- New page sits apart from undo / redo; the drawing it leaves is saved and stays in the gallery.
+- The parent page's export takes two taps (prepare, then share): iOS opens the share sheet only from a fresh tap.
+- The language override is kept in localStorage (read synchronously before the first text).
+- A new version reloads the app only once the drawing is saved and no stroke is in progress.
+
 ## Risks and Mitigations
 
 | Risk                                                                                                                       | Impact | Mitigation                                                                                 |
