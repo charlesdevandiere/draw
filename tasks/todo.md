@@ -374,12 +374,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] `controllerchange` while drawing defers the reload until no pointer is down and the save completed.
-- [ ] Offline launch works for both language folders.
+- [x] `controllerchange` while drawing defers the reload until no pointer is down and the save completed.
+- [x] Offline launch works for both language folders.
 
 **Verification:**
 
-- [ ] `npm run check`; `npm run preview` with two successive builds.
+- [x] `npm run check`; `npm run preview` with two successive builds.
 
 **Dependencies:** T13
 

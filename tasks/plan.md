@@ -80,7 +80,7 @@ Checkpoint A2 — the slate is complete
 - [x] T14: Gallery
 - [x] T15: PNG iTXt chunk (pure)
 - [x] T16: Magic PNG and sharing
-- [ ] T17: Update rule and offline check
+- [x] T17: Update rule and offline check
 
 Checkpoint A3 — phase A validated (spec criteria 1–13)
 

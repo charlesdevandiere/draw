@@ -58,6 +58,11 @@ function open(): Promise<IDBDatabase> {
       };
       resolve(db);
     };
+    // Another connection holds an older version open: fail rather than wait forever.
+    req.onblocked = () => {
+      if (opening === pending) opening = null;
+      reject(new Error('IndexedDB upgrade blocked by another tab'));
+    };
     req.onerror = () => {
       if (opening === pending) opening = null;
       reject(req.error ?? new Error('Cannot open IndexedDB'));

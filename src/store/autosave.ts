@@ -28,6 +28,9 @@ export function createAutosave(
   /** Drawings waiting to be written, one per id: a failed save of a drawing left behind
    * (new page, reopened drawing) must not be dropped by changes to the next one. */
   const queue = new Map<string, Drawing>();
+  /** Latest version of each drawing not yet written: an older version that fails while a
+   * newer one is already on its way must not be queued again (it would overwrite it). */
+  const latest = new Map<string, Drawing>();
   let timer: ReturnType<typeof setTimeout> | null = null;
   let chain: Promise<void> = Promise.resolve();
 
@@ -39,11 +42,18 @@ export function createAutosave(
     for (const drawing of drawings) {
       chain = chain
         .then(() => (drawing.strokes.length > 0 ? target.save(drawing) : target.remove(drawing.id)))
-        .catch((error: unknown) => {
-          // Keep the drawing pending (unless newer) so the next flush or change retries it.
-          if (!queue.has(drawing.id)) queue.set(drawing.id, drawing);
-          onError(error);
-        });
+        .then(
+          () => {
+            if (latest.get(drawing.id) === drawing) latest.delete(drawing.id);
+          },
+          (error: unknown) => {
+            // Keep the drawing pending (unless newer) so the next flush or change retries it.
+            if (latest.get(drawing.id) === drawing && !queue.has(drawing.id)) {
+              queue.set(drawing.id, drawing);
+            }
+            onError(error);
+          },
+        );
     }
     return chain;
   }
@@ -53,6 +63,7 @@ export function createAutosave(
       // Re-inserted last: drawings are written in the order they last changed.
       queue.delete(drawing.id);
       queue.set(drawing.id, drawing);
+      latest.set(drawing.id, drawing);
       timer ??= setTimeout(() => void write(), delayMs);
     },
     flush: write,

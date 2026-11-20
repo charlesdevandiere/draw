@@ -141,4 +141,38 @@ describe('autosave across drawings', () => {
     expect(t.save.mock.calls.map(([d]) => d.id)).toEqual(['a', 'a', 'b']);
     expect(autosave.pending()).toBe(false);
   });
+
+  it('never queues again an older version that fails while a newer one is on its way', async () => {
+    const t = target();
+    let failFirst!: (error: Error) => void;
+    t.save.mockImplementationOnce(() => new Promise<void>((_, reject) => (failFirst = reject)));
+    const autosave = createAutosave(t);
+    const older = drawing([stroke], 'a');
+    const newer = drawing([stroke, stroke], 'a');
+    autosave.changed(older);
+    const first = autosave.flush();
+    autosave.changed(newer);
+    const second = autosave.flush();
+    // Let the first save start (it runs on the promise chain).
+    await vi.advanceTimersByTimeAsync(0);
+    failFirst(new Error('locked'));
+    await Promise.all([first, second]);
+    expect(t.save).toHaveBeenLastCalledWith(newer);
+    expect(autosave.pending()).toBe(false);
+  });
+
+  it('keeps the newer version pending when it fails after an older one failed', async () => {
+    const t = target();
+    t.save.mockRejectedValue(new Error('quota'));
+    const autosave = createAutosave(t);
+    const newer = drawing([stroke, stroke], 'a');
+    autosave.changed(drawing([stroke], 'a'));
+    const first = autosave.flush();
+    autosave.changed(newer);
+    await Promise.all([first, autosave.flush()]);
+    t.save.mockResolvedValue(undefined);
+    await autosave.flush();
+    expect(t.save).toHaveBeenLastCalledWith(newer);
+    expect(autosave.pending()).toBe(false);
+  });
 });

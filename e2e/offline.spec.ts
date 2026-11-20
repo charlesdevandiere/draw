@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { pagePoint } from './helpers/canvas';
+import { drawStrokes, line } from './helpers/pointer';
 
 test.use({ locale: 'fr-FR' });
 
@@ -21,6 +23,20 @@ test('the app and the diagnostic page open offline once cached', async ({ page, 
 
   await page.reload();
   await expect(page.locator('h1')).toHaveText('Carnet magique');
+
+  // Drawing and the gallery work without network.
+  await drawStrokes(page, [
+    {
+      points: line(await pagePoint(page, 0.1, 0.5), await pagePoint(page, 0.9, 0.5)),
+      pointerType: 'pen',
+    },
+  ]);
+  await page.getByRole('button', { name: 'Mes dessins' }).click();
+  await expect(page.locator('.gallery-card')).toHaveCount(1);
+
   await page.goto('fr/diagnostic.html');
   await expect(page.locator('#clear')).toHaveText('Effacer');
+  // The other language folder is cached too.
+  await page.goto('en/');
+  await expect(page.locator('h1')).toHaveText('Magic Sketchbook');
 });

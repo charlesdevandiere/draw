@@ -239,9 +239,15 @@ const gallery = initGallery({
     ),
   actions: (drawing) => [shareButton(drawing)],
   onOpen: (drawing) => {
-    if (drawing.id !== current.id) {
-      switchDrawing(drawing)
-        .then(() => writeSetting(SETTING_KEYS.lastDrawingId, drawing.id))
+    if (drawing.id !== current.id && !drawScreen.isDrawing()) {
+      // The card may be older than what is being saved: write first, then read it back.
+      autosave
+        .flush()
+        .then(() => loadDrawing(drawing.id))
+        .then(async (record) => {
+          await switchDrawing(record?.drawing ?? drawing);
+          await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
+        })
         .catch(() => undefined);
     }
     showDrawScreen();
@@ -280,16 +286,29 @@ window.addEventListener('pagehide', () => void autosave.flush());
 // A new service worker took over (new deploy): reload so the page runs the new build.
 // Skipped on first install, when the page had no controller yet.
 if (navigator.serviceWorker?.controller) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => reloadWhenIdle());
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // One waiting loop is enough, however many times the controller changes.
+    if (reloading) return;
+    reloading = true;
+    reloadWhenIdle();
+  });
 }
+
+/** Delay before trying again to save, then reload, after a failed save. */
+const SAVE_RETRY_MS = 5000;
 
 /** Reloads once no stroke is in progress, so a new version never cuts a stroke short. */
 function reloadWhenIdle(): void {
   if (!drawScreen.isDrawing()) {
-    // A stroke may start while the flush writes: wait for it too.
-    void autosave
-      .flush()
-      .then(() => (drawScreen.isDrawing() ? reloadWhenIdle() : window.location.reload()));
+    void autosave.flush().then(() => {
+      // A stroke may start while the flush writes: wait for it too.
+      if (drawScreen.isDrawing()) reloadWhenIdle();
+      // A save that failed is still pending: never trade the drawing for the update.
+      // Retry later; the new version loads once the drawing is safe.
+      else if (autosave.pending()) setTimeout(reloadWhenIdle, SAVE_RETRY_MS);
+      else window.location.reload();
+    });
     return;
   }
   // A stroke ends on pointerup, or on pointercancel (system gesture): retry after either.
