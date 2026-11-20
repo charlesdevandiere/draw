@@ -336,12 +336,12 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [ ] Insert a chunk before `IEND` with a correct CRC-32 (checked against known values); read it back; compressed and uncompressed flags.
-- [ ] Missing chunk, bad CRC, non-PNG input and oversized chunk return a clear error.
+- [x] Insert a chunk before `IEND` with a correct CRC-32 (checked against known values); read it back; compressed and uncompressed flags.
+- [x] Missing chunk, bad CRC, non-PNG input and oversized chunk return a clear error.
 
 **Verification:**
 
-- [ ] `npx vitest run src/store/png-chunk.test.ts`; `npm run check`
+- [x] `npx vitest run src/store/png-chunk.test.ts`; `npm run check`
 
 **Dependencies:** None (after T13 for the payload shape)
 

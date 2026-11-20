@@ -78,7 +78,7 @@ Checkpoint A2 — the slate is complete
 
 - [x] T13: Storage, autosave and settings
 - [x] T14: Gallery
-- [ ] T15: PNG iTXt chunk (pure)
+- [x] T15: PNG iTXt chunk (pure)
 - [ ] T16: Magic PNG and sharing
 - [ ] T17: Update rule and offline check
 

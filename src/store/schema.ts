@@ -93,7 +93,12 @@ export function parseDrawing(value: unknown, options: ParseOptions = {}): Drawin
     if (schema === SCHEMA_VERSION) break;
     const migrate = migrations[schema];
     if (!migrate) throw new DrawingFormatError(`unknown schema version ${schema}`);
-    current = migrate(current);
+    const migrated: unknown = migrate(current);
+    // Each step must move forward, or a faulty migration would loop forever.
+    if (!isRecord(migrated) || !finite(migrated['schema']) || migrated['schema'] <= schema) {
+      throw new DrawingFormatError(`migration from schema ${schema} failed`);
+    }
+    current = migrated;
   }
 
   const { id, createdAt, updatedAt, strokes } = current;

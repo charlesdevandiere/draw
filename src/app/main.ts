@@ -263,6 +263,7 @@ function reloadWhenIdle(): void {
 
 /** Restores the settings and the last drawing, unless the child already started drawing. */
 async function restore(): Promise<void> {
+  const slate = current.id;
   const [modeValue, toolsValue, lastIdValue] = await Promise.all([
     readSetting(SETTING_KEYS.inputMode),
     readSetting(SETTING_KEYS.tools),
@@ -278,7 +279,9 @@ async function restore(): Promise<void> {
 
   const lastId = parseDrawingId(lastIdValue);
   const record = lastId ? await loadDrawing(lastId) : null;
-  if (!record || history.strokes.length > 0 || drawScreen.isDrawing()) return;
+  // Anything done on the slate meanwhile (strokes, undo, new page, drawing reopened) wins.
+  const touched = current.id !== slate || canUndo(history) || canRedo(history);
+  if (!record || touched || drawScreen.isDrawing()) return;
   current = { id: record.drawing.id, createdAt: record.drawing.createdAt };
   history = createHistory(record.drawing.strokes);
   drawScreen.setStrokes(history.strokes);

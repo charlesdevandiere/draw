@@ -128,3 +128,17 @@ describe('autosave', () => {
     expect(t.remove).not.toHaveBeenCalled();
   });
 });
+
+describe('autosave across drawings', () => {
+  it('keeps retrying a failed save after another drawing changes', async () => {
+    const t = target();
+    t.save.mockRejectedValueOnce(new Error('locked'));
+    const autosave = createAutosave(t);
+    autosave.changed(drawing([stroke], 'a'));
+    await autosave.flush();
+    autosave.changed(drawing([stroke], 'b'));
+    await autosave.flush();
+    expect(t.save.mock.calls.map(([d]) => d.id)).toEqual(['a', 'a', 'b']);
+    expect(autosave.pending()).toBe(false);
+  });
+});

@@ -95,4 +95,12 @@ describe('migrations', () => {
     const old = { ...stored(), schema: 0, strokes: undefined, lines: drawing.strokes };
     expect(parseDrawing(old, { migrations })).toEqual(drawing);
   });
+
+  it('refuses a migration that does not move forward', () => {
+    const old = { ...stored(), schema: 0 };
+    const stuck = { 0: (value: Record<string, unknown>) => ({ ...value, schema: 0 }) };
+    expect(() => parseDrawing(old, { migrations: stuck })).toThrow(DrawingFormatError);
+    const broken = { 0: () => null as unknown as Record<string, unknown> };
+    expect(() => parseDrawing(old, { migrations: broken })).toThrow(DrawingFormatError);
+  });
 });

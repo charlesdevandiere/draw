@@ -25,21 +25,23 @@ export function createAutosave(
   delayMs = 1000,
   onError: (error: unknown) => void = () => undefined,
 ): Autosave {
-  let next: Drawing | null = null;
+  /** Drawings waiting to be written, one per id: a failed save of a drawing left behind
+   * (new page, reopened drawing) must not be dropped by changes to the next one. */
+  const queue = new Map<string, Drawing>();
   let timer: ReturnType<typeof setTimeout> | null = null;
   let chain: Promise<void> = Promise.resolve();
 
   function write(): Promise<void> {
     if (timer !== null) clearTimeout(timer);
     timer = null;
-    const drawing = next;
-    next = null;
-    if (drawing) {
+    const drawings = [...queue.values()];
+    queue.clear();
+    for (const drawing of drawings) {
       chain = chain
         .then(() => (drawing.strokes.length > 0 ? target.save(drawing) : target.remove(drawing.id)))
         .catch((error: unknown) => {
           // Keep the drawing pending (unless newer) so the next flush or change retries it.
-          next ??= drawing;
+          if (!queue.has(drawing.id)) queue.set(drawing.id, drawing);
           onError(error);
         });
     }
@@ -48,10 +50,12 @@ export function createAutosave(
 
   return {
     changed(drawing) {
-      next = drawing;
+      // Re-inserted last: drawings are written in the order they last changed.
+      queue.delete(drawing.id);
+      queue.set(drawing.id, drawing);
       timer ??= setTimeout(() => void write(), delayMs);
     },
     flush: write,
-    pending: () => next !== null,
+    pending: () => queue.size > 0,
   };
 }
