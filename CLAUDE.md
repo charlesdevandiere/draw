@@ -19,6 +19,7 @@ npm run lint           # eslint .
 npm run format         # prettier --write .
 npm run check          # lint + format:check + tests with coverage (90 % threshold) + build
 npm run e2e            # Playwright end-to-end tests (Chromium + WebKit), local only (from task T5b)
+npm run notices        # regenerate public/THIRD-PARTY-NOTICES.txt (the build fails when it is stale)
 ```
 
 Structure:

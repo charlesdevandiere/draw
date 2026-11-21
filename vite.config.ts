@@ -28,7 +28,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest,txt}'],
         navigateFallback: null,
       },
       // One hand-written manifest per language folder (public/en, public/fr).
