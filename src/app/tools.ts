@@ -64,7 +64,11 @@ export function initTools(
     return element;
   });
 
-  const eraser = button('eraser', t('tools.eraser'), '<svg><use href="#icon-eraser" /></svg>');
+  const eraser = button(
+    'eraser',
+    t('tools.eraser'),
+    '<span class="icon icon-eraser" aria-hidden="true"></span>',
+  );
   eraser.addEventListener('click', () => update(selectEraser(state)));
 
   container.append(...swatches, ...widths, eraser);

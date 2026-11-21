@@ -76,7 +76,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - **Portrait phone**: the page spans the full width, tools below. **Landscape tablet**: the page spans the full height, tools on the sides. The layout follows the screen's aspect ratio, not the device type.
 - **No control** within a margin near the top and bottom edges (≥ 32 px plus `safe-area-inset`).
 - **Gesture protections** always on (list in `docs/diagnostic/conclusions.md`).
-- No visible text: inline SVG pictograms, targets ≥ 48 px, translated `aria-label`s.
+- No visible text: pictograms from Bootstrap Icons (only the icons used, imported in Sass as CSS masks, `src/styles/_icons.scss`), targets ≥ 48 px, translated `aria-label`s.
 
 **A5 — Autosave**
 
@@ -208,10 +208,9 @@ src/
     main.ts                → Startup, screen switching (hidden), autosave
     draw-screen.ts         → Canvases, tools, Pointer Events → engine
     gallery-screen.ts      → Grid, open, share, replay, padlock
-    icons.ts               → SVG pictograms
   parent/main.ts           → DOM — parent page (phase B)
   pwa/app-update.ts        → Moved from src/diagnostic/, shared
-  styles/                  → Sass: theme variables, Bootstrap modules used, app styles
+  styles/                  → Sass: theme variables, Bootstrap modules used, Bootstrap Icons used (_icons.scss), app styles
   diagnostic/              → Existing, translated through i18n
 ```
 

@@ -57,7 +57,7 @@ PC (mouse / touch): not targeted for validation, but the code stays standard so 
 
 - **Vite + TypeScript, no UI framework** (Angular ruled out: no benefit for a mostly-canvas app).
 - `vite-plugin-pwa` (Workbox) for the service worker; manifests written by hand, one per language folder.
-- **Bootstrap 6 (alpha, exact version) compiled from Sass**, importing only the modules used, with a custom theme. CSS everywhere, Bootstrap JS only where a component needs it. The child screens have no visible text: pictograms, touch targets ≥ 48 px.
+- **Bootstrap 6 (alpha, exact version) compiled from Sass**, importing only the modules used, with a custom theme. CSS everywhere, Bootstrap JS only where a component needs it. The child screens have no visible text: pictograms (Bootstrap Icons, only those used, as CSS masks in `src/styles/_icons.scss`), touch targets ≥ 48 px.
 - Storage: IndexedDB (database `draw`), hand-written promise wrapper.
 - i18n: JSON catalogs with an ICU MessageFormat subset (placeholders, plural, select), small hand-written formatter.
 - Tests: Vitest (pure code), Playwright (end-to-end, Chromium + WebKit, local).

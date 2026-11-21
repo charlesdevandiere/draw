@@ -19,14 +19,14 @@ export function initModeButton(
   t: Translator['t'],
   onChange: (mode: InputMode, chosenByHand: boolean) => void,
 ): ModeButton {
-  const icon = button.querySelector('use');
+  const icon = button.querySelector('.icon');
   let shown: InputMode | null = null;
 
   function refresh(): boolean {
     const { mode } = filter.state();
     if (mode === shown) return false;
     shown = mode;
-    icon?.setAttribute('href', `#icon-mode-${mode}`);
+    if (icon) icon.className = `icon icon-mode-${mode}`;
     button.setAttribute('aria-label', t(LABELS[mode]));
     button.dataset['mode'] = mode;
     return true;

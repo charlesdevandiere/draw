@@ -205,7 +205,7 @@ function playButton(drawing: Drawing): HTMLButtonElement {
   button.type = 'button';
   button.className = 'tool-button';
   button.setAttribute('aria-label', translator.t('gallery.play'));
-  button.innerHTML = '<svg><use href="#icon-play" /></svg>';
+  button.innerHTML = '<span class="icon icon-play" aria-hidden="true"></span>';
   button.addEventListener('click', () => {
     showScreen('replay');
     replay.play(drawing);
@@ -219,7 +219,7 @@ function shareButton(drawing: Drawing): HTMLButtonElement {
   button.type = 'button';
   button.className = 'tool-button';
   button.setAttribute('aria-label', translator.t('gallery.share'));
-  button.innerHTML = '<svg><use href="#icon-share" /></svg>';
+  button.innerHTML = '<span class="icon icon-share" aria-hidden="true"></span>';
   // The share sheet needs a recent user gesture (iOS Safari): start encoding as soon as the
   // finger lands, so the PNG is ready (or nearly) when the click arrives.
   let file: Promise<File> | null = null;

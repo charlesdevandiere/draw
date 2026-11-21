@@ -22,8 +22,14 @@
 
 body {
   background: $paper;
-  padding-top: env(safe-area-inset-top);
+  // Clear of the status bar and the blur iPadOS 26 draws under it.
+  padding-top: calc(#{$edge-margin} + env(safe-area-inset-top));
   padding-bottom: env(safe-area-inset-bottom);
+
+  // Tablets: the blur band is taller (same rule as the child app).
+  @media (min-width: 700px) and (min-height: 700px) {
+    padding-top: calc(#{$edge-margin-top-tablet} + env(safe-area-inset-top));
+  }
 }
 
 .parent-drawings {

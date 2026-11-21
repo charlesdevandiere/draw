@@ -12,17 +12,29 @@
 @use 'bootstrap/scss/buttons';
 @use 'bootstrap/scss/helpers';
 @use 'tokens' as *;
+@use 'icons';
 
 :root {
   --app-paper: #{$paper};
   --app-ink: #{$ink};
   --app-page: #{$page};
   --app-accent: #{$accent};
-  --app-tool-size: #{$tool-size};
+  // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
+  // gutter and 5 gaps are subtracted, plus 4 px for rounding.
+  --app-tool-size: clamp(
+    #{$target-min},
+    (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap} - 4px) / #{$tools-per-row},
+    #{$tool-size}
+  );
   --app-tool-gap: #{$tool-gap};
   --app-edge-top: calc(#{$edge-margin} + env(safe-area-inset-top));
   --app-edge-bottom: calc(#{$edge-margin} + env(safe-area-inset-bottom));
   color-scheme: light;
+
+  @media (min-width: 700px) and (min-height: 700px) {
+    --app-edge-top: calc(#{$edge-margin-top-tablet} + env(safe-area-inset-top));
+  }
+
   // Bootstrap reserves a scrollbar gutter on :root; the app never scrolls.
   scrollbar-gutter: auto;
 }
@@ -151,16 +163,6 @@ body {
   &:disabled {
     opacity: 0.35;
   }
-
-  svg {
-    width: 60%;
-    height: 60%;
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
 }
 
 // Color swatches: the button is the color.
@@ -242,10 +244,10 @@ body {
     background: var(--app-page);
   }
 
-  svg {
+  .icon {
     position: relative;
-    width: 45%;
-    height: 45%;
+    width: 42%;
+    height: 42%;
   }
 }
 

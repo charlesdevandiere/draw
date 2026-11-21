@@ -30,6 +30,7 @@
     "vitest": "^5.1.1"
   },
   "dependencies": {
-    "bootstrap": "6.0.0-alpha.1"
+    "bootstrap": "6.0.0-alpha.1",
+    "bootstrap-icons": "1.13.2"
   }
 }

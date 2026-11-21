@@ -1,0 +1,61 @@
+// Bootstrap Icons, only the ones the app uses. Each icon is a CSS mask over the current
+// text color; Vite inlines the small SVG files as data URIs, so they work offline.
+// Markup: <span class="icon icon-undo" aria-hidden="true"></span>
+@use 'sass:map';
+
+$icons: (
+  'gallery': 'images',
+  'mode-pen': 'pen-fill',
+  'mode-finger': 'hand-index-fill',
+  'eraser': 'eraser-fill',
+  'undo': 'arrow-counterclockwise',
+  'redo': 'arrow-clockwise',
+  'new-page': 'file-earmark-plus-fill',
+  'share': 'box-arrow-up',
+  'play': 'play-fill',
+  'lock': 'lock-fill',
+  'back': 'arrow-left',
+);
+
+@function icon-url($file) {
+  @return url('bootstrap-icons/icons/#{$file}.svg');
+}
+
+.icon {
+  display: block;
+  width: 55%;
+  height: 55%;
+  background: currentcolor;
+  // Prefixed too: Chrome before 120 knows only the -webkit- mask properties; without a
+  // mask the span would show as a solid square.
+  -webkit-mask: center / contain no-repeat;
+  mask: center / contain no-repeat;
+}
+
+@each $name, $file in $icons {
+  .icon-#{$name} {
+    -webkit-mask-image: icon-url($file);
+    mask-image: icon-url($file);
+  }
+}
+
+// Multi-finger: two pointing hands side by side (Bootstrap Icons has no such icon).
+.icon-mode-multi {
+  $finger: icon-url(map.get($icons, 'mode-finger'));
+
+  width: 70%;
+  -webkit-mask-image: $finger, $finger;
+  mask-image: $finger, $finger;
+  -webkit-mask-position:
+    left bottom,
+    right top;
+  mask-position:
+    left bottom,
+    right top;
+  -webkit-mask-size:
+    55% auto,
+    55% auto;
+  mask-size:
+    55% auto,
+    55% auto;
+}
