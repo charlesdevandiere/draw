@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { backingSize, fitPage, pageToBacking, toPage, toScreen } from './page-transform';
+import {
+  backingSize,
+  fitPage,
+  pageToBacking,
+  strokeStart,
+  toPage,
+  toScreen,
+} from './page-transform';
 
 describe('fitPage', () => {
   it('fills the width in portrait and centers vertically', () => {
@@ -68,5 +75,28 @@ describe('backing store', () => {
 
   it('scales page units to backing pixels', () => {
     expect(pageToBacking(2000)).toBe(2);
+  });
+});
+
+describe('strokeStart', () => {
+  // 500 px page at (100, 50): 2 page units per CSS pixel.
+  const transform = fitPage({ x: 100, y: 50, width: 500, height: 500 });
+
+  it('starts where the contact is, on the page', () => {
+    expect(strokeStart(transform, 350, 300, 24)).toEqual([500, 500]);
+  });
+
+  it('pulls a contact just outside the page onto its edge', () => {
+    expect(strokeStart(transform, 90, 300, 24)).toEqual([0, 500]);
+    expect(strokeStart(transform, 620, 40, 24)).toEqual([1000, 0]);
+  });
+
+  it('ignores a contact farther than the margin', () => {
+    expect(strokeStart(transform, 70, 300, 24)).toBeNull();
+    expect(strokeStart(transform, 350, 580, 24)).toBeNull();
+  });
+
+  it('ignores every contact when the page has no size', () => {
+    expect(strokeStart(fitPage({ x: 0, y: 0, width: 0, height: 0 }), 0, 0, 24)).toBeNull();
   });
 });

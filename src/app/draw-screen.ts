@@ -10,6 +10,7 @@ import {
   pageToBacking,
   toPage,
   type PageTransform,
+  strokeStart,
 } from '../engine/page-transform';
 import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
 import { createDrawingClock, startStroke, type StrokeBuilder } from '../engine/stroke-builder';
@@ -17,6 +18,8 @@ import { PAGE_SIZE, drawingDuration, type Stroke, type StrokeStyle } from '../en
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
+/** A contact this close to the page (CSS pixels) still starts a stroke, on its edge. */
+const EDGE_MARGIN_PX = 24;
 
 export type PointerPhase = 'down' | 'move' | 'up';
 
@@ -25,6 +28,11 @@ export type PointerFilter = (event: PointerEvent, phase: PointerPhase) => boolea
 
 export interface DrawScreenOptions {
   canvas: HTMLCanvasElement;
+  /**
+   * Element around the canvas that receives the contacts (default: the canvas). A contact
+   * landing on it within EDGE_MARGIN_PX of the page starts a stroke on the page edge.
+   */
+  hitArea?: HTMLElement;
   /** Style of the next stroke, read when a stroke starts. */
   style: () => StrokeStyle;
   accepts?: PointerFilter;
@@ -48,6 +56,7 @@ interface ActiveStroke {
 
 export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
   const { canvas } = options;
+  const hitArea = options.hitArea ?? canvas;
   const accepts = options.accepts ?? (() => true);
   const contextOrNull = canvas.getContext('2d');
   if (!contextOrNull) throw new Error('Canvas 2D is not available');
@@ -120,26 +129,34 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     options.onStroke?.(entry.builder.stroke);
   }
 
-  canvas.addEventListener('pointerdown', (event) => {
+  hitArea.addEventListener('pointerdown', (event) => {
     // Only the main button draws (not a mouse right button nor a pen's eraser end).
     if (event.button !== 0) return;
+    // The tools sit right next to the page: a tap on a tool bar (button or gap) never draws.
+    if (event.target instanceof Element && event.target.closest('button, [role="toolbar"]')) {
+      return;
+    }
+    const transform = currentTransform();
+    // On the page or just around it; null too when laid out at zero size (screen hidden).
+    const start = strokeStart(transform, event.clientX, event.clientY, EDGE_MARGIN_PX);
+    if (!start) return;
     contacts.add(event.pointerId);
     if (!accepts(event, 'down')) return;
-    // Laid out at zero size (screen hidden): there is no page to draw on.
-    if (canvas.getBoundingClientRect().width === 0) return;
     try {
       canvas.setPointerCapture(event.pointerId);
     } catch {
       // Capture is a convenience: drawing still works without it.
     }
+    const [x, y] = start;
     active.set(event.pointerId, {
-      builder: startStroke(options.style(), sampleOf(event, currentTransform())),
+      builder: startStroke(options.style(), { ...sampleOf(event, transform), x, y }),
       drawn: 0,
     });
     requestFrame();
   });
 
-  canvas.addEventListener('pointermove', (event) => {
+  // On the hit area: moves reach it from the canvas (captured) or from around the page.
+  hitArea.addEventListener('pointermove', (event) => {
     const entry = active.get(event.pointerId);
     // Hover (pen above the screen, buttons = 0) never draws.
     if (!entry || event.buttons === 0) return;

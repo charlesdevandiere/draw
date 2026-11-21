@@ -52,3 +52,23 @@ export function backingSize(cssSize: number, devicePixelRatio: number): number {
 export function pageToBacking(backingPixels: number): number {
   return backingPixels / PAGE_SIZE;
 }
+
+/**
+ * Where a stroke starts for a contact at (x, y) CSS pixels: on the page, or within
+ * `margin` CSS pixels around it (a child's finger aiming at the edge often lands just
+ * outside), pulled onto the edge. Null when the contact is farther away.
+ */
+export function strokeStart(
+  transform: PageTransform,
+  x: number,
+  y: number,
+  margin: number,
+): [number, number] | null {
+  if (transform.scale === 0) return null;
+  const [pageX, pageY] = toPage(transform, x, y);
+  const slack = margin / transform.scale;
+  const outside = (value: number) => value < -slack || value > PAGE_SIZE + slack;
+  if (outside(pageX) || outside(pageY)) return null;
+  const clamp = (value: number) => Math.min(PAGE_SIZE, Math.max(0, value));
+  return [clamp(pageX), clamp(pageY)];
+}

@@ -23,7 +23,7 @@ export interface TransferOptions {
 }
 
 export interface TransferSection {
-  /** An export or an import is running: a reload now would cut it short. */
+  /** An export, a share or an import is running: a reload now would cut it short. */
   busy: () => boolean;
 }
 
@@ -39,6 +39,8 @@ export function initTransferSection(options: TransferOptions): TransferSection {
    * from a fresh tap (iOS refuses it once the first tap's activation has expired).
    */
   let prepared: File[] = [];
+  /** The share sheet is open. */
+  let sharing = false;
 
   function resetExport(): void {
     prepared = [];
@@ -83,7 +85,13 @@ export function initTransferSection(options: TransferOptions): TransferSection {
   shareButton.addEventListener('click', async () => {
     const files = prepared;
     if (files.length === 0) return;
-    const outcome = await shareFiles(files);
+    sharing = true;
+    let outcome: Awaited<ReturnType<typeof shareFiles>>;
+    try {
+      outcome = await shareFiles(files);
+    } finally {
+      sharing = false;
+    }
     if (outcome === 'cancelled') return;
     status.textContent = t('parent.transfer.exported', { count: files.length });
     resetExport();
@@ -122,5 +130,8 @@ export function initTransferSection(options: TransferOptions): TransferSection {
     }
   });
 
-  return { busy: () => exportButton.disabled || importInput.disabled };
+  // Prepared files waiting for the share button count too: a reload would drop them.
+  return {
+    busy: () => exportButton.disabled || importInput.disabled || sharing || prepared.length > 0,
+  };
 }

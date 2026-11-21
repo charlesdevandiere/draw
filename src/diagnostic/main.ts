@@ -100,7 +100,9 @@ let lastCoalescedCount = 0;
 let lastContact: { width: number; height: number } | null = null;
 let widestContact = 0;
 
-function recordContact(sample: { width: number; height: number }): void {
+function recordContact(sample: PointerSample): void {
+  // Only finger contacts tune the palm filter (a pen or a mouse reports its own sizes).
+  if (sample.pointerType !== 'touch') return;
   lastContact = { width: sample.width, height: sample.height };
   widestContact = Math.max(widestContact, sample.width);
 }

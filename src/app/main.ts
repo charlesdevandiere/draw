@@ -150,6 +150,7 @@ async function startNewPage(): Promise<void> {
 
 const drawScreen = initDrawScreen({
   canvas,
+  hitArea: requireElement('draw-screen', HTMLElement),
   onStroke: (stroke) => {
     history = commitStroke(history, stroke);
     refreshHistoryButtons();

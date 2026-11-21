@@ -80,7 +80,11 @@ body {
 }
 
 // Drawing screen: portrait = page on top, tools below; landscape = tools on both sides.
+// Contacts just around the page start a stroke on its edge (draw-screen.ts): no browser
+// gesture anywhere on the screen (touch-action intersects with the ancestors', so this
+// also applies to the tool buttons: taps still click).
 .draw-screen {
+  touch-action: none;
   display: grid;
   gap: var(--app-tool-gap);
   grid-template:

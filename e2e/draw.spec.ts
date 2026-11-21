@@ -27,6 +27,46 @@ test('a tap without movement draws a dot', async ({ page }) => {
   expect(isColor(await pixelAt(canvas, point), INK)).toBe(true);
 });
 
+test('a contact just outside the page starts a stroke on its edge', async ({ page }) => {
+  const canvas = page.locator('#drawing-layer');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('No page');
+  const y = box.y + box.height * 0.4;
+  // 6 px left of the page (within the margin), into the page.
+  await drawStrokes(page, [
+    { points: line([box.x - 6, y], [box.x + box.width * 0.3, y]), pointerType: 'touch' },
+  ]);
+  expect(isColor(await pixelAt(canvas, [box.x + 2, y]), INK)).toBe(true);
+  expect(isColor(await pixelAt(canvas, [box.x + box.width * 0.2, y]), INK)).toBe(true);
+
+  // 40 px above the page (beyond the margin): nothing.
+  const y2 = box.y + box.height * 0.7;
+  await drawStrokes(page, [
+    {
+      points: line([box.x + box.width * 0.5, box.y - 40], [box.x + box.width * 0.5, y2]),
+      pointerType: 'touch',
+    },
+  ]);
+  expect(isBlank(await pixelAt(canvas, [box.x + box.width * 0.5, y2 - 10]))).toBe(true);
+});
+
+test('a tap on a tool bar next to the page never draws', async ({ page }) => {
+  const canvas = page.locator('#drawing-layer');
+  const tools = await page.locator('#tools-primary').boundingBox();
+  const box = await canvas.boundingBox();
+  if (!tools || !box) throw new Error('Layout missing');
+  // The gap between the bar's edge and its first button, right next to the page.
+  const below = tools.y > box.y + box.height - 1;
+  const nearest = below
+    ? [box.x + box.width / 2, tools.y + 1]
+    : [tools.x + tools.width - 1, box.y + box.height / 2];
+  // Only meaningful when the bar lies within the edge margin (24 px) of the page.
+  const distance = below ? tools.y + 1 - (box.y + box.height) : box.x - (tools.x + tools.width - 1);
+  test.skip(distance > 24, 'The tool bar is beyond the edge margin in this layout');
+  await drawStrokes(page, [{ points: [nearest as [number, number]], pointerType: 'touch' }]);
+  expect(await page.locator('#undo').isDisabled()).toBe(true);
+});
+
 test('a hovering pen does not draw', async ({ page }) => {
   const canvas = page.locator('#drawing-layer');
   const points = line(await pagePoint(page, 0.2, 0.5), await pagePoint(page, 0.8, 0.5));
