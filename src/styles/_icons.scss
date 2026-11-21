@@ -1,19 +1,23 @@
 // Bootstrap Icons, only the ones the app uses. Each icon is a CSS mask over the current
 // text color; Vite inlines the small SVG files as data URIs, so they work offline.
 // Markup: <span class="icon icon-undo" aria-hidden="true"></span>
+// The icons are drawn on a 16 px grid: a fixed 24 px size (1.5×, 3 device pixels per
+// grid unit on a 2× screen) keeps them sharp, where a percentage gave odd sizes.
 @use 'sass:map';
+
+$icon-size: 24px;
 
 $icons: (
   'gallery': 'images',
-  'mode-pen': 'pen-fill',
-  'mode-finger': 'hand-index-fill',
-  'eraser': 'eraser-fill',
+  'mode-pen': 'pen',
+  'mode-finger': 'hand-index',
+  'eraser': 'eraser',
   'undo': 'arrow-counterclockwise',
   'redo': 'arrow-clockwise',
-  'new-page': 'file-earmark-plus-fill',
-  'share': 'box-arrow-up',
-  'play': 'play-fill',
-  'lock': 'lock-fill',
+  'new-page': 'file-earmark-plus',
+  'share': 'share',
+  'play': 'play',
+  'lock': 'lock',
   'back': 'arrow-left',
 );
 
@@ -23,8 +27,9 @@ $icons: (
 
 .icon {
   display: block;
-  width: 55%;
-  height: 55%;
+  flex: none;
+  width: $icon-size;
+  height: $icon-size;
   background: currentcolor;
   // Prefixed too: Chrome before 120 knows only the -webkit- mask properties; without a
   // mask the span would show as a solid square.
@@ -43,7 +48,8 @@ $icons: (
 .icon-mode-multi {
   $finger: icon-url(map.get($icons, 'mode-finger'));
 
-  width: 70%;
+  // The hand glyph leaves ~4.5 px empty on each side: 16 px apart, the outlines never cross.
+  width: $icon-size + 16px;
   -webkit-mask-image: $finger, $finger;
   mask-image: $finger, $finger;
   -webkit-mask-position:
@@ -53,9 +59,9 @@ $icons: (
     left bottom,
     right top;
   -webkit-mask-size:
-    55% auto,
-    55% auto;
+    $icon-size $icon-size,
+    $icon-size $icon-size;
   mask-size:
-    55% auto,
-    55% auto;
+    $icon-size $icon-size,
+    $icon-size $icon-size;
 }

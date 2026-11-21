@@ -12,6 +12,7 @@ export function initPadlock(button: HTMLButtonElement, onOpen: () => void): void
 
   function show(progress: number): void {
     button.style.setProperty('--progress', String(progress));
+    button.toggleAttribute('data-holding', progress > 0);
   }
 
   function release(): void {

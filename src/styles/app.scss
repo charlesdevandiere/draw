@@ -20,12 +20,27 @@
   --app-page: #{$page};
   --app-accent: #{$accent};
   // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
-  // gutter and 5 gaps are subtracted, plus 4 px for rounding.
+  // gutter and 5 gaps are subtracted. Rounded down to an even pixel count, so the fixed
+  // 24 px icon lands on whole pixels in the middle of the button and stays sharp.
+  // Without CSS round() (Chrome before 125), a plain clamp with 4 px of rounding slack:
+  // an invalid custom property would otherwise collapse every button to its 48 px minimum.
   --app-tool-size: clamp(
     #{$target-min},
     (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap} - 4px) / #{$tools-per-row},
     #{$tool-size}
   );
+
+  @supports (width: round(down, 1px, 2px)) {
+    --app-tool-size: round(
+      down,
+      clamp(
+        #{$target-min},
+        (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap}) / #{$tools-per-row},
+        #{$tool-size}
+      ),
+      2px
+    );
+  }
   --app-tool-gap: #{$tool-gap};
   --app-edge-top: calc(#{$edge-margin} + env(safe-area-inset-top));
   --app-edge-bottom: calc(#{$edge-margin} + env(safe-area-inset-bottom));
@@ -230,24 +245,35 @@ body {
   gap: var(--app-tool-gap);
 }
 
-// Parent padlock: a ring fills while it is held (3 s), at the far end of the header.
+// Parent padlock, at the far end of the header: while it is held (3 s), the button grows
+// a little and a round-capped ring draws itself around it.
 .padlock {
   position: relative;
   margin-left: auto;
-  background: conic-gradient(var(--app-accent) calc(var(--progress, 0) * 1turn), var(--app-page) 0);
+  transition: scale 0.2s ease-out;
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 5px;
-    border-radius: 50%;
-    background: var(--app-page);
+  &[data-holding] {
+    scale: 1.12;
   }
+}
 
-  .icon {
-    position: relative;
-    width: 42%;
-    height: 42%;
+.padlock-ring {
+  position: absolute;
+  inset: -3px; // over the button border
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  rotate: -90deg;
+  fill: none;
+  stroke: var(--app-accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: calc(1 - var(--progress, 0));
+  // Hidden at rest: a round cap would otherwise show a dot.
+  opacity: 0;
+
+  .padlock[data-holding] & {
+    opacity: 1;
   }
 }
 
