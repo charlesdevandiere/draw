@@ -29,6 +29,23 @@ test.describe('diagnostic page in English', () => {
     await expect(page.locator('#touch-state')).toContainText('Finger: active');
   });
 
+  test('the panel header shows the contact size and the widest one', async ({ page }) => {
+    await page.goto('en/diagnostic.html');
+    await page.locator('#toggle-panel').click();
+    const contact = page.locator('#contact-size');
+    await expect(contact).toHaveText('Touch to measure the contact');
+    await drawStrokes(page, [
+      { points: line([40, 120], [120, 120]), pointerType: 'touch', width: 90 },
+    ]);
+    await drawStrokes(page, [
+      { points: line([40, 200], [120, 200]), pointerType: 'touch', width: 20 },
+    ]);
+    await expect(contact).toContainText('Contact: 20 ×');
+    await expect(contact).toContainText('(widest 90 px)');
+    await page.locator('#clear').click();
+    await expect(contact).toHaveText('Touch to measure the contact');
+  });
+
   test('a pen stroke and a pen tap paint the canvas', async ({ page }) => {
     await page.goto('en/diagnostic.html');
     // Collapse the panel so it does not cover the canvas.

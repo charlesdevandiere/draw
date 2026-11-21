@@ -47,6 +47,21 @@ test('a 3-second press opens the parent page, which leads back', async ({ page }
   await expect(page).toHaveURL(/\/en\/$/);
 });
 
+test('the parent and diagnostic pages never stack up in the history', async ({ page }) => {
+  // An edge swipe "back" from the sketchbook must not reach the parent page.
+  await openGallery(page);
+  const length = await page.evaluate(() => history.length);
+  await press(page, '#parent-lock');
+  await page.waitForURL(/\/en\/parent\.html$/, { timeout: 6000 });
+  await page.getByRole('link', { name: 'Diagnostic page' }).click();
+  await page.waitForURL(/\/en\/diagnostic\.html$/);
+  await page.getByRole('link', { name: 'Parent page' }).click();
+  await page.waitForURL(/\/en\/parent\.html$/);
+  await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
+  await expect(page).toHaveURL(/\/en\/$/);
+  expect(await page.evaluate(() => history.length)).toBe(length);
+});
+
 test('the language chosen in the parent page applies to the app', async ({ page }) => {
   await page.goto('en/parent.html');
   await page.locator('#language-select').selectOption('fr');

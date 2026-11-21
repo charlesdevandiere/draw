@@ -4,3 +4,20 @@ export function requireElement<T extends Element>(id: string, type: new () => T)
   if (!(element instanceof type)) throw new Error(`Element not found: #${id}`);
   return element;
 }
+
+/**
+ * Links marked `data-replace` replace the current history entry instead of adding one.
+ * The app, the parent page and the diagnostic page never stack up in the history, so the
+ * edge swipe "back" (iOS, Android) never leads from the sketchbook to the parent page.
+ */
+export function replaceHistoryOnLinks(root: ParentNode): void {
+  for (const link of root.querySelectorAll<HTMLAnchorElement>('a[data-replace]')) {
+    link.addEventListener('click', (event) => {
+      // Modified clicks (new tab, new window) keep their default behavior.
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
+        return;
+      event.preventDefault();
+      window.location.replace(link.href);
+    });
+  }
+}

@@ -22,7 +22,12 @@ export interface TransferOptions {
   onImported: () => void;
 }
 
-export function initTransferSection(options: TransferOptions): void {
+export interface TransferSection {
+  /** An export or an import is running: a reload now would cut it short. */
+  busy: () => boolean;
+}
+
+export function initTransferSection(options: TransferOptions): TransferSection {
   const { t } = options;
   const exportButton = requireElement('export-drawings', HTMLButtonElement);
   const importInput = requireElement('import-files', HTMLInputElement);
@@ -116,4 +121,6 @@ export function initTransferSection(options: TransferOptions): void {
       options.onImported();
     }
   });
+
+  return { busy: () => exportButton.disabled || importInput.disabled };
 }

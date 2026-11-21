@@ -4,7 +4,7 @@
  */
 import '../styles/parent.scss';
 import { APP_VERSION } from '../app-version';
-import { requireElement } from '../app/dom';
+import { replaceHistoryOnLinks, requireElement } from '../app/dom';
 import {
   applyTranslations,
   documentLanguage,
@@ -26,6 +26,7 @@ document.documentElement.lang = translator.language;
 document.title = `${t('parent.title')} — ${t('app.name')}`;
 document.body.innerHTML = parentHtml;
 applyTranslations(document.body, t);
+replaceHistoryOnLinks(document.body);
 
 // Drawings: list and deletion.
 const drawings = initDrawingsSection({
@@ -37,7 +38,7 @@ const drawings = initDrawingsSection({
 drawings.refresh().catch(() => undefined);
 
 // Export and import of magic PNGs.
-initTransferSection({
+const transfer = initTransferSection({
   t,
   list: listDrawings,
   selected: () => drawings.selected(),
@@ -136,7 +137,18 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') checkForUpdate().catch(() => undefined);
 });
 
-// A new version took over while this page was open: load it.
+// A new version took over while this page was open: load it, once no export or import
+// is running (coming back from the file picker checks for an update, see above).
+const TRANSFER_RETRY_MS = 500;
+function reloadWhenIdle(): void {
+  if (transfer.busy()) setTimeout(reloadWhenIdle, TRANSFER_RETRY_MS);
+  else window.location.reload();
+}
 if (navigator.serviceWorker?.controller) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
+    reloadWhenIdle();
+  });
 }

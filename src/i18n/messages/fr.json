@@ -1,6 +1,9 @@
 {
   "app.name": "Carnet magique",
+  "diag.back": "Page parent",
   "diag.clear": "Effacer",
+  "diag.contact": "Contact : {width} × {height} px (max {max} px)",
+  "diag.contactHint": "Touchez pour mesurer le contact",
   "diag.collapse": "Replier",
   "diag.expand": "Ouvrir",
   "diag.drawing": "Tracé",
@@ -98,7 +101,6 @@
   "parent.app": "Application",
   "parent.version": "Version {version}",
   "parent.diagnostic": "Page de diagnostic",
-  "parent.notices": "Licences tierces",
   "gallery.parent": "Espace parent (maintenir 3 secondes)",
   "parent.drawings": "Dessins",
   "parent.drawings.selectAll": "Tout sélectionner",

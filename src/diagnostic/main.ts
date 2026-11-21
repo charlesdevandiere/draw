@@ -1,4 +1,5 @@
 import { APP_VERSION } from '../app-version';
+import { replaceHistoryOnLinks } from '../app/dom';
 import {
   createPalmRejector,
   type PalmRejectionStrategy,
@@ -47,6 +48,7 @@ const TOUCH_STATE_REFRESH_MS = 250;
 const { t } = createTranslator(documentLanguage());
 document.body.innerHTML = diagnosticHtml;
 applyTranslations(document.body, t);
+replaceHistoryOnLinks(document.body);
 
 function requireElement<T extends Element>(selector: string, type: new () => T): T {
   const element = document.querySelector(selector);
@@ -56,6 +58,7 @@ function requireElement<T extends Element>(selector: string, type: new () => T):
 
 const canvas = requireElement('#surface', HTMLCanvasElement);
 const pointersOutput = requireElement('#pointers', HTMLPreElement);
+const contactOutput = requireElement('#contact-size', HTMLOutputElement);
 const supportOutput = requireElement('#support', HTMLPreElement);
 const renderer = createStrokeRenderer(canvas);
 const panel = requireElement('#panel', HTMLElement);
@@ -93,6 +96,14 @@ interface ActivePointer {
 /** Latest sample and palm-rejection state for each active pointer. */
 const active = new Map<number, ActivePointer>();
 let lastCoalescedCount = 0;
+/** Contact size, always in view in the panel header: tunes the Finger mode palm filter. */
+let lastContact: { width: number; height: number } | null = null;
+let widestContact = 0;
+
+function recordContact(sample: { width: number; height: number }): void {
+  lastContact = { width: sample.width, height: sample.height };
+  widestContact = Math.max(widestContact, sample.width);
+}
 let panelScheduled = false;
 let touchStateTimer: number | undefined;
 
@@ -237,6 +248,7 @@ function onPointerDown(event: PointerEvent): void {
   }
   const sample = toSample(event);
   pointerStats.record(sample);
+  recordContact(sample);
   const state: ActivePointer = { sample, ignored: false };
   active.set(event.pointerId, state);
   if (rejectorAccepts(event, 'down')) {
@@ -252,6 +264,7 @@ function onPointerMove(event: PointerEvent): void {
   const state = active.get(event.pointerId);
   if (!state) return;
   state.sample = toSample(event);
+  recordContact(state.sample);
   const events = hasCoalesced ? event.getCoalescedEvents() : [];
   lastCoalescedCount = events.length;
   recordMoveTiming(event, events);
@@ -355,6 +368,13 @@ function renderPanel(): void {
     `getPredictedEvents: ${yesNo(hasPredicted)}`,
     t('diag.lastCoalesced', { count: lastCoalescedCount }),
   ].join('\n');
+  contactOutput.textContent = lastContact
+    ? t('diag.contact', {
+        width: Math.round(lastContact.width),
+        height: Math.round(lastContact.height),
+        max: Math.round(widestContact),
+      })
+    : t('diag.contactHint');
   pointersOutput.textContent =
     active.size === 0
       ? t('diag.noPointer')
@@ -465,7 +485,13 @@ canvas.addEventListener('pointermove', onPointerMove);
 // On window: without pointer capture, a contact lifted off the canvas must still end.
 window.addEventListener('pointerup', onPointerEnd);
 window.addEventListener('pointercancel', onPointerEnd);
-requireElement('#clear', HTMLButtonElement).addEventListener('click', () => renderer.clear());
+requireElement('#clear', HTMLButtonElement).addEventListener('click', () => {
+  renderer.clear();
+  // A new measure starts (the child's finger, then the palm).
+  lastContact = null;
+  widestContact = 0;
+  schedulePanel();
+});
 requireElement('#toggle-panel', HTMLButtonElement).addEventListener('click', (event) => {
   const collapsed = panel.classList.toggle('collapsed');
   if (event.currentTarget instanceof HTMLButtonElement) {

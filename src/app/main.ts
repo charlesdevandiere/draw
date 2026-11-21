@@ -305,8 +305,9 @@ openGallery.addEventListener('click', () => {
 });
 backToDrawing.addEventListener('click', showDrawScreen);
 initPadlock(requireElement('parent-lock', HTMLButtonElement), () => {
-  // Save before leaving the app page.
-  void autosave.flush().finally(() => window.location.assign('parent.html'));
+  // Save before leaving the app page. Replace, not assign: a swipe back from the edge
+  // must not bring the parent page back (see replaceHistoryOnLinks).
+  void autosave.flush().finally(() => window.location.replace('parent.html'));
 });
 requireElement('gallery-new-page', HTMLButtonElement).addEventListener('click', () => {
   startNewPage().catch(() => undefined);
@@ -321,8 +322,9 @@ document.addEventListener('visibilitychange', () => {
   else void autosave.flush();
 });
 window.addEventListener('pagehide', () => void autosave.flush());
-// Back from the parent page (back gesture, bfcache): the drawing on the slate may have been
-// deleted there, and a new stroke would save it again. Reload to start from the database.
+// Restored from the bfcache (a history entry another browser path left behind): the
+// drawing on the slate may have been deleted in the parent page meanwhile, and a new stroke
+// would save it again. Reload to start from the database.
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) window.location.reload();
 });

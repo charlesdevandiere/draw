@@ -65,6 +65,7 @@ body {
 
 #panel header {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -84,8 +85,14 @@ body {
   display: none;
 }
 
-#panel header button {
+#panel header button,
+#panel header a {
   min-height: 36px;
+}
+
+#panel header a {
+  display: inline-flex;
+  align-items: center;
 }
 
 #clear {

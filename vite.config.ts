@@ -28,7 +28,13 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest,txt}'],
+        // A new version takes over as soon as it is installed; the pages reload on
+        // `controllerchange` (the app waits for the stroke and the save). Without these,
+        // vite-plugin-pwa 2 leaves it waiting for a SKIP_WAITING message nobody sends:
+        // Chrome Android never closes the installed app's page, so it never updated.
+        skipWaiting: true,
+        clientsClaim: true,
+        globPatterns: ['**/*.{js,css,html,png,svg,webmanifest}'],
         navigateFallback: null,
       },
       // One hand-written manifest per language folder (public/en, public/fr).

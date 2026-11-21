@@ -1,6 +1,9 @@
 {
   "app.name": "Magic Sketchbook",
+  "diag.back": "Parent page",
   "diag.clear": "Clear",
+  "diag.contact": "Contact: {width} × {height} px (widest {max} px)",
+  "diag.contactHint": "Touch to measure the contact",
   "diag.collapse": "Collapse",
   "diag.expand": "Expand",
   "diag.drawing": "Drawing",
@@ -98,7 +101,6 @@
   "parent.app": "Application",
   "parent.version": "Version {version}",
   "parent.diagnostic": "Diagnostic page",
-  "parent.notices": "Third-party licenses",
   "gallery.parent": "Parent space (press and hold 3 seconds)",
   "parent.drawings": "Drawings",
   "parent.drawings.selectAll": "Select all",

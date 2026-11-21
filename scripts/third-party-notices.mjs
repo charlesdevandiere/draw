@@ -2,7 +2,8 @@
 /**
  * Builds public/THIRD-PARTY-NOTICES.txt: the license of every third-party package whose
  * code or assets ship in dist/. Living in public/, it is copied into dist/ by Vite and
- * precached by the service worker, so the parent page's link works offline.
+ * published next to the app (/draw/THIRD-PARTY-NOTICES.txt), as the MIT license asks for
+ * every copy of the software; no in-app link is needed.
  *
  * Shipped packages come from two sources:
  * - the runtime `dependencies` of package.json (Bootstrap CSS and Dialog JS, Bootstrap
