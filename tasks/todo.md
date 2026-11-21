@@ -213,7 +213,7 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 **Acceptance criteria:**
 
-- [x] Pen: only `pen` draws. Multi-finger: everything draws. Finger: one slot, released only when no contact remains plus the delay (default 300 ms); contacts wider than the threshold (default 80 px, or off) ignored but holding the slot; `pen` accepted.
+- [x] Pen: only `pen` draws. Multi-finger: everything draws. Finger: one slot, released only when no contact remains (a 300 ms delay after that was removed, DF-10 in `docs/device-fixes.md`); contacts wider than the threshold (default 80 px, or off) ignored but holding the slot; `pen` accepted.
 - [x] Automatic switch to Pen on the first `pen` while no mode was chosen by hand; never after a manual choice.
 - [x] Time injected; tests cover every rule above, hover and cancel.
 
@@ -491,7 +491,7 @@ Every task also meets the standing bar: `npm run check` green, English in the re
 
 ### T23: Input settings
 
-**Description:** Parent settings for the Finger mode: width threshold (or off) and release delay.
+**Description:** Parent settings for the Finger mode: width threshold (or off) and release delay (the delay was removed since, DF-10 in `docs/device-fixes.md`).
 
 **Acceptance criteria:**
 

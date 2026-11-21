@@ -15,9 +15,7 @@ test('turning the palm filter off lets a wide contact draw in Finger mode', asyn
   await filter.uncheck();
   await expect(page.getByLabel('Widest contact that still draws (px)')).toBeDisabled();
   // The save is not awaited by the page: wait for it before leaving.
-  await expect
-    .poll(() => storedSetting(page, 'fingerSettings'))
-    .toEqual({ widthThreshold: null, releaseDelayMs: 300 });
+  await expect.poll(() => storedSetting(page, 'fingerSettings')).toEqual({ widthThreshold: null });
 
   await page.goto('en/');
   // Wait for the stored settings to be applied at startup.
@@ -34,21 +32,11 @@ test('settings are kept within bounds and can be reset', async ({ page }) => {
   await threshold.fill('9999');
   await threshold.blur();
   await expect(threshold).toHaveValue('400');
-  const delay = page.getByLabel('Wait after lifting everything before a new stroke (ms)');
-  await delay.fill('1000');
-  await delay.blur();
-  await expect
-    .poll(() => storedSetting(page, 'fingerSettings'))
-    .toEqual({ widthThreshold: 400, releaseDelayMs: 1000 });
+  await expect.poll(() => storedSetting(page, 'fingerSettings')).toEqual({ widthThreshold: 400 });
   await page.reload();
-  await expect(
-    page.getByLabel('Wait after lifting everything before a new stroke (ms)'),
-  ).toHaveValue('1000');
+  await expect(threshold).toHaveValue('400');
   await page.getByRole('button', { name: 'Restore the defaults' }).click();
   await expect(threshold).toHaveValue('80');
-  await expect(
-    page.getByLabel('Wait after lifting everything before a new stroke (ms)'),
-  ).toHaveValue('300');
 });
 
 test('the default filter still ignores a palm in the app', async ({ page }) => {

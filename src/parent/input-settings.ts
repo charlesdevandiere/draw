@@ -1,5 +1,5 @@
 /**
- * Parent page: settings of the Finger input mode (palm width filter, release delay).
+ * Parent page: settings of the Finger input mode (palm width filter).
  * Saved at once; the app applies them the next time it starts.
  */
 import { requireElement } from '../app/dom';
@@ -14,7 +14,6 @@ export interface InputSettingsOptions {
 export async function initInputSettings(options: InputSettingsOptions): Promise<void> {
   const filter = requireElement('width-filter', HTMLInputElement);
   const threshold = requireElement('width-threshold', HTMLInputElement);
-  const delay = requireElement('release-delay', HTMLInputElement);
   const defaults = requireElement('input-defaults', HTMLButtonElement);
 
   /** Last threshold shown, kept while the filter is off so turning it on restores it. */
@@ -25,13 +24,11 @@ export async function initInputSettings(options: InputSettingsOptions): Promise<
     if (settings.widthThreshold !== null) lastThreshold = settings.widthThreshold;
     threshold.value = String(lastThreshold);
     threshold.disabled = !filter.checked;
-    delay.value = String(settings.releaseDelayMs);
   }
 
   function current(): FingerSettings {
     return clampFingerSettings({
       widthThreshold: filter.checked ? threshold.valueAsNumber : null,
-      releaseDelayMs: delay.valueAsNumber,
     });
   }
 
@@ -42,13 +39,12 @@ export async function initInputSettings(options: InputSettingsOptions): Promise<
   }
 
   // Inert until the stored settings are shown: an edit made meanwhile would be overwritten.
-  for (const control of [filter, threshold, delay, defaults]) control.disabled = true;
+  for (const control of [filter, threshold, defaults]) control.disabled = true;
   const stored = await options.read(SETTING_KEYS.fingerSettings).catch(() => null);
-  for (const control of [filter, delay, defaults]) control.disabled = false;
+  for (const control of [filter, defaults]) control.disabled = false;
   show(parseFingerSettings(stored));
   filter.addEventListener('change', save);
   threshold.addEventListener('change', save);
-  delay.addEventListener('change', save);
   defaults.addEventListener('click', () => {
     show(DEFAULT_FINGER_SETTINGS);
     save();

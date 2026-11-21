@@ -163,7 +163,6 @@ const drawScreen = initDrawScreen({
       pointerId: event.pointerId,
       pointerType: event.pointerType,
       phase,
-      timeStamp: event.timeStamp,
       width: event.width,
     });
     // The first pen may have switched the mode on its own: show it and remember it.

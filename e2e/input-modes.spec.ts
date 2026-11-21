@@ -35,6 +35,16 @@ test('finger mode is the default: one contact draws, a second one does not', asy
   expect(await blank(page, 0.6)).toBe(true);
 });
 
+test('finger mode: a stroke right after the previous one draws (fast handwriting)', async ({
+  page,
+}) => {
+  // DF-10: no wait between strokes once everything is lifted.
+  await drawStrokes(page, [{ points: await horizontal(page, 0.2), pointerType: 'touch' }]);
+  await drawStrokes(page, [{ points: await horizontal(page, 0.6), pointerType: 'touch' }]);
+  expect(await inked(page, 0.2)).toBe(true);
+  expect(await inked(page, 0.6)).toBe(true);
+});
+
 test('finger mode ignores a contact as wide as a palm', async ({ page }) => {
   await drawStrokes(page, [
     { points: await horizontal(page, 0.4), pointerType: 'touch', width: 200 },

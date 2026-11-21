@@ -127,6 +127,5 @@
   "parent.input.help": "For the Finger mode: one contact draws at a time, and a contact as wide as a palm is ignored. Changes apply the next time the sketchbook opens.",
   "parent.input.widthFilter": "Ignore contacts as wide as a palm",
   "parent.input.widthThreshold": "Widest contact that still draws (px)",
-  "parent.input.releaseDelay": "Wait after lifting everything before a new stroke (ms)",
   "parent.input.defaults": "Restore the defaults"
 }

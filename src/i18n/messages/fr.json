@@ -127,6 +127,5 @@
   "parent.input.help": "Pour le mode Doigt : un seul contact dessine à la fois, et un contact aussi large qu'une paume est ignoré. Les changements s'appliquent à la prochaine ouverture du carnet.",
   "parent.input.widthFilter": "Ignorer les contacts aussi larges qu'une paume",
   "parent.input.widthThreshold": "Contact le plus large qui dessine encore (px)",
-  "parent.input.releaseDelay": "Attente après avoir tout levé avant un nouveau trait (ms)",
   "parent.input.defaults": "Rétablir les valeurs par défaut"
 }

@@ -64,7 +64,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 - **Automatic switch**: on the first `pen` seen, if no mode was ever chosen by hand, the app switches to Pen (the pen stroke draws). Once a mode is chosen by hand, no more automatic switching.
 - **Finger mode rules** (improving the diagnostic's "single touch" option):
-  - the first contact keeps the slot until **no contact at all** touches the screen, then the slot stays locked for **300 ms** more (configurable);
+  - the first contact keeps the slot until **no contact at all** touches the screen; the next contact may then draw at once (a release delay was tried and removed: it dropped strokes in fast handwriting with a round-tip stylus, `docs/device-fixes.md` DF-10);
   - **width filter**: a contact wider than a threshold (default 80 CSS px; measured iPad finger 42–63 px, palm up to 292 px) is ignored and holds the slot like any other contact. No effect on Android (reported widths ≤ 61 px); threshold to revisit with a child's hand;
   - `pen` pointers also draw in Finger mode.
 - All platforms: drawing happens only between `pointerdown` and `pointerup` / `pointercancel`. Movement without contact (**hover** of Android / Windows pens, `buttons === 0`) is ignored. `pointercancel` ends the stroke and keeps it, unless the contact never moved more than 2 % of the page from where it landed: then it is a palm iPadOS rejected, and its dot is removed. The same goes for a contact the Finger mode width filter turns away after it started (a palm landing edge first, then spreading). A tap lifted normally keeps its dot.
@@ -141,7 +141,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - **Import**: pick one or several PNGs. Only magic PNGs with a valid chunk and a known schema version are accepted; other images are refused with a clear message. Merge by id: a drawing already present is not duplicated. Size limit per file.
 - **Language**: override the UI language (otherwise the folder's language).
 - **Storage**: persistence status, space used, button to request persistence again.
-- **Input**: width filter threshold (or off), Finger mode release delay.
+- **Input**: width filter threshold (or off).
 - **App**: version (`APP_VERSION`), "Check for updates", "Clear cache and reload", link to the diagnostic page.
 - "Back to the sketchbook" button.
 
@@ -281,7 +281,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
   - `stroke-builder`: coalesced and fallback, tap without movement → one dot, rounding;
   - `history`: undo, redo, new stroke clears redo, undo on empty;
   - `render`: with a fake context recording calls (color, `destination-out` for the eraser, disc for a dot);
-  - `input-mode`: each mode; automatic switch on first `pen` and not after a manual choice; Finger mode (slot kept, released only when everything is lifted + delay, width filter, `pen` accepted, palm spreading after touch-down); hover and `pointercancel` are handled by the drawing screen (cancel = up) and covered end to end;
+  - `input-mode`: each mode; automatic switch on first `pen` and not after a manual choice; Finger mode (slot kept, released as soon as everything is lifted, width filter, `pen` accepted, palm spreading after touch-down); hover and `pointercancel` are handled by the drawing screen (cancel = up) and covered end to end;
   - `schema`: validation, unknown version refused, migration;
   - `png-chunk`: write then read back, CRC-32 against known values, missing chunk, corrupt chunk, oversized chunk;
   - `i18n`: language choice from `navigator.languages`, fallback to English; formatter: placeholders, plural (`=0`, `one`, `other`, `#`) in English and French, select, nested plural inside select, malformed message rejected; every catalog has exactly the keys of `en.json`;

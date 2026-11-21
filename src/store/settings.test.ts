@@ -54,17 +54,15 @@ describe('parseDrawingId', () => {
 
 describe('finger settings', () => {
   it('reads stored settings, the filter off included', () => {
-    expect(parseFingerSettings({ widthThreshold: 120, releaseDelayMs: 500 })).toEqual({
-      widthThreshold: 120,
-      releaseDelayMs: 500,
-    });
-    expect(parseFingerSettings({ widthThreshold: null, releaseDelayMs: 0 })).toEqual({
-      widthThreshold: null,
-      releaseDelayMs: 0,
+    expect(parseFingerSettings({ widthThreshold: 120 })).toEqual({ widthThreshold: 120 });
+    expect(parseFingerSettings({ widthThreshold: null })).toEqual({ widthThreshold: null });
+    // Saved by an earlier version, with the release delay since removed.
+    expect(parseFingerSettings({ widthThreshold: 90, releaseDelayMs: 300 })).toEqual({
+      widthThreshold: 90,
     });
   });
 
-  it.each([undefined, { widthThreshold: 'big', releaseDelayMs: 1 }, { widthThreshold: 50 }])(
+  it.each([undefined, 'x', { widthThreshold: 'big' }, {}])(
     'falls back to the defaults for %j',
     (value) => {
       expect(parseFingerSettings(value)).toEqual(DEFAULT_FINGER_SETTINGS);
@@ -72,15 +70,9 @@ describe('finger settings', () => {
   );
 
   it('keeps values within bounds', () => {
-    expect(clampFingerSettings({ widthThreshold: 5, releaseDelayMs: 99_999 })).toEqual({
-      widthThreshold: 20,
-      releaseDelayMs: 3000,
-    });
-    expect(clampFingerSettings({ widthThreshold: Number.NaN, releaseDelayMs: Number.NaN })).toEqual(
-      DEFAULT_FINGER_SETTINGS,
-    );
-    expect(clampFingerSettings({ widthThreshold: 80.6, releaseDelayMs: 300 }).widthThreshold).toBe(
-      81,
-    );
+    expect(clampFingerSettings({ widthThreshold: 5 })).toEqual({ widthThreshold: 20 });
+    expect(clampFingerSettings({ widthThreshold: 9999 })).toEqual({ widthThreshold: 400 });
+    expect(clampFingerSettings({ widthThreshold: Number.NaN })).toEqual(DEFAULT_FINGER_SETTINGS);
+    expect(clampFingerSettings({ widthThreshold: 80.6 }).widthThreshold).toBe(81);
   });
 });

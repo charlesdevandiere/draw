@@ -23,7 +23,9 @@ import { PAGE_SIZE, drawingDuration, type Stroke, type StrokeStyle } from '../en
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
-/** A contact this close to the page (CSS pixels) still starts a stroke, on its edge. *
+/**
+ * A contact this close to the page (CSS pixels) still starts a stroke, on its edge.
+ *
  * DF-06: docs/device-fixes.md
  */
 const EDGE_MARGIN_PX = 24;

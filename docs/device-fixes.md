@@ -88,3 +88,13 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Code**: `STRAY_REACH` and `dropOrFinish` in `src/app/draw-screen.ts`; `strokeReach` in `src/engine/stroke-builder.ts`.
 - **Guard**: unit `stroke-builder.test.ts` (`strokeReach`); e2e `input-modes.spec.ts` › "a palm landing narrow, then spreading, leaves no dot" and "a contact cancelled before moving leaves no dot, one that drew keeps its stroke"; `draw.spec.ts` › "a tap without movement draws a dot".
 - **Do not**: drop short strokes on `pointerup` (a dot on an "i" must stay).
+
+## DF-10 No wait between strokes in Finger mode
+
+- **Seen** (2026-11-21, iPad and Pixel 9a, round-tip passive stylus, Finger mode): about one stroke in two did not draw. The finger worked; Apple Notes took every stroke. In Multi-finger mode, or with the release delay set to 0, every stroke drew.
+- **Cause**: in Finger mode, once every contact was lifted, the slot stayed locked 300 ms (a guess from step 0, never measured), so that a palm lifted and landing again could not draw. A passive stylus counts as a finger (`touch`), and handwriting lifts and lands again faster than that.
+- **Decision**: the release delay is removed, with its parent page setting. A first fix kept it only after a palm lifted; it needed more state and the review found a hole in it. What it still protected is covered elsewhere: iPadOS rejects palms, DF-09 removes the dot a palm leaves, the width filter, Undo, and the Multi-finger mode. A stroke that silently does not draw frustrates a child more than a stray dot they can undo.
+- **Code**: `createInputFilter` in `src/input/input-mode.ts` (no time stamps any more); `parseFingerSettings` in `src/store/settings.ts` ignores the `releaseDelayMs` that earlier versions stored.
+- **Guard**: unit `input-mode.test.ts` › "frees the slot as soon as everything is lifted (fast handwriting, DF-10)"; e2e `input-modes.spec.ts` › "finger mode: a stroke right after the previous one draws (fast handwriting)".
+- **Do not**: bring back a wait after a lift, of any length.
+- **Known limit, kept**: the slot is only freed when nothing touches the screen, so a hand resting flat would stop a passive stylus from drawing. Not seen: iPadOS cancels resting palms, and a phone screen leaves no room for a hand and a stylus. Multi-finger mode is the way out.

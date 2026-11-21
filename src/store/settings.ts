@@ -41,10 +41,9 @@ export function parseDrawingId(value: unknown): string | null {
   return typeof value === 'string' && value.length > 0 && value.length <= 64 ? value : null;
 }
 
-/** Bounds of the Finger mode settings (CSS px, ms). */
+/** Bounds of the Finger mode settings (CSS px). */
 export const FINGER_BOUNDS = {
   widthThreshold: { min: 20, max: 400 },
-  releaseDelayMs: { min: 0, max: 3000 },
 } as const;
 
 function clamp(value: number, { min, max }: { min: number; max: number }, fallback: number) {
@@ -62,18 +61,13 @@ export function clampFingerSettings(settings: FingerSettings): FingerSettings {
             FINGER_BOUNDS.widthThreshold,
             DEFAULT_FINGER_SETTINGS.widthThreshold ?? 80,
           ),
-    releaseDelayMs: clamp(
-      settings.releaseDelayMs,
-      FINGER_BOUNDS.releaseDelayMs,
-      DEFAULT_FINGER_SETTINGS.releaseDelayMs,
-    ),
   };
 }
 
 export function parseFingerSettings(value: unknown): FingerSettings {
   if (!isRecord(value)) return DEFAULT_FINGER_SETTINGS;
-  const { widthThreshold, releaseDelayMs } = value;
+  // Settings saved by earlier versions also carry `releaseDelayMs` (removed, DF-10): ignored.
+  const { widthThreshold } = value;
   if (widthThreshold !== null && typeof widthThreshold !== 'number') return DEFAULT_FINGER_SETTINGS;
-  if (typeof releaseDelayMs !== 'number') return DEFAULT_FINGER_SETTINGS;
-  return clampFingerSettings({ widthThreshold, releaseDelayMs });
+  return clampFingerSettings({ widthThreshold });
 }

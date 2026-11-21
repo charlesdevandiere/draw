@@ -63,7 +63,7 @@ User's idea, confirmed by the measurements:
 
 - **Pen**: only `pen` pointers draw, every `touch` is ignored. Also handles the palm resting before the first stroke. Suggested automatically as soon as a `pen` is detected.
 - **Finger** (default without a stylus): only one contact draws at a time. To improve over the diagnostic:
-  - the slot is only freed when **no contact at all** touches the screen anymore, then after a short delay (~300 ms, to be tuned);
+  - the slot is only freed when **no contact at all** touches the screen anymore, then after a short delay (~300 ms, to be tuned). **Superseded** (2026-11-21): the delay dropped strokes in fast handwriting with a round-tip stylus and was removed, see `docs/device-fixes.md` DF-10;
   - **width filter**: ignore contacts that are too wide (iPad: finger ≈ 42–63 px, palm up to 292 px). The Pixel only reports small widths (≤ 61 px): the filter is ineffective on Android. **Risk: children's hands are smaller**, so the finger / palm gap narrows. Threshold to be measured with a child, and the filter must be disableable.
 - **Multi-finger**: all contacts draw (several children, several fingers).
 

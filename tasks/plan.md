@@ -111,17 +111,17 @@ Decisions taken during the build (all recorded in the spec or the code):
 
 ## Risks and Mitigations
 
-| Risk                                                                                                                       | Impact | Mitigation                                                                                 |
-| -------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------ |
-| Installing a PWA from a sub-folder (`/draw/fr/`) with a `/draw/` service worker misbehaves on iOS (scope, start URL, name) | High   | Done early (T4), validated at Checkpoint 0 before any app code.                            |
-| Bootstrap 6 alpha: Sass module layout differs from 5, breaking changes until final                                         | Medium | T6 checks selective imports first; exact version pinned; child UI uses few components.     |
-| Finger mode still leaves palm strokes                                                                                      | Medium | Pure logic with tests (T9), threshold and delay configurable (T23), measured with a child. |
-| iPad frame drops (diagnostic p95 34–46 ms)                                                                                 | Medium | Two-layer rendering, no text panels; measured at Checkpoint A1.                            |
-| `CompressionStream` or file sharing missing on a target                                                                    | Medium | Feature detection; fallback to uncompressed `iTXt` and to download.                        |
-| Messaging apps / Photos strip the PNG chunk                                                                                | Low    | Expected and documented; checked on devices (criterion 11).                                |
-| IndexedDB data loss (eviction, iOS)                                                                                        | High   | `persist()`, saves after each stroke, export in phase B; criterion 9.                      |
-| Stored format changes after phase A                                                                                        | Medium | Schema version from day one, migrations tested (T13).                                      |
-| Existing installs at `/draw/` stop matching the new start URL                                                              | Low    | Reinstall once from `/draw/fr/` (noted in Checkpoint 0).                                   |
+| Risk                                                                                                                       | Impact | Mitigation                                                                                                     |
+| -------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| Installing a PWA from a sub-folder (`/draw/fr/`) with a `/draw/` service worker misbehaves on iOS (scope, start URL, name) | High   | Done early (T4), validated at Checkpoint 0 before any app code.                                                |
+| Bootstrap 6 alpha: Sass module layout differs from 5, breaking changes until final                                         | Medium | T6 checks selective imports first; exact version pinned; child UI uses few components.                         |
+| Finger mode still leaves palm strokes                                                                                      | Medium | Pure logic with tests (T9), threshold configurable (T23; the delay was removed, DF-10), measured with a child. |
+| iPad frame drops (diagnostic p95 34–46 ms)                                                                                 | Medium | Two-layer rendering, no text panels; measured at Checkpoint A1.                                                |
+| `CompressionStream` or file sharing missing on a target                                                                    | Medium | Feature detection; fallback to uncompressed `iTXt` and to download.                                            |
+| Messaging apps / Photos strip the PNG chunk                                                                                | Low    | Expected and documented; checked on devices (criterion 11).                                                    |
+| IndexedDB data loss (eviction, iOS)                                                                                        | High   | `persist()`, saves after each stroke, export in phase B; criterion 9.                                          |
+| Stored format changes after phase A                                                                                        | Medium | Schema version from day one, migrations tested (T13).                                                          |
+| Existing installs at `/draw/` stop matching the new start URL                                                              | Low    | Reinstall once from `/draw/fr/` (noted in Checkpoint 0).                                                       |
 
 ## Open Questions
 

@@ -4,13 +4,13 @@
  *
  * - **pen**: only `pen` pointers draw; every touch (palm included) is ignored.
  * - **finger**: one contact draws at a time. The first contact keeps the slot until no
- *   contact at all touches the screen, then the slot stays locked a little longer, so a
- *   palm still resting (or lifted a moment later) cannot start a stroke. Contacts wider
- *   than a threshold (a palm) never draw but hold the slot like any other contact.
+ *   contact at all touches the screen, so a palm still resting cannot start a stroke; the
+ *   next contact may then draw at once (no wait after a lift: DF-10). Contacts wider than
+ *   a threshold (a palm) never draw but hold the slot like any other contact.
  * - **multi**: every contact draws, one stroke per pointer.
  *
  * Pens and mice always draw. The first pen seen switches to the pen mode, unless a mode
- * was chosen by hand. Pure logic: time stamps and widths are passed in.
+ * was chosen by hand. Pure logic: widths are passed in.
  */
 
 export type InputMode = 'pen' | 'finger' | 'multi';
@@ -20,17 +20,14 @@ export const INPUT_MODES: readonly InputMode[] = ['pen', 'finger', 'multi'];
 export interface FingerSettings {
   /** Contacts wider than this (CSS px) are ignored; null turns the filter off. */
   widthThreshold: number | null;
-  /** How long the slot stays locked once every contact is lifted (ms). */
-  releaseDelayMs: number;
 }
 
-export const DEFAULT_FINGER_SETTINGS: FingerSettings = { widthThreshold: 80, releaseDelayMs: 300 };
+export const DEFAULT_FINGER_SETTINGS: FingerSettings = { widthThreshold: 80 };
 
 export interface ContactInput {
   pointerId: number;
   pointerType: string;
   phase: 'down' | 'move' | 'up';
-  timeStamp: number;
   /** Contact width in CSS px (`PointerEvent.width`). */
   width: number;
 }
@@ -72,8 +69,6 @@ export function createInputFilter(
   const touchesDown = new Set<number>();
   /** The touch holding the finger-mode slot. */
   let owner: number | null = null;
-  /** The finger slot cannot be taken before this time stamp. */
-  let lockedUntil = Number.NEGATIVE_INFINITY;
 
   function tooWide(width: number): boolean {
     return settings.widthThreshold !== null && width > settings.widthThreshold;
@@ -87,7 +82,7 @@ export function createInputFilter(
   function touchInFingerMode(input: ContactInput): boolean {
     if (input.phase === 'down') {
       const alone = touchesDown.size === 1;
-      if (owner === null && alone && input.timeStamp >= lockedUntil && !tooWide(input.width)) {
+      if (owner === null && alone && !tooWide(input.width)) {
         owner = input.pointerId;
       }
     }
@@ -106,7 +101,6 @@ export function createInputFilter(
       // Bookkeeping only: the caller ends the stroke (if any) whatever is returned.
       touchesDown.delete(input.pointerId);
       if (owner === input.pointerId) owner = null;
-      if (touchesDown.size === 0) lockedUntil = input.timeStamp + settings.releaseDelayMs;
       return false;
     }
     if (mode === 'pen') return false;
