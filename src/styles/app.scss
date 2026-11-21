@@ -19,6 +19,7 @@
   --app-ink: #{$ink};
   --app-page: #{$page};
   --app-accent: #{$accent};
+  // DF-01, DF-03: docs/device-fixes.md
   // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
   // gutter and 5 gaps are subtracted. Rounded down to an even pixel count, so the fixed
   // 24 px icon lands on whole pixels in the middle of the button and stays sharp.
@@ -46,6 +47,7 @@
   --app-edge-bottom: calc(#{$edge-margin} + env(safe-area-inset-bottom));
   color-scheme: light;
 
+  // DF-02: docs/device-fixes.md
   @media (min-width: 700px) and (min-height: 700px) {
     --app-edge-top: calc(#{$edge-margin-top-tablet} + env(safe-area-inset-top));
   }

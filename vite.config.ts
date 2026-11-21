@@ -28,6 +28,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer',
       workbox: {
+        // DF-04: docs/device-fixes.md
         // A new version takes over as soon as it is installed; the pages reload on
         // `controllerchange` (the app waits for the stroke and the save). Without these,
         // vite-plugin-pwa 2 leaves it waiting for a SKIP_WAITING message nobody sends:

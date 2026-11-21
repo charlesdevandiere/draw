@@ -57,6 +57,8 @@ export function pageToBacking(backingPixels: number): number {
  * Where a stroke starts for a contact at (x, y) CSS pixels: on the page, or within
  * `margin` CSS pixels around it (a child's finger aiming at the edge often lands just
  * outside), pulled onto the edge. Null when the contact is farther away.
+ *
+ * DF-06: docs/device-fixes.md
  */
 export function strokeStart(
   transform: PageTransform,

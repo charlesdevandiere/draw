@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createDrawingClock, lastPoint, roundCoordinate, startStroke } from './stroke-builder';
+import {
+  createDrawingClock,
+  lastPoint,
+  roundCoordinate,
+  startStroke,
+  strokeReach,
+} from './stroke-builder';
 import { drawingDuration, pointCount, type StrokeStyle } from './types';
 
 const PEN: StrokeStyle = { tool: 'pen', color: '#000000', width: 8 };
@@ -88,5 +94,17 @@ describe('helpers', () => {
       ]),
     ).toBe(900);
     expect(drawingDuration([{ ...PEN, points: [0, 0, 10, 5000] }])).toBe(10);
+  });
+
+  it('measures how far a stroke reaches from its first point', () => {
+    expect(strokeReach({ ...PEN, points: [] })).toBe(0);
+    expect(strokeReach({ ...PEN, points: [5, 5, 0] })).toBe(0);
+    // A scribble that comes back to its start still reached its farthest point.
+    expect(strokeReach({ ...PEN, points: [0, 0, 0, 3, 4, 10, 1, 0, 20] })).toBe(5);
+    // A truncated trailing triplet (corrupt import) is ignored.
+    expect(strokeReach({ ...PEN, points: [0, 0, 0, 30, 40] })).toBe(0);
+    // From where the contact landed: its first point, pulled onto the edge, is skipped.
+    expect(strokeReach({ ...PEN, points: [0, 50, 0, -30, 50, 10] }, [-30, 50])).toBe(0);
+    expect(strokeReach({ ...PEN, points: [0, 50, 0, -27, 46, 10] }, [-30, 50])).toBe(5);
   });
 });

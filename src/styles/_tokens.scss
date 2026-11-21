@@ -8,10 +8,12 @@ $accent: #e0692a;
 $target-min: 48px;
 $tool-size: 56px;
 // Primary tools per row in portrait (8 colors + 2 widths + eraser wrap 6 + 5).
+// DF-01: docs/device-fixes.md
 $tools-per-row: 6;
 $tool-gap: 8px;
 
 // No control near the top and bottom edges: those swipes belong to the system.
 $edge-margin: 32px;
+// DF-02: docs/device-fixes.md
 // iPadOS 26 also blurs a band under its status bar: tablets keep more room at the top.
 $edge-margin-top-tablet: 64px;

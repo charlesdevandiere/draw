@@ -55,6 +55,7 @@ function busyPeriods(spans: readonly [number, number][]): [number, number][] {
   return merged;
 }
 
+// DF-07: docs/device-fixes.md
 export function planReplay(strokes: readonly Stroke[], options: ReplayOptions = {}): ReplayPlan {
   const maxPause = options.maxPauseMs ?? REPLAY_MAX_PAUSE_MS;
   const maxDuration = options.maxDurationMs ?? REPLAY_MAX_DURATION_MS;

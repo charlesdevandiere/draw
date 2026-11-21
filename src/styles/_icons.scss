@@ -5,6 +5,7 @@
 // grid unit on a 2× screen) keeps them sharp, where a percentage gave odd sizes.
 @use 'sass:map';
 
+// DF-03: docs/device-fixes.md
 $icon-size: 24px;
 
 $icons: (

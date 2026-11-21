@@ -2,6 +2,8 @@
  * A random version 4 UUID, used as a drawing id. `crypto.randomUUID` exists only in secure
  * contexts: the dev server opened from another device over plain HTTP (local network) has
  * none, while `crypto.getRandomValues` works everywhere.
+ *
+ * DF-08: docs/device-fixes.md
  */
 export function newId(): string {
   if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();

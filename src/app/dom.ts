@@ -9,6 +9,8 @@ export function requireElement<T extends Element>(id: string, type: new () => T)
  * Links marked `data-replace` replace the current history entry instead of adding one.
  * The app, the parent page and the diagnostic page never stack up in the history, so the
  * edge swipe "back" (iOS, Android) never leads from the sketchbook to the parent page.
+ *
+ * DF-05: docs/device-fixes.md
  */
 export function replaceHistoryOnLinks(root: ParentNode): void {
   for (const link of root.querySelectorAll<HTMLAnchorElement>('a[data-replace]')) {

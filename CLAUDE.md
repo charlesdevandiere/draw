@@ -33,6 +33,8 @@ Shared markup lives in `.html` templates imported with `?raw`; language shells o
 
 Deployment: every push to `master` runs `npm run check`, then publishes to `https://charlesdevandiere.github.io/draw/` (GitHub Actions). **Never push: the user pushes.**
 
+**Device fixes** (a margin, threshold, guard or workaround found on a real device): record each one in **`docs/device-fixes.md`** (DF-nn: what was seen, cause, fix, code, guarding test), tag the code with `// DF-nn: docs/device-fixes.md`, and add a regression test whenever the symptom can be reproduced. Read the entry before touching code tagged DF-nn.
+
 End of every task: run `/code-review --fix`, run `npm run check` again (and `npm run e2e` once it exists), then commit the task (one commit per task).
 
 **The repository is public and written entirely in English**: code, comments, docs, specs, commit messages. User-facing text goes through the i18n catalogs (English and French in the MVP, more European languages later). Conversations with the user are in French.

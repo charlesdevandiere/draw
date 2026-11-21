@@ -67,7 +67,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
   - the first contact keeps the slot until **no contact at all** touches the screen, then the slot stays locked for **300 ms** more (configurable);
   - **width filter**: a contact wider than a threshold (default 80 CSS px; measured iPad finger 42–63 px, palm up to 292 px) is ignored and holds the slot like any other contact. No effect on Android (reported widths ≤ 61 px); threshold to revisit with a child's hand;
   - `pen` pointers also draw in Finger mode.
-- All platforms: drawing happens only between `pointerdown` and `pointerup` / `pointercancel`. Movement without contact (**hover** of Android / Windows pens, `buttons === 0`) is ignored. `pointercancel` ends the stroke and keeps it.
+- All platforms: drawing happens only between `pointerdown` and `pointerup` / `pointercancel`. Movement without contact (**hover** of Android / Windows pens, `buttons === 0`) is ignored. `pointercancel` ends the stroke and keeps it, unless the contact never moved more than 2 % of the page from where it landed: then it is a palm iPadOS rejected, and its dot is removed. The same goes for a contact the Finger mode width filter turns away after it started (a palm landing edge first, then spreading). A tap lifted normally keeps its dot.
 - `getCoalescedEvents()` when available, falling back to the event itself.
 - Never `pressure`, `tilt` or the user agent.
 

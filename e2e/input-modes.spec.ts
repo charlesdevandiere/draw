@@ -42,6 +42,30 @@ test('finger mode ignores a contact as wide as a palm', async ({ page }) => {
   expect(await blank(page, 0.4)).toBe(true);
 });
 
+test('a palm landing narrow, then spreading, leaves no dot', async ({ page }) => {
+  const rest = await pagePoint(page, 0.5, 0.5);
+  await drawStrokes(page, [
+    { points: [rest, rest, rest, rest], widths: [30, 60, 120, 200], pointerType: 'touch' },
+  ]);
+  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), rest))).toBe(true);
+});
+
+test('a contact cancelled before moving leaves no dot, one that drew keeps its stroke', async ({
+  page,
+}) => {
+  await page.locator('#mode-button').click(); // multi: both contacts draw
+  const rest = await pagePoint(page, 0.8, 0.8);
+  await drawStrokes(page, [
+    { points: [rest, rest], pointerType: 'touch', end: 'cancel' },
+    { points: await horizontal(page, 0.3), pointerType: 'touch', end: 'cancel' },
+  ]);
+  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), rest))).toBe(true);
+  expect(await inked(page, 0.3)).toBe(true);
+  // A tap lifted normally still draws its dot.
+  await drawStrokes(page, [{ points: [rest], pointerType: 'touch' }]);
+  expect(isColor(await pixelAt(page.locator('#drawing-layer'), rest), INK)).toBe(true);
+});
+
 test('the first pen switches to pen mode, then touches no longer draw', async ({ page }) => {
   await drawStrokes(page, [{ points: await horizontal(page, 0.2), pointerType: 'pen' }]);
   await expect(page.locator('#mode-button')).toHaveAttribute('data-mode', 'pen');

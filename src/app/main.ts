@@ -307,6 +307,7 @@ openGallery.addEventListener('click', () => {
 });
 backToDrawing.addEventListener('click', showDrawScreen);
 initPadlock(requireElement('parent-lock', HTMLButtonElement), () => {
+  // DF-05: docs/device-fixes.md
   // Save before leaving the app page. Replace, not assign: a swipe back from the edge
   // must not bring the parent page back (see replaceHistoryOnLinks).
   void autosave.flush().finally(() => window.location.replace('parent.html'));

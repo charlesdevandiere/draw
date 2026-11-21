@@ -9,6 +9,10 @@ export interface StrokeInput {
   pointerId?: number;
   /** Contact width in CSS pixels (touch size). */
   width?: number;
+  /** Width at each point instead (a palm spreading); `width` is the fallback. */
+  widths?: readonly number[];
+  /** How the contact ends: lifted (default) or cancelled by the system. */
+  end?: 'up' | 'cancel';
 }
 
 /**
@@ -25,7 +29,9 @@ export async function drawStrokes(page: Page, strokes: readonly StrokeInput[]): 
       stroke: (typeof input)[number],
       index: number,
       [x, y]: readonly [number, number],
+      step: number,
     ) => {
+      const width = stroke.widths?.[step] ?? stroke.width ?? 1;
       const target = captured.get(index) ?? document.elementFromPoint(x, y) ?? document.body;
       if (type === 'pointerdown') captured.set(index, target);
       const init: PointerEventInit = {
@@ -37,11 +43,11 @@ export async function drawStrokes(page: Page, strokes: readonly StrokeInput[]): 
         pointerId: stroke.pointerId ?? index + 1,
         pointerType: stroke.pointerType ?? 'pen',
         isPrimary: index === 0,
-        buttons: type === 'pointerup' ? 0 : 1,
-        button: type === 'pointermove' ? -1 : 0,
-        width: stroke.width ?? 1,
-        height: stroke.width ?? 1,
-        pressure: type === 'pointerup' ? 0 : 0.5,
+        buttons: type === 'pointermove' || type === 'pointerdown' ? 1 : 0,
+        button: type === 'pointermove' || type === 'pointercancel' ? -1 : 0,
+        width,
+        height: width,
+        pressure: type === 'pointermove' || type === 'pointerdown' ? 0.5 : 0,
       };
       // A synthetic move has no coalesced events unless given some: one per move, so
       // the coalesced drawing path is exercised like on a real device (ignored where
@@ -52,17 +58,18 @@ export async function drawStrokes(page: Page, strokes: readonly StrokeInput[]): 
     const longest = Math.max(...input.map((stroke) => stroke.points.length));
     input.forEach((stroke, index) => {
       const first = stroke.points[0];
-      if (first) fire('pointerdown', stroke, index, first);
+      if (first) fire('pointerdown', stroke, index, first, 0);
     });
     for (let step = 1; step < longest; step += 1) {
       input.forEach((stroke, index) => {
         const point = stroke.points[step];
-        if (point) fire('pointermove', stroke, index, point);
+        if (point) fire('pointermove', stroke, index, point, step);
       });
     }
     input.forEach((stroke, index) => {
       const last = stroke.points.at(-1);
-      if (last) fire('pointerup', stroke, index, last);
+      const type = stroke.end === 'cancel' ? 'pointercancel' : 'pointerup';
+      if (last) fire(type, stroke, index, last, stroke.points.length - 1);
     });
   }, strokes);
 }

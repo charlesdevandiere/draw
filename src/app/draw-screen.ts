@@ -13,13 +13,28 @@ import {
   strokeStart,
 } from '../engine/page-transform';
 import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
-import { createDrawingClock, startStroke, type StrokeBuilder } from '../engine/stroke-builder';
+import {
+  createDrawingClock,
+  startStroke,
+  strokeReach,
+  type StrokeBuilder,
+} from '../engine/stroke-builder';
 import { PAGE_SIZE, drawingDuration, type Stroke, type StrokeStyle } from '../engine/types';
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
-/** A contact this close to the page (CSS pixels) still starts a stroke, on its edge. */
+/** A contact this close to the page (CSS pixels) still starts a stroke, on its edge. *
+ * DF-06: docs/device-fixes.md
+ */
 const EDGE_MARGIN_PX = 24;
+/**
+ * A contact that never went farther than this (page units, 2 % of the page) from where it
+ * landed has not really drawn: when it is cancelled or turned away by the input filter,
+ * it is a palm, and its dot is removed. A tap lifted normally keeps its dot.
+ *
+ * DF-09: docs/device-fixes.md
+ */
+const STRAY_REACH = 20;
 
 export type PointerPhase = 'down' | 'move' | 'up';
 
@@ -52,6 +67,8 @@ interface ActiveStroke {
   builder: StrokeBuilder;
   /** Points already painted. */
   drawn: number;
+  /** Where the contact landed (page units), before being pulled onto the page edge. */
+  origin: [number, number];
 }
 
 export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
@@ -129,9 +146,26 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     options.onStroke?.(entry.builder.stroke);
   }
 
+  /**
+   * A palm lands edge first, narrow enough to start a stroke, then iPadOS cancels it or it
+   * grows wider than the palm filter allows: a contact that ends that way before moving
+   * leaves nothing (whatever it drew is repainted away). One that drew keeps its stroke.
+   */
+  function dropOrFinish(pointerId: number): void {
+    const entry = active.get(pointerId);
+    if (!entry) return;
+    if (strokeReach(entry.builder.stroke, entry.origin) > STRAY_REACH) {
+      finish(pointerId);
+      return;
+    }
+    active.delete(pointerId);
+    repaint();
+  }
+
   hitArea.addEventListener('pointerdown', (event) => {
     // Only the main button draws (not a mouse right button nor a pen's eraser end).
     if (event.button !== 0) return;
+    // DF-06: docs/device-fixes.md
     // The tools sit right next to the page: a tap on a tool bar (button or gap) never draws.
     if (event.target instanceof Element && event.target.closest('button, [role="toolbar"]')) {
       return;
@@ -148,9 +182,11 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
       // Capture is a convenience: drawing still works without it.
     }
     const [x, y] = start;
+    const landing = sampleOf(event, transform);
     active.set(event.pointerId, {
-      builder: startStroke(options.style(), { ...sampleOf(event, transform), x, y }),
+      builder: startStroke(options.style(), { ...landing, x, y }),
       drawn: 0,
+      origin: [landing.x, landing.y],
     });
     requestFrame();
   });
@@ -161,7 +197,7 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     // Hover (pen above the screen, buttons = 0) never draws.
     if (!entry || event.buttons === 0) return;
     if (!accepts(event, 'move')) {
-      finish(event.pointerId);
+      dropOrFinish(event.pointerId);
       return;
     }
     const coalesced =
@@ -176,11 +212,13 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
   const end = (event: PointerEvent): void => {
     if (!contacts.delete(event.pointerId)) return;
     accepts(event, 'up');
-    finish(event.pointerId);
+    // A cancelled contact (system gesture, iPadOS palm rejection) keeps what it drew,
+    // unless it never moved: a palm's dot.
+    if (event.type === 'pointercancel') dropOrFinish(event.pointerId);
+    else finish(event.pointerId);
   };
   // On window: a contact lifted outside the canvas (without capture) must still end.
   window.addEventListener('pointerup', end);
-  // A cancelled contact (system gesture) keeps what it drew.
   window.addEventListener('pointercancel', end);
 
   new ResizeObserver(resize).observe(canvas);

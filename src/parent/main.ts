@@ -141,6 +141,7 @@ document.addEventListener('visibilitychange', () => {
 // is running (coming back from the file picker checks for an update, see above).
 const TRANSFER_RETRY_MS = 500;
 function reloadWhenIdle(): void {
+  // DF-04: docs/device-fixes.md
   if (transfer.busy()) setTimeout(reloadWhenIdle, TRANSFER_RETRY_MS);
   else window.location.reload();
 }

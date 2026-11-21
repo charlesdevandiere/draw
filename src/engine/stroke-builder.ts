@@ -59,3 +59,23 @@ export function lastPoint(stroke: Stroke): [number, number] | null {
   const start = (count - 1) * POINT_STRIDE;
   return [stroke.points[start] ?? 0, stroke.points[start + 1] ?? 0];
 }
+
+/**
+ * Farthest distance (page units) any point of a stroke reaches from where it landed:
+ * `origin` when given (a contact just outside the page has its first point pulled onto
+ * the edge, so the first point is skipped), its first point otherwise.
+ *
+ * DF-09: docs/device-fixes.md
+ */
+export function strokeReach(stroke: Stroke, origin?: readonly [number, number]): number {
+  const count = pointCount(stroke);
+  if (count === 0) return 0;
+  const [x0 = 0, y0 = 0] = origin ?? stroke.points;
+  let reach = 0;
+  for (let i = 1; i < count; i += 1) {
+    const x = stroke.points[i * POINT_STRIDE] ?? x0;
+    const y = stroke.points[i * POINT_STRIDE + 1] ?? y0;
+    reach = Math.max(reach, Math.hypot(x - x0, y - y0));
+  }
+  return reach;
+}
