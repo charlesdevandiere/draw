@@ -37,6 +37,7 @@ import {
 } from '../engine/history';
 import { styleFor } from '../engine/palette';
 import type { Drawing } from '../engine/types';
+import { newId } from '../store/id';
 import { requireElement } from './dom';
 import { initDrawScreen } from './draw-screen';
 import { initModeButton } from './mode-button';
@@ -82,7 +83,7 @@ const tools = initTools(toolsContainer, DEFAULT_TOOLS, translator.t, (state) => 
 });
 
 /** The drawing on the slate: its identity, and its strokes in `history`. */
-let current: { id: string; createdAt: number } = { id: crypto.randomUUID(), createdAt: Date.now() };
+let current: { id: string; createdAt: number } = { id: newId(), createdAt: Date.now() };
 let history: History = createHistory();
 
 const autosave = createAutosave({
@@ -143,7 +144,7 @@ function switchDrawing(drawing: Drawing): Promise<void> {
 /** Starts a blank page; the drawing left is already saved (or dropped if empty). */
 async function startNewPage(): Promise<void> {
   const now = Date.now();
-  await switchDrawing({ id: crypto.randomUUID(), createdAt: now, updatedAt: now, strokes: [] });
+  await switchDrawing({ id: newId(), createdAt: now, updatedAt: now, strokes: [] });
   // Strokes already drawn on the new page have saved it (and its id) themselves.
   if (history.strokes.length === 0) await writeSetting(SETTING_KEYS.lastDrawingId, current.id);
 }

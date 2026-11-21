@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Vite + TypeScript project (no framework). Step 0, the Pointer Events diagnostic page (`spec/SPEC-diagnostic.md`, now `/draw/<lang>/diagnostic.html`), is done: device reports and **conclusions in `docs/diagnostic/conclusions.md`**, to read before touching input handling. Step 0 plan and tasks: `tasks/diagnostic/`. The MVP (`spec/SPEC-mvp.md`, plan `tasks/plan.md`, tasks `tasks/todo.md`) is **implemented (T1–T23) and covered by unit and end-to-end tests; validation on the three reference devices is pending** (protocol: `docs/mvp-device-test.md`).
+Vite + TypeScript project (no framework). Step 0, the Pointer Events diagnostic page (`spec/SPEC-diagnostic.md`, now `/draw/<lang>/diagnostic.html`), is done: device reports and **conclusions in `docs/diagnostic/conclusions.md`**, to read before touching input handling. Step 0 plan and tasks: `tasks/diagnostic/`. The MVP (`spec/SPEC-mvp.md`, plan `tasks/plan.md`, tasks `tasks/todo.md`) is **implemented (T1–T23) and covered by unit and end-to-end tests; validation on the three reference devices is pending** (protocol: `docs/mvp-device-test.md`). **Before release 1.0.0**: freeze a stable, extensible stroke format so pictures from any earlier version keep importing (`spec/SPEC-mvp.md`, Out of Scope).
 
 Commands:
 

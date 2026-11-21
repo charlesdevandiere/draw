@@ -79,3 +79,19 @@ test('after choosing finger by hand, a pen does not switch the mode', async ({ p
   expect(await inked(page, 0.2)).toBe(true);
   expect(await inked(page, 0.6)).toBe(true);
 });
+
+for (const [name, width] of [
+  ['a palm', 150],
+  ['a finger', 1],
+] as const) {
+  test(`${name} resting before the pen does not stop the pen`, async ({ page }) => {
+    const rest = await pagePoint(page, 0.8, 0.8);
+    const pen = await horizontal(page, 0.3);
+    await drawStrokes(page, [
+      { points: pen.map(() => rest), pointerType: 'touch', width, pointerId: 7 },
+      { points: pen, pointerType: 'pen', pointerId: 9 },
+    ]);
+    expect(await inked(page, 0.3)).toBe(true);
+    if (width > 1) expect(isBlank(await pixelAt(page.locator('#drawing-layer'), rest))).toBe(true);
+  });
+}

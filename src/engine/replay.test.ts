@@ -40,9 +40,20 @@ describe('planReplay', () => {
     expect(plan.duration).toBe(250 + REPLAY_MAX_HOLD_MS);
   });
 
-  it('plays overlapping (simultaneous) strokes one after the other', () => {
+  it('plays simultaneous strokes (several fingers) at the same time', () => {
     const plan = planReplay([stroke(0, 500), stroke(100, 300)]);
-    expect(plan.strokes[1]?.times).toEqual([500, 700]);
+    expect(plan.strokes.map((s) => s.times)).toEqual([
+      [0, 500],
+      [100, 300],
+    ]);
+    expect(plan.duration).toBe(500);
+  });
+
+  it('treats a pause of one finger as drawing time while another one draws', () => {
+    // Finger A draws 0–1600; finger B taps at 800: gaps of 800 ms, longer than a pause
+    // between strokes (300 ms) but under a hold (1000 ms), are kept.
+    const plan = planReplay([stroke(0, 1600), stroke(800)]);
+    expect(plan.strokes.map((s) => s.times)).toEqual([[0, 1600], [800]]);
   });
 
   it('a 20-second drawing replays at real speed, pauses shortened', () => {

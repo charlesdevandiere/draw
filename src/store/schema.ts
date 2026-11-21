@@ -128,7 +128,7 @@ export function toStored(drawing: Drawing): StoredDrawing {
   };
 }
 
-/** A new, empty drawing. `id` comes from the caller (crypto.randomUUID in the app). */
+/** A new, empty drawing. `id` comes from the caller (newId in the app). */
 export function newDrawing(id: string, now: number): Drawing {
   return { id, createdAt: now, updatedAt: now, strokes: [] };
 }

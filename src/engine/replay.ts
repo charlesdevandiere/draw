@@ -1,12 +1,12 @@
 /**
  * Replay schedule (pure): when each point of a drawing appears during its replay.
  *
- * - inside a stroke, the drawing's own timing is kept, except that a finger held still
- *   (a gap between two points longer than `maxHoldMs`) is shortened to it;
- * - each pause between two strokes is shortened to `maxPauseMs` at most;
+ * All strokes share one timeline, their own drawing time, so strokes drawn at the same
+ * time (several fingers) replay at the same time. That timeline is then compressed:
+ * - a pause while nothing is being drawn is shortened to `maxPauseMs` at most;
+ * - a finger held still inside a stroke (a gap longer than `maxHoldMs` while a stroke is
+ *   in progress) is shortened to `maxHoldMs`;
  * - if the result is still longer than `maxDurationMs`, everything is sped up uniformly.
- *
- * Strokes play one after the other, in their stored order (simultaneous strokes too).
  */
 import { POINT_STRIDE, pointCount, type Stroke } from './types';
 
@@ -32,42 +32,67 @@ export interface ReplayOptions {
   maxDurationMs?: number;
 }
 
+/** Drawing times of a stroke's points, never going backwards (guard against odd data). */
+function strokeTimes(stroke: Stroke, count: number): number[] {
+  const times: number[] = [];
+  let last = stroke.points[POINT_STRIDE - 1] ?? 0;
+  for (let i = 0; i < count; i += 1) {
+    last = Math.max(last, stroke.points[i * POINT_STRIDE + 2] ?? last);
+    times.push(last);
+  }
+  return times;
+}
+
+/** Periods when at least one stroke is in progress, sorted and merged. */
+function busyPeriods(spans: readonly [number, number][]): [number, number][] {
+  const sorted = [...spans].sort((a, b) => a[0] - b[0]);
+  const merged: [number, number][] = [];
+  for (const [start, end] of sorted) {
+    const last = merged[merged.length - 1];
+    if (last && start <= last[1]) last[1] = Math.max(last[1], end);
+    else merged.push([start, end]);
+  }
+  return merged;
+}
+
 export function planReplay(strokes: readonly Stroke[], options: ReplayOptions = {}): ReplayPlan {
   const maxPause = options.maxPauseMs ?? REPLAY_MAX_PAUSE_MS;
   const maxDuration = options.maxDurationMs ?? REPLAY_MAX_DURATION_MS;
   const maxHold = options.maxHoldMs ?? REPLAY_MAX_HOLD_MS;
-  const planned: ReplayStroke[] = [];
-  let cursor = 0;
-  let previousEnd: number | null = null;
 
+  const raw: { stroke: Stroke; times: number[] }[] = [];
   for (const stroke of strokes) {
     const count = pointCount(stroke);
-    if (count === 0) continue;
-    const start = stroke.points[POINT_STRIDE - 1] ?? 0;
-    const gap = previousEnd === null ? 0 : Math.min(Math.max(start - previousEnd, 0), maxPause);
-    const origin = cursor + gap;
-    const times: number[] = [];
-    let last = start;
-    let elapsed = 0;
-    for (let i = 0; i < count; i += 1) {
-      // Times inside a stroke never go backwards; guard against odd stored data anyway.
-      const t = Math.max(last, stroke.points[i * POINT_STRIDE + 2] ?? last);
-      // A finger held still mid-stroke is a pause too: shortened like the others.
-      elapsed += Math.min(t - last, maxHold);
-      last = t;
-      times.push(origin + elapsed);
-    }
-    cursor = times[times.length - 1] ?? origin;
-    previousEnd = last;
-    planned.push({ stroke, times });
+    if (count > 0) raw.push({ stroke, times: strokeTimes(stroke, count) });
+  }
+  if (raw.length === 0) return { strokes: [], duration: 0 };
+
+  // Compressed time of every drawing time stamp, walking them in order.
+  const stamps = [...new Set(raw.flatMap(({ times }) => times))].sort((a, b) => a - b);
+  const busy = busyPeriods(raw.map(({ times }) => [times[0] ?? 0, times[times.length - 1] ?? 0]));
+  const compressed = new Map<number, number>();
+  let period = 0;
+  let replayTime = 0;
+  let previous = stamps[0] ?? 0;
+  for (const stamp of stamps) {
+    while ((busy[period]?.[1] ?? Number.POSITIVE_INFINITY) < previous) period += 1;
+    const [busyStart, busyEnd] = busy[period] ?? [0, 0];
+    const drawing = busyStart <= previous && stamp <= busyEnd;
+    replayTime += Math.min(stamp - previous, drawing ? maxHold : maxPause);
+    compressed.set(stamp, replayTime);
+    previous = stamp;
   }
 
-  if (cursor > maxDuration) {
-    const factor = maxDuration / cursor;
-    for (const entry of planned) entry.times = entry.times.map((time) => time * factor);
-    cursor = maxDuration;
-  }
-  return { strokes: planned, duration: cursor };
+  let duration = replayTime;
+  const factor = duration > maxDuration ? maxDuration / duration : 1;
+  if (factor < 1) duration = maxDuration;
+  return {
+    strokes: raw.map(({ stroke, times }) => ({
+      stroke,
+      times: times.map((time) => (compressed.get(time) ?? 0) * factor),
+    })),
+    duration,
+  };
 }
 
 /** Number of points of a planned stroke visible at replay time `time`. */

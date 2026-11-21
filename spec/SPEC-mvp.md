@@ -330,6 +330,8 @@ const catalogs: Record<Language, Messages> = { en, fr };
 
 - **Milestone 2**: coloring pages with overflow protection, capital letters to trace.
 - **Milestone 3**: cursive, replay export as video / GIF.
+- **Before release 1.0.0 (required)**: freeze a stable, extensible format for the stroke history stored in magic PNGs and IndexedDB, so a picture made with any earlier version still imports in every later one. At least: a documented format spec (`docs/`), forward-compatible rules (unknown fields kept or ignored, new tools / stroke kinds degrade gracefully), a migration for each schema version, and a test corpus of PNGs from each released version that must keep importing. Until then the MVP format (schema 1) may still change.
+- **Design phase (with Claude Design)**: reduce energy use. A pure black background (and dark UI) saves power on OLED screens (Pixel; iPad 11 is LCD, no gain there); also check idle CPU/GPU (no animation frame loop when nothing moves, no work in the background).
 - **Synced folder**: automatically writing magic PNGs to a chosen folder (`showDirectoryPicker`). Chrome Android ≥ 155 and desktop only; impossible on iOS Safari. To check on the Pixel first.
 - More European languages: one dictionary and one folder each, after the MVP.
 - A4 formats: dropped for the square; reopen only on real need.

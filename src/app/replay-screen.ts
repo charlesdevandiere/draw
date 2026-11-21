@@ -1,7 +1,8 @@
 /**
  * DOM side of the replay: a full-screen page where the drawing redraws itself stroke by
- * stroke (eraser included), following the schedule of engine/replay.ts. Touching the page
- * stops it; a button plays it again at the end.
+ * stroke (eraser included), following the schedule of engine/replay.ts (strokes drawn at
+ * the same time replay together). Touching the page stops it; a button plays it again at
+ * the end.
  */
 import { backingSize, pageToBacking } from '../engine/page-transform';
 import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
@@ -62,6 +63,9 @@ export function initReplayScreen(options: ReplayScreenOptions): ReplayScreen {
     });
     if (elapsed >= plan.duration) {
       frame = 0;
+      // Simultaneous strokes were painted interleaved, frame by frame (as when drawn): end
+      // on the drawing exactly as stored, so an eraser among them leaves the same result.
+      if (drawing) renderDrawing(context, drawing.strokes, pageToBacking(canvas.width), PAGE_SIZE);
       const hadFocus = document.activeElement === canvas;
       playAgain.hidden = false;
       if (hadFocus) playAgain.focus();
