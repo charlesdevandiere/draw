@@ -14,7 +14,11 @@
 @use 'bootstrap/scss/dialog';
 @use 'bootstrap/scss/helpers';
 @use 'bootstrap/scss/utilities/api';
+@use 'sass:map';
 @use 'tokens' as *;
+
+// Tablets: both viewport sides at least Bootstrap's `sm` breakpoint (same test as the app).
+$tablet-side: map.get(config.$breakpoints, 'sm');
 
 :root {
   color-scheme: light;
@@ -27,7 +31,7 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 
   // Tablets: the blur band is taller (same rule as the child app).
-  @media (min-width: 700px) and (min-height: 700px) {
+  @media (min-width: $tablet-side) and (min-height: $tablet-side) {
     padding-top: calc(#{$edge-margin-top-tablet} + env(safe-area-inset-top));
   }
 }

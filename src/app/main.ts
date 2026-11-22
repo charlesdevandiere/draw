@@ -51,10 +51,12 @@ import { shareFile } from './share';
 import { encodeMagicPng } from './magic-image';
 import { drawingFileName } from '../store/file-name';
 import { showScreen } from './screens';
+import { initScreenLayout } from './screen-layout';
 
 const translator = createTranslator(documentLanguage());
 document.body.innerHTML = appHtml;
 applyTranslations(document.body, translator.t);
+const screenLayout = initScreenLayout(requireElement('screens', HTMLElement));
 
 // Every touch surface needs them: the drawing page and the replay page.
 for (const id of ['page', 'replay-page']) {
@@ -152,6 +154,7 @@ async function startNewPage(): Promise<void> {
 const drawScreen = initDrawScreen({
   canvas,
   hitArea: requireElement('draw-screen', HTMLElement),
+  rotation: screenLayout.rotation,
   onStroke: (stroke) => {
     history = commitStroke(history, stroke);
     refreshHistoryButtons();

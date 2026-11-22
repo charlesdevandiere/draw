@@ -21,7 +21,7 @@ Shared building blocks for the redesigned child screens: a device class that nev
 ### Phase 1: Layout fixed to the device (high risk, gate)
 
 - [x] Task 1: Device class and rotation math (pure)
-- [ ] Task 2: Counter-rotate the child screens, upright icons, rotated input
+- [x] Task 2: Counter-rotate the child screens, upright icons, rotated input
 
 ### Checkpoint: Rotation decision gate
 

@@ -34,14 +34,14 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 
 **Acceptance criteria:**
 
-- [ ] Phone viewport in landscape and tablet viewport in portrait: the controls keep their hardware positions (e2e reads the rotated boxes), icons are upright, nothing overflows.
-- [ ] A stroke drawn in a rotated viewport lands under the pointer (e2e pixel check), a tap on a tool still works.
-- [ ] Design orientations are unchanged (existing layout e2e still pass, updated for the device-class breakpoint); DF-02 entry updated to the new breakpoint; new DF entry if a device workaround is needed.
+- [x] Phone viewport in landscape and tablet viewport in portrait: the controls keep their hardware positions (e2e reads the rotated boxes), icons are upright, nothing overflows.
+- [x] A stroke drawn in a rotated viewport lands under the pointer (e2e pixel check), a tap on a tool still works.
+- [x] Design orientations are unchanged (existing layout e2e still pass, updated for the device-class breakpoint); DF-02 entry updated to the new breakpoint; new DF entry if a device workaround is needed.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/app-shell.spec.ts e2e/draw.spec.ts e2e/rotation.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx playwright test e2e/app-shell.spec.ts e2e/draw.spec.ts e2e/rotation.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 - [ ] Manual check (decision gate): rotate the installed app on the Pixel 9a and the iPad 11
 
 **Dependencies:** Task 1

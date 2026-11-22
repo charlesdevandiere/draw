@@ -16,7 +16,8 @@ test('the square page fills the drawing area and controls stay away from the edg
   const box = await page.locator('#page').boundingBox();
   if (!box) throw new Error('Page not visible');
 
-  const tablet = viewport.width >= 700 && viewport.height >= 700;
+  // Device class: both sides at least Bootstrap's sm breakpoint (576 px).
+  const tablet = viewport.width >= 576 && viewport.height >= 576;
   const topMargin = tablet ? TABLET_TOP_MARGIN : EDGE_MARGIN;
 
   expect(Math.abs(box.width - box.height)).toBeLessThan(1);

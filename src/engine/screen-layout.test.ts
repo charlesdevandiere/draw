@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { TABLET_MIN_SIDE, TABLET_QUERY, deviceClass, layoutRotation } from './screen-layout';
+import {
+  TABLET_MIN_SIDE,
+  TABLET_QUERY,
+  deviceClass,
+  fillsScreen,
+  layoutRotation,
+} from './screen-layout';
 
 describe('deviceClass', () => {
   it('is a phone when a side is under the Bootstrap sm breakpoint, in both orientations', () => {
@@ -58,5 +64,22 @@ describe('layoutRotation', () => {
   it('never rotates a square or empty viewport', () => {
     expect(layoutRotation(600, 600, 90)).toBe(0);
     expect(layoutRotation(0, 0, 90)).toBe(0);
+  });
+});
+
+describe('fillsScreen', () => {
+  it('is true for an installed app or a browser tab, whichever way the device is held', () => {
+    expect(fillsScreen(1180, 820, 820, 1180)).toBe(true); // iPad, standalone
+    expect(fillsScreen(412, 820, 412, 915)).toBe(true); // Pixel, under the system bars
+    expect(fillsScreen(820, 412, 412, 915)).toBe(true);
+  });
+
+  it('is false for a window sharing the screen (iPad Split View, Stage Manager, desktop)', () => {
+    expect(fillsScreen(780, 820, 820, 1180)).toBe(false); // 2/3 split
+    expect(fillsScreen(1000, 500, 1920, 1080)).toBe(false);
+  });
+
+  it('is false without a screen size', () => {
+    expect(fillsScreen(375, 667, 0, 0)).toBe(false);
   });
 });

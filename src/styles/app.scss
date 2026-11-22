@@ -11,44 +11,37 @@
 @use 'bootstrap/scss/content';
 @use 'bootstrap/scss/buttons';
 @use 'bootstrap/scss/helpers';
+@use 'sass:map';
 @use 'tokens' as *;
 @use 'icons';
+
+// Device class (spec/SPEC-ui-foundation.md): a tablet has both viewport sides at least
+// Bootstrap's `sm` breakpoint, whatever the orientation. Same test as TABLET_QUERY in
+// src/engine/screen-layout.ts.
+$tablet-side: map.get(config.$breakpoints, 'sm');
+$tablet: '(min-width: #{$tablet-side}) and (min-height: #{$tablet-side})';
+// Largest safe-area inset: once the screens are turned, any hardware edge may hold it.
+$safe-max: max(
+  env(safe-area-inset-top),
+  env(safe-area-inset-right),
+  env(safe-area-inset-bottom),
+  env(safe-area-inset-left)
+);
 
 :root {
   --app-paper: #{$paper};
   --app-ink: #{$ink};
   --app-page: #{$page};
   --app-accent: #{$accent};
-  // DF-01, DF-03: docs/device-fixes.md
-  // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
-  // gutter and 5 gaps are subtracted. Rounded down to an even pixel count, so the fixed
-  // 24 px icon lands on whole pixels in the middle of the button and stays sharp.
-  // Without CSS round() (Chrome before 125), a plain clamp with 4 px of rounding slack:
-  // an invalid custom property would otherwise collapse every button to its 48 px minimum.
-  --app-tool-size: clamp(
-    #{$target-min},
-    (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap} - 4px) / #{$tools-per-row},
-    #{$tool-size}
-  );
-
-  @supports (width: round(down, 1px, 2px)) {
-    --app-tool-size: round(
-      down,
-      clamp(
-        #{$target-min},
-        (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap}) / #{$tools-per-row},
-        #{$tool-size}
-      ),
-      2px
-    );
-  }
   --app-tool-gap: #{$tool-gap};
   --app-edge-top: calc(#{$edge-margin} + env(safe-area-inset-top));
   --app-edge-bottom: calc(#{$edge-margin} + env(safe-area-inset-bottom));
+  --app-edge-left: max(8px, env(safe-area-inset-left));
+  --app-edge-right: max(8px, env(safe-area-inset-right));
   color-scheme: light;
 
   // DF-02: docs/device-fixes.md
-  @media (min-width: 700px) and (min-height: 700px) {
+  @media #{$tablet} {
     --app-edge-top: calc(#{$edge-margin-top-tablet} + env(safe-area-inset-top));
   }
 
@@ -70,18 +63,92 @@ body {
   color: var(--app-ink);
 }
 
-.screen {
+// The child screens share one container. Held away from its design orientation (phone
+// portrait, tablet landscape), the device turns the viewport; the container is turned
+// back at once (no transition: the browser animates its own rotation), so every control
+// stays at the same place on the hardware, and the icons turn to stay upright.
+.screens {
   position: fixed;
   inset: 0;
-  padding: var(--app-edge-top) max(8px, env(safe-area-inset-right)) var(--app-edge-bottom)
-    max(8px, env(safe-area-inset-left));
+
+  // DF-01, DF-03: docs/device-fixes.md
+  // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the side
+  // margins and 5 gaps are subtracted. Declared here, not on :root: the side margins
+  // change on the turned container, and var() resolves where the property is declared. Rounded down to an even pixel count, so the fixed
+  // 24 px icon lands on whole pixels in the middle of the button and stays sharp.
+  // Without CSS round() (Chrome before 125), a plain clamp with 4 px of rounding slack:
+  // an invalid custom property would otherwise collapse every button to its 48 px minimum.
+  --app-tool-size: clamp(
+    #{$target-min},
+    (
+        100vmin - var(--app-edge-left) - var(--app-edge-right) - #{($tools-per-row - 1) *
+          $tool-gap} - 4px
+      ) /
+      #{$tools-per-row},
+    #{$tool-size}
+  );
+
+  @supports (width: round(down, 1px, 2px)) {
+    --app-tool-size: round(
+      down,
+      clamp(
+        #{$target-min},
+        (
+            100vmin - var(--app-edge-left) - var(--app-edge-right) - #{($tools-per-row - 1) *
+              $tool-gap}
+          ) /
+          #{$tools-per-row},
+        #{$tool-size}
+      ),
+      2px
+    );
+  }
+}
+
+.screens:is([data-rotation='90'], [data-rotation='270']) {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 100vh;
+  width: 100dvh;
+  height: 100vw;
+  height: 100dvw;
+  translate: -50% -50%;
+  rotate: var(--layout-rotation);
+  // The layout's sides now lie along the system edges of the viewport (notification
+  // center, home bar, iPadOS status bar blur): margins on all four sides.
+  --app-edge-top: calc(#{$edge-margin} + #{$safe-max});
+  --app-edge-bottom: calc(#{$edge-margin} + #{$safe-max});
+  --app-edge-left: calc(16px + #{$safe-max});
+  --app-edge-right: calc(16px + #{$safe-max});
+
+  // DF-02: docs/device-fixes.md
+  @media #{$tablet} {
+    --app-edge-left: calc(#{$edge-margin-top-tablet} + #{$safe-max});
+    --app-edge-right: calc(#{$edge-margin-top-tablet} + #{$safe-max});
+  }
+
+  .icon {
+    rotate: calc(-1 * var(--layout-rotation));
+  }
+
+  // A turned scroller: let the browser pan along either screen axis.
+  .gallery-grid {
+    touch-action: pan-x pan-y;
+  }
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  padding: var(--app-edge-top) var(--app-edge-right) var(--app-edge-bottom) var(--app-edge-left);
 }
 
 .screen[hidden] {
   display: none;
 }
 
-// Drawing screen: portrait = page on top, tools below; landscape = tools on both sides.
+// Drawing screen: phone = page on top, tools below; tablet = tools on both sides.
 // Contacts just around the page start a stroke on its edge (draw-screen.ts): no browser
 // gesture anywhere on the screen (touch-action intersects with the ancestors', so this
 // also applies to the tool buttons: taps still click).
@@ -96,7 +163,7 @@ body {
     / minmax(0, 1fr);
 }
 
-@media (min-aspect-ratio: 1/1) {
+@media #{$tablet} {
   .draw-screen {
     grid-template:
       'primary page secondary' minmax(0, 1fr)
@@ -150,7 +217,7 @@ body {
   grid-area: secondary;
 }
 
-@media (min-aspect-ratio: 1/1) {
+@media #{$tablet} {
   .page-area {
     place-items: center;
   }

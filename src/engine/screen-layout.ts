@@ -52,3 +52,30 @@ export function layoutRotation(width: number, height: number, screenAngle: numbe
   const angle = consistent ? reported : landscape ? 90 : 0;
   return quarterTurn(designAngle - angle);
 }
+
+/**
+ * Share of the screen's sides a window must cover to count as "the app fills the screen"
+ * (an installed app or a browser tab, minus system and browser bars).
+ */
+const FULL_SCREEN_SHARE = 0.85;
+
+/**
+ * Whether a `width` × `height` window fills a `screenWidth` × `screenHeight` screen,
+ * whichever way each is reported. A window sharing the screen (iPad Split View or Stage
+ * Manager, a desktop window) is never turned: its shape says nothing about how the device
+ * is held.
+ */
+export function fillsScreen(
+  width: number,
+  height: number,
+  screenWidth: number,
+  screenHeight: number,
+): boolean {
+  const long = Math.max(screenWidth, screenHeight);
+  const short = Math.min(screenWidth, screenHeight);
+  if (short <= 0) return false;
+  return (
+    Math.max(width, height) >= long * FULL_SCREEN_SHARE &&
+    Math.min(width, height) >= short * FULL_SCREEN_SHARE
+  );
+}

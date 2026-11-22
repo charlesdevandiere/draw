@@ -28,9 +28,9 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 
 - **Seen** (2026-11-21, iPad, iPadOS 26): the top of the screen is blurred under the status bar.
 - **Cause**: iPadOS 26 draws a blur under its status bar, taller than the safe area it reports.
-- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the parent page.
+- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the parent page. Tablets are the device class of `spec/SPEC-ui-foundation.md` (both viewport sides ≥ 576 px, Bootstrap `sm`; 700 px before 2026-11-22). When the screens are turned back (tablet held in portrait), the blurred band lies along a side of the layout: the turned layout keeps 64 px on both sides.
 - **Code**: `$edge-margin-top-tablet` in `src/styles/_tokens.scss`, used by `src/styles/app.scss` (`--app-edge-top`) and `src/styles/parent.scss`.
-- **Guard**: e2e `app-shell.spec.ts` › "the square page fills the drawing area and controls stay away from the edges" (`TABLET_TOP_MARGIN`).
+- **Guard**: e2e `app-shell.spec.ts` › "the square page fills the drawing area and controls stay away from the edges" (`TABLET_TOP_MARGIN`). Turned layout: `rotation.spec.ts` › "held the other way, the controls keep their place on the device".
 
 ## DF-03 Sharp icons
 
