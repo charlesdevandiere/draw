@@ -43,12 +43,12 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 **Acceptance criteria:**
 
-- [ ] Every child-screen button is a pebble in its role color; the padlock uses the long-press rest colors.
-- [ ] Gallery, share and replay e2e still pass.
+- [x] Every child-screen button is a pebble in its role color; the padlock uses the long-press rest colors.
+- [x] Gallery, share and replay e2e still pass.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/gallery.spec.ts e2e/share.spec.ts e2e/replay.spec.ts`
+- [x] `npx playwright test e2e/gallery.spec.ts e2e/share.spec.ts e2e/replay.spec.ts`
 - [ ] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 3

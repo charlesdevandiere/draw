@@ -204,7 +204,7 @@ const replay = initReplayScreen({
 function playButton(drawing: Drawing): HTMLButtonElement {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'tool-button';
+  button.className = 'btn btn-solid btn-pebble theme-create';
   button.setAttribute('aria-label', translator.t('gallery.play'));
   button.innerHTML = '<span class="icon icon-play" aria-hidden="true"></span>';
   button.addEventListener('click', () => {
@@ -218,7 +218,7 @@ function playButton(drawing: Drawing): HTMLButtonElement {
 function shareButton(drawing: Drawing): HTMLButtonElement {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'tool-button';
+  button.className = 'btn btn-solid btn-pebble theme-gallery';
   button.setAttribute('aria-label', translator.t('gallery.share'));
   button.innerHTML = '<span class="icon icon-share" aria-hidden="true"></span>';
   // The share sheet needs a recent user gesture (iOS Safari): start encoding as soon as the

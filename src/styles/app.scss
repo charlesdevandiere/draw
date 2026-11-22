@@ -201,11 +201,6 @@ body {
 .btn-pebble {
   --btn-border-width: 0;
   --btn-border-radius: #{$pebble-radius};
-  // A tap leaves :hover stuck on touch screens: no hover shade, it would look selected.
-  --btn-hover-bg: var(--btn-bg);
-  --btn-hover-color: var(--btn-color);
-  --btn-disabled-bg: #{$disabled-bg};
-  --btn-disabled-color: #{$disabled-icon};
   --btn-disabled-opacity: 1;
   display: inline-grid;
   place-items: center;
@@ -215,6 +210,19 @@ body {
   min-height: $target-min;
   padding: 0;
   touch-action: manipulation;
+
+  // Bootstrap sets these on `.btn-solid:hover` / `:disabled`: override them on the same
+  // states (same specificity, declared later), not on `.btn-pebble` alone.
+  // A tap leaves :hover stuck on touch screens: no hover shade, it would look selected.
+  &:hover {
+    --btn-hover-bg: var(--btn-bg);
+    --btn-hover-color: var(--btn-color);
+  }
+
+  &:disabled {
+    --btn-disabled-bg: #{$disabled-bg};
+    --btn-disabled-color: #{$disabled-icon};
+  }
 
   &[aria-pressed='true'] {
     box-shadow: $selection-ring;
@@ -287,7 +295,7 @@ body {
 
 .padlock-ring {
   position: absolute;
-  inset: -3px; // over the button border
+  inset: -3px; // just outside the pebble
   width: calc(100% + 6px);
   height: calc(100% + 6px);
   rotate: -90deg;
