@@ -101,7 +101,7 @@
   "parent.app": "Application",
   "parent.version": "Version {version}",
   "parent.diagnostic": "Page de diagnostic",
-  "gallery.parent": "Espace parent (maintenir 3 secondes)",
+  "gallery.parent": "Espace parent (maintenir 1,5 seconde)",
   "parent.drawings": "Dessins",
   "parent.drawings.selectAll": "Tout sélectionner",
   "parent.drawings.selectNone": "Tout désélectionner",

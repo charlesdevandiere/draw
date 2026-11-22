@@ -21,7 +21,6 @@
   --app-paper: #{$paper};
   --app-ink: #{$ink};
   --app-page: #{$page};
-  --app-accent: #{$accent};
   // DF-01, DF-03: docs/device-fixes.md
   // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
   // gutter and 5 gaps are subtracted. Rounded down to an even pixel count, so the fixed
@@ -281,35 +280,31 @@ body {
   gap: var(--app-tool-gap);
 }
 
-// Parent padlock, at the far end of the header: while it is held (3 s), the button grows
-// a little and a round-capped ring draws itself around it.
+// Parent padlock, at the far end of the header (a long press, below).
 .padlock {
-  position: relative;
   margin-left: auto;
+}
+
+// Long-press buttons (src/app/long-press.ts): while held, the button grows a little and
+// fills from the bottom with a darker shade of its own color.
+.long-press {
+  --long-press-fill: color-mix(in oklch, var(--btn-bg, var(--app-page)), #000 18%);
   transition: scale 0.2s ease-out;
+  background-image: linear-gradient(
+    to top,
+    var(--long-press-fill) calc(var(--progress, 0) * 100%),
+    transparent calc(var(--progress, 0) * 100%)
+  );
+
+  // Bootstrap darkens a pressed `.btn` (`:active`): keep the rest color, so the darker fill
+  // stands out from the part still to fill.
+  &:active {
+    --btn-active-bg: var(--btn-bg);
+    --btn-active-color: var(--btn-color);
+  }
 
   &[data-holding] {
     scale: 1.12;
-  }
-}
-
-.padlock-ring {
-  position: absolute;
-  inset: -3px; // just outside the pebble
-  width: calc(100% + 6px);
-  height: calc(100% + 6px);
-  rotate: -90deg;
-  fill: none;
-  stroke: var(--app-accent);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: calc(1 - var(--progress, 0));
-  // Hidden at rest: a round cap would otherwise show a dot.
-  opacity: 0;
-
-  .padlock[data-holding] & {
-    opacity: 1;
   }
 }
 

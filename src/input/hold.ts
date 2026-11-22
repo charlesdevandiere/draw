@@ -1,9 +1,10 @@
 /**
- * Press-and-hold gesture (pure): the parent padlock opens only after a continuous press of
+ * Press-and-hold gesture (pure): a long-press action runs only after a continuous press of
  * `durationMs`. Releasing earlier cancels. Time is passed in.
  */
 
-export const PARENT_HOLD_MS = 3000;
+/** One duration for every long press (spec/SPEC-ui-foundation.md). */
+export const LONG_PRESS_MS = 1500;
 
 export interface Hold {
   press(now: number): void;
@@ -13,7 +14,7 @@ export interface Hold {
   complete(now: number): boolean;
 }
 
-export function createHold(durationMs: number = PARENT_HOLD_MS): Hold {
+export function createHold(durationMs: number = LONG_PRESS_MS): Hold {
   let pressedAt: number | null = null;
 
   const progress = (now: number): number =>

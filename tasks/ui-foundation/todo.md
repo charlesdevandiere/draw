@@ -94,14 +94,14 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 **Acceptance criteria:**
 
-- [ ] A release before 1.5 s does nothing; a 1.5 s press opens the parent page (e2e updated from 3 s).
-- [ ] While held the button fills from the bottom and grows; the haptic tick fires once on completion (e2e with a stubbed `navigator.vibrate`).
-- [ ] Labels updated ("press and hold 1.5 seconds", en + fr); spec criterion 15 of `spec/SPEC-mvp.md` noted as changed by this module.
+- [x] A release before 1.5 s does nothing; a 1.5 s press opens the parent page (e2e updated from 3 s).
+- [x] While held the button fills from the bottom and grows; the haptic tick fires once on completion (e2e with a stubbed `navigator.vibrate`).
+- [x] Labels updated ("press and hold 1.5 seconds", en + fr); spec criterion 15 of `spec/SPEC-mvp.md` noted as changed by this module.
 
 **Verification:**
 
-- [ ] `npx vitest run src/input/hold.test.ts`
-- [ ] `npx playwright test e2e/parent.spec.ts`
+- [x] `npx vitest run src/input/hold.test.ts`
+- [x] `npx playwright test e2e/parent.spec.ts`
 - [ ] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 5

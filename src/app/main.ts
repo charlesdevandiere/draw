@@ -46,7 +46,7 @@ import { protectGestures } from './gesture-protections';
 import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
 import { initHaptic } from './haptic';
-import { initPadlock } from './padlock';
+import { initLongPress } from './long-press';
 import { initReplayScreen } from './replay-screen';
 import { shareFile } from './share';
 import { encodeMagicPng } from './magic-image';
@@ -307,13 +307,16 @@ openGallery.addEventListener('click', () => {
 });
 backToDrawing.addEventListener('click', showDrawScreen);
 const haptic = initHaptic();
-initPadlock(requireElement('parent-lock', HTMLButtonElement), () => {
-  haptic();
-  // DF-05: docs/device-fixes.md
-  // Save before leaving the app page. Replace, not assign: a swipe back from the edge
-  // must not bring the parent page back (see replaceHistoryOnLinks).
-  void autosave.flush().finally(() => window.location.replace('parent.html'));
-});
+initLongPress(
+  requireElement('parent-lock', HTMLButtonElement),
+  () => {
+    // DF-05: docs/device-fixes.md
+    // Save before leaving the app page. Replace, not assign: a swipe back from the edge
+    // must not bring the parent page back (see replaceHistoryOnLinks).
+    void autosave.flush().finally(() => window.location.replace('parent.html'));
+  },
+  { haptic },
+);
 requireElement('gallery-new-page', HTMLButtonElement).addEventListener('click', () => {
   startNewPage().catch(() => undefined);
   showDrawScreen();

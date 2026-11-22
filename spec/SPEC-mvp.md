@@ -25,7 +25,7 @@ Sources: `docs/ideas/carnet-magique.md` (vision, scope, "Not Doing") and `docs/d
 - **Square page only**: one format, 1000 × 1000 page units. The format picker from the framing note is dropped.
 - **"Pencil" eraser**: rubbing erases what is underneath. In vector terms it is an eraser stroke rendered with `destination-out`, and replayable.
 - **Accelerated replay**: pauses between strokes shortened, total duration capped at ~15 s.
-- **Parent access**: press and hold a small padlock icon for 3 s, with a filling progress ring.
+- **Parent access**: press and hold a small padlock icon for 3 s, with a filling progress ring (changed by module `ui-foundation`, `spec/SPEC-ui-foundation.md`: 1.5 s, the button fills from the bottom).
 - **Input mode** Pen / Finger / Multi-finger, offered on **every platform**: Apple Pencil, Logitech Crayon, Metapen, S Pen (Galaxy Tab), USI 2.0 pens (Pixel Tablet) and Surface Pen all report `pen`. Passive styluses report `touch`. Automatic switch to Pen only until a mode has been chosen by hand.
 - **Bootstrap 6.0.0-alpha.1**, exact version, **compiled from Sass**, importing only the modules we use, with our own theme. Its CSS is used everywhere; its JavaScript only where a component needs it.
 - **"Magic PNG"**: a drawing file is a normal PNG that also carries the vector drawing in a metadata chunk. It is the format for sharing (phase A) and for export / import (phase B).
@@ -132,7 +132,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **B2 — Parent access**
 
-- A small padlock icon in the gallery. **Press and hold for 3 s**, with a filling ring; releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
+- A small padlock icon in the gallery. **Press and hold for 3 s**, with a filling ring (changed by module `ui-foundation`, `spec/SPEC-ui-foundation.md`: 1.5 s, the button fills from the bottom); releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
 
 **B3 — Parent page** (Bootstrap, translated)
 
@@ -322,7 +322,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
 **Phase B**
 
 14. Replaying a 10-minute drawing takes ~15 s, eraser included; a 20-second drawing replays at real speed (shortened pauses).
-15. A child tapping the padlock does not open the parent page; a 3-second press does.
+15. A child tapping the padlock does not open the parent page; a 3-second press does (1.5 s since module `ui-foundation`).
 16. Delete a drawing, export the gallery to Files, delete everything, import the PNGs back: every drawing returns, identical and replayable. Importing a photo is refused.
 17. **Child test**: a 5-year-old draws, finds and reopens a drawing alone, without explanation, on the iPad and on a phone.
 

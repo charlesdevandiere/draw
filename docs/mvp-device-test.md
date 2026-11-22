@@ -47,7 +47,7 @@ Pen mode on the iPad with the Metapen; finger elsewhere.
 ## B. Replay and parent page
 
 - [ ] Gallery → play button: the drawing redraws itself stroke by stroke, eraser included; a long drawing takes about 15 s; touching the page stops it; "play again" at the end.
-- [ ] Tapping the **padlock** (top right of the gallery) does nothing; holding it 3 s (the ring fills) opens the parent page.
+- [ ] Tapping the **padlock** (top right of the gallery) does nothing; holding it 1.5 s (the button grows and fills from the bottom; a light vibration on Android) opens the parent page.
 - [ ] Parent page: delete a drawing (confirmation dialog); it disappears from the gallery.
 - [ ] Export: "Export" prepares, then **"Share N pictures"** opens the share sheet → save to Files. Delete everything, then **Import** the saved pictures: every drawing comes back, replayable. Import a photo: refused.
 - [ ] Import the picture that went through Messages / Photos (A3): note whether it is still recognized.
