@@ -32,25 +32,38 @@ function quarterTurn(degrees: number): QuarterTurn {
  * Rotation to apply to the child screens for a viewport of `width` × `height` CSS pixels
  * and a screen at `screenAngle` degrees (`screen.orientation.angle`). 0 in the design
  * orientation of the device class, whichever way up; otherwise the quarter turn that
- * brings the layout back to its design angle (phone 0°, tablet 90°). The direction of the
- * turn is an assumption until checked on the reference devices (decision gate,
- * tasks/ui-foundation/todo.md); if it is wrong, only the sign here changes.
+ * brings the layout back to its design angle (phone 0°, tablet 90°). Direction checked on
+ * the iPad 11 (decision gate, tasks/ui-foundation/todo.md).
+ *
+ * `fit` (see `windowFit`): DF-11, docs/device-fixes.md. A window sharing the screen is
+ * never turned. An angle matching the viewport's shape is trusted as long as the window
+ * spans the screen's long side: a phone browser tab in landscape loses a fifth of its
+ * height to the bars. An angle that does not match needs a window filling the screen.
  */
-export function layoutRotation(width: number, height: number, screenAngle: number): QuarterTurn {
+export function layoutRotation(
+  width: number,
+  height: number,
+  screenAngle: number,
+  fit: WindowFit = 'full',
+): QuarterTurn {
   if (width === height) return 0;
   const tablet = deviceClass(width, height) === 'tablet';
   const landscape = width > height;
   if (landscape === tablet) return 0;
   const designAngle = tablet ? 90 : 0;
-  // The turn must be ±90°. An angle that does not match the viewport's orientation (a
-  // device whose natural orientation is landscape, a missing or non-finite angle) would
-  // give 0° or 180°: fall back to the angle of a portrait-natural device.
   const reported = Number.isFinite(screenAngle) ? quarterTurn(screenAngle) : -1;
   const consistent = landscape
     ? reported === 90 || reported === 270
     : reported === 0 || reported === 180;
-  const angle = consistent ? reported : landscape ? 90 : 0;
-  return quarterTurn(designAngle - angle);
+  // A window sharing the screen (iPad Split View or Stage Manager, Android split screen)
+  // says nothing about how the device is held: no turn.
+  if (fit === 'shared') return 0;
+  if (consistent) return quarterTurn(designAngle - reported);
+  // The angle does not match the window's shape: only a window filling the screen turns
+  // (a landscape-natural device or a missing angle). The turn must still be ±90° (never
+  // 0° or 180°), taken from a portrait-natural device.
+  if (fit !== 'full') return 0;
+  return quarterTurn(designAngle - (landscape ? 90 : 0));
 }
 
 /**
@@ -60,10 +73,27 @@ export function layoutRotation(width: number, height: number, screenAngle: numbe
 const FULL_SCREEN_SHARE = 0.85;
 
 /**
+ * How a window covers the screen: `full` (an installed app), `long-side` (it spans the
+ * screen's long side only: a phone browser tab in landscape, under its bars, DF-11) or
+ * `shared` (iPad Split View or Stage Manager, Android split screen, a desktop window).
+ */
+export type WindowFit = 'full' | 'long-side' | 'shared';
+
+export function windowFit(
+  width: number,
+  height: number,
+  screenWidth: number,
+  screenHeight: number,
+): WindowFit {
+  if (fillsScreen(width, height, screenWidth, screenHeight)) return 'full';
+  const long = Math.max(screenWidth, screenHeight);
+  return long > 0 && Math.max(width, height) >= long * FULL_SCREEN_SHARE ? 'long-side' : 'shared';
+}
+
+/**
  * Whether a `width` × `height` window fills a `screenWidth` × `screenHeight` screen,
- * whichever way each is reported. A window sharing the screen (iPad Split View or Stage
- * Manager, a desktop window) is never turned: its shape says nothing about how the device
- * is held.
+ * whichever way each is reported. Browser bars make a phone tab in landscape fail this
+ * test (DF-11): see `windowFit`.
  */
 export function fillsScreen(
   width: number,

@@ -4,7 +4,8 @@ import { drawStrokes } from './helpers/pointer';
 /**
  * Layout fixed to the device (spec/SPEC-ui-foundation.md): a phone held in landscape or a
  * tablet held in portrait turns its screens back by a quarter turn. Playwright reports a
- * screen angle of 0 whatever the viewport, so the turn is the portrait-natural fallback.
+ * screen angle of 0 whatever the viewport, so the turn is the portrait-natural fallback,
+ * except where the angle is emulated through Chromium's DevTools protocol (DF-11).
  */
 test.use({ locale: 'en-US' });
 
@@ -108,4 +109,27 @@ test('held the other way, a stroke lands under the finger', async ({ page }) => 
   expect(shown).not.toBeNull();
   expect(Math.abs((shown?.[0] ?? 0) - finger[0])).toBeLessThan(3);
   expect(Math.abs((shown?.[1] ?? 0) - finger[1])).toBeLessThan(3);
+});
+
+// DF-11: docs/device-fixes.md
+test('a phone browser tab in landscape turns, though its bars shorten the window', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'screen orientation is emulated through Chromium only');
+  test.skip((page.viewportSize()?.width ?? 0) >= 576, 'phone only');
+  await page.goto('en/');
+  // Pixel 9a in a Chrome tab held in landscape: status, address and gesture bars leave a
+  // window much lower than the screen's short side; the screen angle is 90.
+  const session = await page.context().newCDPSession(page);
+  await session.send('Emulation.setDeviceMetricsOverride', {
+    width: 870,
+    height: 330,
+    deviceScaleFactor: 2.625,
+    mobile: true,
+    screenWidth: 915,
+    screenHeight: 412,
+    screenOrientation: { type: 'landscapePrimary', angle: 90 },
+  });
+  await expect(page.locator('#screens')).toHaveAttribute('data-rotation', '270');
 });

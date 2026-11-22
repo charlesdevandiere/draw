@@ -5,6 +5,7 @@ import {
   deviceClass,
   fillsScreen,
   layoutRotation,
+  windowFit,
 } from './screen-layout';
 
 describe('deviceClass', () => {
@@ -61,9 +62,37 @@ describe('layoutRotation', () => {
     expect(layoutRotation(820, 1180, Number.NaN)).toBe(90);
   });
 
+  // DF-11: docs/device-fixes.md
+  it('turns a phone tab in landscape whose browser bars shorten the window, when the angle matches', () => {
+    // Pixel 9a in a Chrome tab: status bar, address bar and gesture bar take about 80 px.
+    expect(layoutRotation(870, 330, 90, 'long-side')).toBe(270);
+    expect(layoutRotation(870, 330, 270, 'long-side')).toBe(90);
+    // ...but not when the angle does not match its shape.
+    expect(layoutRotation(870, 330, 0, 'long-side')).toBe(0);
+  });
+
+  it('never turns a window sharing the screen', () => {
+    expect(layoutRotation(780, 820, 90, 'shared')).toBe(0); // iPad landscape, 2/3 Split View
+    expect(layoutRotation(450, 412, 0, 'shared')).toBe(0); // Android split screen, portrait
+    expect(layoutRotation(667, 375, Number.NaN, 'shared')).toBe(0);
+    // Matching angle: iPad landscape, small Stage Manager window; Android split screen in landscape.
+    expect(layoutRotation(800, 500, 90, 'shared')).toBe(0);
+    expect(layoutRotation(450, 380, 90, 'shared')).toBe(0);
+  });
+
   it('never rotates a square or empty viewport', () => {
     expect(layoutRotation(600, 600, 90)).toBe(0);
     expect(layoutRotation(0, 0, 90)).toBe(0);
+  });
+});
+
+describe('windowFit', () => {
+  it('tells a full window, a phone tab in landscape and a shared window apart', () => {
+    expect(windowFit(1180, 820, 820, 1180)).toBe('full');
+    expect(windowFit(870, 330, 412, 915)).toBe('long-side'); // DF-11
+    expect(windowFit(800, 500, 820, 1180)).toBe('shared'); // Stage Manager
+    expect(windowFit(450, 380, 412, 915)).toBe('shared'); // Android split screen
+    expect(windowFit(375, 667, 0, 0)).toBe('shared');
   });
 });
 
@@ -71,7 +100,7 @@ describe('fillsScreen', () => {
   it('is true for an installed app or a browser tab, whichever way the device is held', () => {
     expect(fillsScreen(1180, 820, 820, 1180)).toBe(true); // iPad, standalone
     expect(fillsScreen(412, 820, 412, 915)).toBe(true); // Pixel, under the system bars
-    expect(fillsScreen(820, 412, 412, 915)).toBe(true);
+    expect(fillsScreen(870, 400, 412, 915)).toBe(true);
   });
 
   it('is false for a window sharing the screen (iPad Split View, Stage Manager, desktop)', () => {

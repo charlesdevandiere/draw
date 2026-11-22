@@ -5,7 +5,7 @@
  * the stylesheet reads `data-rotation` (container size, rotation, edge margins) and
  * `--layout-rotation` (icons turned upright).
  */
-import { fillsScreen, layoutRotation, type QuarterTurn } from '../engine/screen-layout';
+import { layoutRotation, windowFit, type QuarterTurn } from '../engine/screen-layout';
 
 export interface ScreenLayout {
   /** Current clockwise turn of the screens. */
@@ -27,8 +27,9 @@ export function initScreenLayout(container: HTMLElement): ScreenLayout {
 
   function apply(): void {
     const { innerWidth: width, innerHeight: height } = window;
-    const turns = touch.matches && fillsScreen(width, height, screen.width, screen.height);
-    rotation = turns ? layoutRotation(width, height, screenAngle()) : 0;
+    // DF-11: docs/device-fixes.md (a phone tab in landscape only spans the long side).
+    const fit = windowFit(width, height, screen.width, screen.height);
+    rotation = touch.matches ? layoutRotation(width, height, screenAngle(), fit) : 0;
     // Applied at once, no transition: the browser already animates its own rotation.
     container.dataset.rotation = String(rotation);
     container.style.setProperty('--layout-rotation', `${rotation}deg`);
