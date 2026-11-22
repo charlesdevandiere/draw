@@ -10,14 +10,14 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 
 **Acceptance criteria:**
 
-- [ ] `deviceClass(375, 667)` and `(667, 375)` are `phone`; `(1180, 820)`, `(820, 1180)`, `(744, 1133)` are `tablet`; the breakpoint value and the media query string come from one constant.
-- [ ] The counter-rotation is 0 in the design orientation (phone portrait, tablet landscape) and ±90° otherwise, with the sign from the screen angle (90 vs 270).
-- [ ] A point under the finger maps to the same page point whatever the rotation (0, 90, 270), the edge margin of `strokeStart` (DF-06) included.
+- [x] `deviceClass(375, 667)` and `(667, 375)` are `phone`; `(1180, 820)`, `(820, 1180)`, `(744, 1133)` are `tablet`; the breakpoint value and the media query string come from one constant.
+- [x] The counter-rotation is 0 in the design orientation (phone portrait, tablet landscape) and ±90° otherwise, with the sign from the screen angle (90 vs 270).
+- [x] A point under the finger maps to the same page point whatever the rotation (0, 90, 270), the edge margin of `strokeStart` (DF-06) included.
 
 **Verification:**
 
-- [ ] `npx vitest run src/engine/screen-layout.test.ts src/engine/page-transform.test.ts`
-- [ ] `npm run check` (coverage stays ≥ 90 %)
+- [x] `npx vitest run src/engine/screen-layout.test.ts src/engine/page-transform.test.ts`
+- [x] `npm run check` (coverage stays ≥ 90 %)
 
 **Dependencies:** None
 
