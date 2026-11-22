@@ -11,7 +11,7 @@ Give every child screen the shared building blocks of the redesign, before any s
 1. the paper theme and the action colors, with "pebble" buttons built on Bootstrap;
 2. a reusable 1.5 s long press with a visible fill;
 3. a light haptic feedback helper;
-4. a layout fixed to the device: rotating the phone or tablet keeps every control where it is on the hardware, only the icons turn to stay upright.
+4. a layout that follows the window's shape (tools along the long sides), with a device class (phone or tablet) for margins and sizes.
 
 Users: children aged 5+ (child screens); the long press and haptics are also used by the settings page (module `settings`).
 
@@ -58,28 +58,30 @@ Users: children aged 5+ (child screens); the long press and haptics are also use
 - **iOS / iPadOS**: no web vibration API. Try the iOS 18+ switch trick (a hidden `<input type="checkbox" switch>` toggled through its label inside the user gesture produces the system haptic). If it does not work on the reference devices, iOS gets no haptics: **best effort, never a blocking criterion**.
 - Never throws, never delays the action; does nothing where unsupported.
 
-### Layout fixed to the device
+### Layout follows the window's shape
 
-- **Device class**, orientation-independent, from Bootstrap's `sm` breakpoint (576 px, `$grid-breakpoints`): **tablet** when both viewport sides are at least 576 px (`@media (min-width: 576px) and (min-height: 576px)`, the same test in TypeScript through `matchMedia`), else **phone**. Since rotating swaps width and height, the class never changes with the orientation. iPad 11: 820 × 1180 → tablet; iPad mini (744) and 7–8" Android tablets (≈ 600) → tablet; iPhone SE (375), Pixel 9a (412) → phone. `md` (768 px) is not used: it would turn the iPad mini and small Android tablets into phones. The existing tablet top margin rule (`min-width: 700px and min-height: 700px`, DF-02) moves to the same breakpoint. Never from the user agent.
-- **Design orientation**: phone = portrait, tablet = landscape. The layout of each screen is the mockup of its device class, **in every orientation**.
-- When the device is held in the other orientation, the browser rotates the viewport; the app **rotates its child screens back** by the opposite angle (from `screen.orientation.angle`, ±90°), so every control stays at the same place on the hardware. **Icons turn** (in place, in their button) so they stay upright for the reader. The drawing page turns with the hardware, like a sheet of paper on a table: strokes keep their place on the page.
-- **No animation of our own**: the counter-rotation is applied at once, without transition. The browser's native rotation animation (it turns the whole page) cannot be disabled, and combined with the counter-rotation it may look bad.
-- **Decision gate**: the first task builds this on the drawing screen and tries it on the three reference devices. If the result looks bad, the fixed layout is dropped and the layout keeps following the viewport, as today (the device class still picks the phone or tablet layout); the spec is updated accordingly before the rest of the module.
-- Pointer input keeps working when rotated: screen → page conversion goes through the rotation (pure, tested function next to `fitPage` / `toPage`).
-- System edges: the edge margins (no control near the edges swiped by the system) apply to all four viewport edges, since any hardware edge can become the top or bottom.
+Decided 2026-11-22, after a device trial of a layout fixed to the hardware (see Decision history).
+
+- **Layout from the window's shape**, as before this module: a window taller than wide = page above the rows of tools; a window wider than tall (aspect ≥ 1) = tools on both sides of the page (`min-aspect-ratio: 1/1`). Rotating the device swaps width and height, so the layout switches with it: the tools always run along the long sides and the page stays as large as possible. No screen is ever turned by the app, icons stay upright by themselves, pointer input needs no rotation. iPad Split View, iPadOS windows and Android split screen follow the same rule.
+- **Device class**, for margins and sizes only, from Bootstrap's `sm` breakpoint (576 px, `$breakpoints`): **tablet** when both viewport sides are at least 576 px (`@media (min-width: 576px) and (min-height: 576px)`), else **phone**. iPad 11 (820 × 1180), iPad mini (744) and 7–8" Android tablets (≈ 600) are tablets; iPhone SE (375) and Pixel 9a (412) are phones. `md` (768 px) is not used: it would turn the iPad mini and small Android tablets into phones. The tablet top margin rule (DF-02) uses this breakpoint (700 px before). Never from the user agent.
+- Accepted trade-off: after a quarter turn, a control is on the same kind of edge, but not always under the same finger (that depends on the direction of the turn).
 - Applies to the child screens (drawing, gallery, viewer). The settings page (text, forms) keeps the normal responsive behavior.
+
+### Decision history
+
+- A **layout fixed to the device** was built and tried (2026-11-22, commits 676a9d5, b7550d9, ddcac6d): held away from its design orientation (phone portrait, tablet landscape), the child screens were turned back by `screen.orientation.angle` so every control kept its place on the hardware, icons turned upright, input went through a rotation-aware page transform. On the iPad 11 it looked clean; the Pixel 9a needed a fix for browser tabs (their bars shorten the window), and windows sharing the screen needed their own rules. Dropped for the simpler rule above: same page size, no angle, no special cases.
 
 ## Success Criteria
 
 1. Buttons, page and selection match the foundations board of the mockups: paper background, square white page, pebble buttons in the action colors, ink selection ring; all are Bootstrap `.btn` with `theme-*` colors.
 2. Every long press takes 1.5 s: a release at 1.4 s does nothing, a 1.5 s press triggers the action; the fill shows the progress (unit tests on `createHold`, an e2e on the padlock).
 3. On the Pixel 9a, a completed long press gives a light vibration. On the iPad, the switch trick is tried and the result is recorded in `docs/device-fixes.md` (works or not); either way nothing breaks.
-4. Rotating the iPhone SE (or Pixel 9a) to landscape and the iPad 11 to portrait: every control stays at the same place on the hardware, icons are upright, the page keeps its drawing, and a stroke drawn after the rotation lands under the finger (unit tests on the rotated transform; e2e with landscape and portrait viewports for both device classes).
+4. In portrait and landscape, on the iPhone SE (or Pixel 9a) and the iPad 11: the tools run along the long sides, the page is square and keeps its drawing, nothing sits in the system edge margins (tablet top margin from 576 px, DF-02) (e2e with portrait and landscape viewports for both device classes).
 5. What must NOT change: drawing input (modes, palm handling, DF-01 to DF-10 in `docs/device-fixes.md`), stroke storage, replay, gallery data, existing e2e behaviors other than the visuals.
 
 ## Boundaries (deltas)
 
-- Always: build buttons on Bootstrap `.btn` and `$theme-colors`; record any device-specific workaround (rotation, haptics) as a DF entry.
+- Always: build buttons on Bootstrap `.btn` and `$theme-colors`; record any device-specific workaround (haptics) as a DF entry.
 - Ask first: locking the orientation in the manifests; any new dependency.
 - Never: detect the device class from the user agent.
 
@@ -90,4 +92,4 @@ Users: children aged 5+ (child screens); the long press and haptics are also use
 
 ## Open Questions
 
-1. The rotation of the child screens relies on `screen.orientation.angle` (iOS 16.4+, Chrome Android), and its look depends on the browser's own rotation animation: settled by the decision gate of the first task.
+None. (The layout fixed to the device was settled by the decision gate: dropped, see Decision history.)

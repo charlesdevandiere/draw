@@ -99,40 +99,4 @@ describe('strokeStart', () => {
   it('ignores every contact when the page has no size', () => {
     expect(strokeStart(fitPage({ x: 0, y: 0, width: 0, height: 0 }), 0, 0, 24)).toBeNull();
   });
-
-  it('pulls a contact onto the edge of a rotated page too', () => {
-    // Page turned a quarter clockwise: its left edge (x = 0) is at the top of the box.
-    const rotated = fitPage({ x: 100, y: 50, width: 500, height: 500 }, 90);
-    expect(strokeStart(rotated, 350, 40, 24)).toEqual([0, 500]);
-  });
-});
-
-describe('rotated page', () => {
-  // 500 px page at (100, 50): 2 page units per CSS pixel; the box stays axis-aligned.
-  const area = { x: 100, y: 50, width: 500, height: 500 };
-
-  it('maps each page corner to the screen corner it is drawn on', () => {
-    // Clockwise quarter turns: the page's top-left corner moves to top-right, then
-    // bottom-right, then bottom-left of the box.
-    expect(toScreen(fitPage(area, 90), 0, 0)).toEqual([600, 50]);
-    expect(toScreen(fitPage(area, 180), 0, 0)).toEqual([600, 550]);
-    expect(toScreen(fitPage(area, 270), 0, 0)).toEqual([100, 550]);
-    expect(toScreen(fitPage(area, 90), 1000, 0)).toEqual([600, 550]);
-  });
-
-  it('maps a point under the finger back to the same page point', () => {
-    for (const rotation of [0, 90, 180, 270] as const) {
-      const transform = fitPage(area, rotation);
-      const [x, y] = toScreen(transform, 250, 800);
-      expect(toPage(transform, x, y)).toEqual([250, 800]);
-    }
-  });
-
-  it('keeps the size and scale of the unrotated page', () => {
-    const transform = fitPage(area, 270);
-    expect(transform.size).toBe(500);
-    expect(transform.scale).toBe(0.5);
-    expect(transform.rotation).toBe(270);
-    expect(fitPage(area).rotation).toBe(0);
-  });
 });

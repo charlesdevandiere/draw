@@ -2,62 +2,12 @@
 
 Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of every task (CLAUDE.md): `/code-review --fix`, `npm run check`, `npm run e2e`, one commit.
 
-## Phase 1: Layout fixed to the device
+## Phase 1: Layout fixed to the device (dropped)
 
-## Task 1: Device class and rotation math (pure)
+Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upright icons, rotation-aware input; commits 676a9d5, b7550d9, then ddcac6d for Pixel browser tabs). Decision gate, 2026-11-22: clean on the iPad 11, working on the Pixel 9a after the fix, but **dropped** by the user for the simpler rule: the layout follows the window's shape. The code is removed; what stays is the device class breakpoint (576 px, Bootstrap `sm`) for the tablet margins (DF-02). Spec: "Layout follows the window's shape" and "Decision history".
 
-**Description:** Pure functions, no visible change yet: the device class from the viewport size (tablet when both sides ≥ 576 px, Bootstrap `sm`), the counter-rotation angle for the child screens from the device class, the viewport and `screen.orientation.angle`, and a rotation-aware screen → page conversion (`toPage`, `strokeStart`) for a page drawn rotated by a multiple of 90°.
-
-**Acceptance criteria:**
-
-- [x] `deviceClass(375, 667)` and `(667, 375)` are `phone`; `(1180, 820)`, `(820, 1180)`, `(744, 1133)` are `tablet`; the breakpoint value and the media query string come from one constant.
-- [x] The counter-rotation is 0 in the design orientation (phone portrait, tablet landscape) and ±90° otherwise, with the sign from the screen angle (90 vs 270).
-- [x] A point under the finger maps to the same page point whatever the rotation (0, 90, 270), the edge margin of `strokeStart` (DF-06) included.
-
-**Verification:**
-
-- [x] `npx vitest run src/engine/screen-layout.test.ts src/engine/page-transform.test.ts`
-- [x] `npm run check` (coverage stays ≥ 90 %)
-
-**Dependencies:** None
-
-**Files likely touched:**
-
-- `src/engine/screen-layout.ts` (new), `src/engine/screen-layout.test.ts` (new)
-- `src/engine/page-transform.ts`, `src/engine/page-transform.test.ts`
-
-**Estimated scope:** Small (2 modules + tests)
-
-## Task 2: Counter-rotate the child screens, upright icons, rotated input
-
-**Description:** Wrap the three child screens in one container. Pick the phone or tablet layout from the device class (replacing the `min-aspect-ratio` switch and the 700 px tablet margin rule, DF-02). When the device is held in the other orientation, rotate the container back at once (no transition) and turn the icons upright; recompute on `screen.orientation` change. The drawing screen passes the rotation to the page conversion so a stroke lands under the finger.
-
-**Acceptance criteria:**
-
-- [x] Phone viewport in landscape and tablet viewport in portrait: the controls keep their hardware positions (e2e reads the rotated boxes), icons are upright, nothing overflows.
-- [x] A stroke drawn in a rotated viewport lands under the pointer (e2e pixel check), a tap on a tool still works.
-- [x] Design orientations are unchanged (existing layout e2e still pass, updated for the device-class breakpoint); DF-02 entry updated to the new breakpoint; new DF entry if a device workaround is needed.
-
-**Verification:**
-
-- [x] `npx playwright test e2e/app-shell.spec.ts e2e/draw.spec.ts e2e/rotation.spec.ts`
-- [x] `npm run check`, `npm run e2e`
-- [x] Manual check (decision gate): rotate the installed app on the Pixel 9a and the iPad 11 (2026-11-22: iPad 11 OK, clean transition; Pixel 9a not turned in a Chrome tab, fixed by DF-11, then OK)
-
-**Dependencies:** Task 1
-
-**Files likely touched:**
-
-- `src/app/app.html` (wrapper), `src/app/screen-layout.ts` (new, DOM), `src/app/main.ts`
-- `src/app/draw-screen.ts`, `src/styles/app.scss`
-- `e2e/rotation.spec.ts` (new), `e2e/app-shell.spec.ts`
-
-**Estimated scope:** Medium–Large (split app.scss changes from the DOM wiring if it grows)
-
-## Checkpoint: Rotation decision gate
-
-- [x] `npm run check` and `npm run e2e` pass
-- [x] The user rotates the installed app on the Pixel 9a and the iPad 11 and decides: keep, or drop (revert to the viewport-following layout, update the spec) before task 3. Decision 2026-11-22: keep
+- [x] Rotation code removed, DF-02 on the 576 px breakpoint, `npm run check` and `npm run e2e` pass
+- [ ] Manual check: rotate the Pixel 9a and the iPad 11 (tools along the long sides, nothing under the iPadOS status bar blur)
 
 ## Phase 2: Theme and buttons
 
@@ -77,7 +27,7 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 - [ ] `npm run check`, `npm run e2e`
 - [ ] Manual check: compare with the foundations board
 
-**Dependencies:** Checkpoint (gate)
+**Dependencies:** Phase 1
 
 **Files likely touched:**
 
@@ -166,6 +116,6 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 ## Checkpoint: Module complete
 
 - [ ] `npm run check` and `npm run e2e` pass
-- [ ] Spec success criteria 1–5 met; DF entries written (rotation if any workaround, haptics on iPad)
+- [ ] Spec success criteria 1–5 met; DF entries written (haptics on iPad)
 - [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a
 - [ ] Fold the module into `spec/SPEC-mvp.md`, set `spec/SPEC-ui-foundation.md` to `Status: implemented`

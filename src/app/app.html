@@ -1,92 +1,79 @@
 <h1 class="visually-hidden" data-i18n="app.name"></h1>
 
-<div id="screens" class="screens">
-  <section id="draw-screen" class="screen draw-screen">
-    <div
-      id="tools-primary"
-      class="tools tools-primary"
-      role="toolbar"
-      data-i18n-aria="tools.drawing"
-    ></div>
-    <div class="page-area">
-      <div id="page" class="page">
-        <canvas id="drawing-layer"></canvas>
-      </div>
+<section id="draw-screen" class="screen draw-screen">
+  <div
+    id="tools-primary"
+    class="tools tools-primary"
+    role="toolbar"
+    data-i18n-aria="tools.drawing"
+  ></div>
+  <div class="page-area">
+    <div id="page" class="page">
+      <canvas id="drawing-layer"></canvas>
     </div>
-    <div
-      id="tools-secondary"
-      class="tools tools-secondary"
-      role="toolbar"
-      data-i18n-aria="tools.actions"
+  </div>
+  <div
+    id="tools-secondary"
+    class="tools tools-secondary"
+    role="toolbar"
+    data-i18n-aria="tools.actions"
+  >
+    <button id="undo" class="tool-button" type="button" data-i18n-aria="tools.undo" disabled>
+      <span class="icon icon-undo" aria-hidden="true"></span>
+    </button>
+    <button id="redo" class="tool-button" type="button" data-i18n-aria="tools.redo" disabled>
+      <span class="icon icon-redo" aria-hidden="true"></span>
+    </button>
+    <button id="mode-button" class="tool-button" type="button">
+      <span class="icon icon-mode-finger" aria-hidden="true"></span>
+    </button>
+    <button id="new-page" class="tool-button" type="button" data-i18n-aria="tools.newPage" disabled>
+      <span class="icon icon-new-page" aria-hidden="true"></span>
+    </button>
+    <button id="open-gallery" class="tool-button" type="button" data-i18n-aria="tools.gallery">
+      <span class="icon icon-gallery" aria-hidden="true"></span>
+    </button>
+  </div>
+</section>
+
+<section id="gallery-screen" class="screen gallery-screen" hidden>
+  <div class="gallery-header">
+    <button id="back-to-drawing" class="tool-button" type="button" data-i18n-aria="gallery.back">
+      <span class="icon icon-back" aria-hidden="true"></span>
+    </button>
+    <button id="gallery-new-page" class="tool-button" type="button" data-i18n-aria="tools.newPage">
+      <span class="icon icon-new-page" aria-hidden="true"></span>
+    </button>
+    <button
+      id="parent-lock"
+      class="tool-button padlock"
+      type="button"
+      data-i18n-aria="gallery.parent"
     >
-      <button id="undo" class="tool-button" type="button" data-i18n-aria="tools.undo" disabled>
-        <span class="icon icon-undo" aria-hidden="true"></span>
-      </button>
-      <button id="redo" class="tool-button" type="button" data-i18n-aria="tools.redo" disabled>
-        <span class="icon icon-redo" aria-hidden="true"></span>
-      </button>
-      <button id="mode-button" class="tool-button" type="button">
-        <span class="icon icon-mode-finger" aria-hidden="true"></span>
-      </button>
-      <button
-        id="new-page"
-        class="tool-button"
-        type="button"
-        data-i18n-aria="tools.newPage"
-        disabled
-      >
-        <span class="icon icon-new-page" aria-hidden="true"></span>
-      </button>
-      <button id="open-gallery" class="tool-button" type="button" data-i18n-aria="tools.gallery">
-        <span class="icon icon-gallery" aria-hidden="true"></span>
-      </button>
-    </div>
-  </section>
+      <svg class="padlock-ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" pathLength="1" />
+      </svg>
+      <span class="icon icon-lock" aria-hidden="true"></span>
+    </button>
+  </div>
+  <div id="gallery-grid" class="gallery-grid"></div>
+</section>
 
-  <section id="gallery-screen" class="screen gallery-screen" hidden>
-    <div class="gallery-header">
-      <button id="back-to-drawing" class="tool-button" type="button" data-i18n-aria="gallery.back">
-        <span class="icon icon-back" aria-hidden="true"></span>
-      </button>
-      <button
-        id="gallery-new-page"
-        class="tool-button"
-        type="button"
-        data-i18n-aria="tools.newPage"
-      >
-        <span class="icon icon-new-page" aria-hidden="true"></span>
-      </button>
-      <button
-        id="parent-lock"
-        class="tool-button padlock"
-        type="button"
-        data-i18n-aria="gallery.parent"
-      >
-        <svg class="padlock-ring" viewBox="0 0 48 48" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" pathLength="1" />
-        </svg>
-        <span class="icon icon-lock" aria-hidden="true"></span>
-      </button>
+<section id="replay-screen" class="screen replay-screen" hidden>
+  <div class="page-area">
+    <div id="replay-page" class="page">
+      <canvas id="replay-layer" role="button" tabindex="0" data-i18n-aria="replay.stop"></canvas>
     </div>
-    <div id="gallery-grid" class="gallery-grid"></div>
-  </section>
-
-  <section id="replay-screen" class="screen replay-screen" hidden>
-    <div class="page-area">
-      <div id="replay-page" class="page">
-        <canvas id="replay-layer" role="button" tabindex="0" data-i18n-aria="replay.stop"></canvas>
-      </div>
-    </div>
-    <div class="replay-actions">
-      <button
-        id="replay-again"
-        class="tool-button"
-        type="button"
-        data-i18n-aria="replay.again"
-        hidden
-      >
-        <span class="icon icon-play" aria-hidden="true"></span>
-      </button>
-    </div>
-  </section>
-</div>
+  </div>
+  <div class="replay-actions">
+    <button
+      id="replay-again"
+      class="tool-button"
+      type="button"
+      data-i18n-aria="replay.again"
+      hidden
+    >
+      <span class="icon icon-play" aria-hidden="true"></span>
+    </button>
+  </div>
+</section>

@@ -1,4 +1,7 @@
 // App design tokens (CSS custom properties are declared in app.scss).
+@use 'sass:map';
+@use 'bootstrap/scss/config';
+
 $paper: #fff4d6;
 $ink: #2b2b2b;
 $page: #ffffff;
@@ -17,3 +20,8 @@ $edge-margin: 32px;
 // DF-02: docs/device-fixes.md
 // iPadOS 26 also blurs a band under its status bar: tablets keep more room at the top.
 $edge-margin-top-tablet: 64px;
+
+// Device class (spec/SPEC-ui-foundation.md): a tablet has both viewport sides at least
+// Bootstrap's `sm` breakpoint, in either orientation. It sets margins only (DF-02).
+$tablet-side: map.get(config.$breakpoints, 'sm');
+$tablet: '(min-width: #{$tablet-side}) and (min-height: #{$tablet-side})';

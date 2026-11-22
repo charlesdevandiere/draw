@@ -1,4 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { isBlank, pagePoint, pixelAt } from './helpers/canvas';
+import { drawStrokes } from './helpers/pointer';
 
 /** Distance kept free of controls near the top and bottom edges (spec A4). */
 const EDGE_MARGIN = 32;
@@ -7,33 +9,67 @@ const TABLET_TOP_MARGIN = 64;
 
 test.use({ locale: 'en-US' });
 
-test('the square page fills the drawing area and controls stay away from the edges', async ({
-  page,
-}) => {
-  await page.goto('en/');
+async function expectDrawingLayout(page: Page): Promise<void> {
   const viewport = page.viewportSize();
   if (!viewport) throw new Error('No viewport');
   const box = await page.locator('#page').boundingBox();
   if (!box) throw new Error('Page not visible');
 
-  // Device class: both sides at least Bootstrap's sm breakpoint (576 px).
+  // Device class (margins only): both sides at least Bootstrap's sm breakpoint (576 px).
   const tablet = viewport.width >= 576 && viewport.height >= 576;
   const topMargin = tablet ? TABLET_TOP_MARGIN : EDGE_MARGIN;
 
   expect(Math.abs(box.width - box.height)).toBeLessThan(1);
-  // The page takes the full width in portrait, the full height (minus margins) in landscape.
+  // The layout follows the window's shape: tools below the page in portrait, on both
+  // sides in landscape, so the page takes the full width or the full height.
   const portrait = viewport.height > viewport.width;
-  if (portrait) expect(box.width).toBeGreaterThan(viewport.width - 24);
-  else expect(box.height).toBeGreaterThan(viewport.height - topMargin - EDGE_MARGIN - 1);
+  const tools = await page.locator('#tools-primary').boundingBox();
+  if (!tools) throw new Error('Tools not visible');
+  if (portrait) {
+    expect(box.width).toBeGreaterThan(viewport.width - 24);
+    expect(tools.y).toBeGreaterThanOrEqual(box.y + box.height - 1);
+  } else {
+    expect(box.height).toBeGreaterThan(viewport.height - topMargin - EDGE_MARGIN - 1);
+    expect(tools.x + tools.width).toBeLessThanOrEqual(box.x + 1);
+    const secondary = await page.locator('#tools-secondary').boundingBox();
+    if (!secondary) throw new Error('Secondary tools not visible');
+    expect(secondary.x).toBeGreaterThanOrEqual(box.x + box.width - 1);
+  }
 
   for (const button of await page.locator('#draw-screen button').all()) {
     const rect = await button.boundingBox();
     if (!rect) continue;
+    // DF-02: docs/device-fixes.md (tablets, in either orientation)
     expect(rect.y).toBeGreaterThanOrEqual(topMargin);
     expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height - EDGE_MARGIN);
+    expect(rect.x).toBeGreaterThanOrEqual(0);
+    expect(rect.x + rect.width).toBeLessThanOrEqual(viewport.width);
     expect(Math.min(rect.width, rect.height)).toBeGreaterThanOrEqual(48);
   }
+}
+
+test('the square page fills the drawing area and controls stay away from the edges', async ({
+  page,
+}) => {
+  await page.goto('en/');
+  await expectDrawingLayout(page);
   await page.screenshot({ path: test.info().outputPath('draw-screen.png') });
+});
+
+test('turned a quarter, the layout follows the window and keeps its drawing', async ({ page }) => {
+  await page.goto('en/');
+  await drawStrokes(page, [{ points: [await pagePoint(page, 0.3, 0.5)], pointerType: 'pen' }]);
+  const viewport = page.viewportSize();
+  if (!viewport) throw new Error('No viewport');
+  await page.setViewportSize({ width: viewport.height, height: viewport.width });
+  await expectDrawingLayout(page);
+  // Same place on the page, at its new size.
+  const layer = page.locator('#drawing-layer');
+  // The repaint after a resize is asynchronous: poll until it lands.
+  await expect
+    .poll(async () => isBlank(await pixelAt(layer, await pagePoint(page, 0.3, 0.5))))
+    .toBe(false);
+  await page.screenshot({ path: test.info().outputPath('draw-screen-turned.png') });
 });
 
 test('on a narrow phone (iPhone 8), the drawing tools wrap on two rows', async ({ page }) => {

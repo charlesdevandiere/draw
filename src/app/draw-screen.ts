@@ -12,7 +12,6 @@ import {
   type PageTransform,
   strokeStart,
 } from '../engine/page-transform';
-import type { QuarterTurn } from '../engine/screen-layout';
 import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
 import {
   createDrawingClock,
@@ -54,8 +53,6 @@ export interface DrawScreenOptions {
   /** Style of the next stroke, read when a stroke starts. */
   style: () => StrokeStyle;
   accepts?: PointerFilter;
-  /** Clockwise turn of the screens (layout fixed to the device), read on every contact. */
-  rotation?: () => QuarterTurn;
   /** A stroke was finished and added to the drawing. */
   onStroke?: (stroke: Stroke) => void;
 }
@@ -124,7 +121,7 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
 
   /** Page transform of the canvas: read once per event (each read forces a layout). */
   function currentTransform(): PageTransform {
-    return fitPage(canvas.getBoundingClientRect(), options.rotation?.() ?? 0);
+    return fitPage(canvas.getBoundingClientRect());
   }
 
   function sampleOf(event: PointerEvent, transform: PageTransform) {

@@ -28,9 +28,9 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 
 - **Seen** (2026-11-21, iPad, iPadOS 26): the top of the screen is blurred under the status bar.
 - **Cause**: iPadOS 26 draws a blur under its status bar, taller than the safe area it reports.
-- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the parent page. Tablets are the device class of `spec/SPEC-ui-foundation.md` (both viewport sides ≥ 576 px, Bootstrap `sm`; 700 px before 2026-11-22). When the screens are turned back (tablet held in portrait), the blurred band lies along a side of the layout: the turned layout keeps 64 px on both sides.
-- **Code**: `$edge-margin-top-tablet` in `src/styles/_tokens.scss`, used by `src/styles/app.scss` (`--app-edge-top`) and `src/styles/parent.scss`.
-- **Guard**: e2e `app-shell.spec.ts` › "the square page fills the drawing area and controls stay away from the edges" (`TABLET_TOP_MARGIN`). Turned layout: `rotation.spec.ts` › "held the other way, the controls keep their place on the device".
+- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the parent page. Tablets are the device class of `spec/SPEC-ui-foundation.md` (both viewport sides ≥ 576 px, Bootstrap `sm`; 700 px before 2026-11-22), in either orientation.
+- **Code**: `$edge-margin-top-tablet` and the device class `$tablet` in `src/styles/_tokens.scss`, used by `src/styles/app.scss` (`--app-edge-top`) and `src/styles/parent.scss`.
+- **Guard**: e2e `app-shell.spec.ts` › "the square page fills the drawing area and controls stay away from the edges" (`TABLET_TOP_MARGIN`).
 
 ## DF-03 Sharp icons
 
@@ -98,12 +98,3 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Guard**: unit `input-mode.test.ts` › "frees the slot as soon as everything is lifted (fast handwriting, DF-10)"; e2e `input-modes.spec.ts` › "finger mode: a stroke right after the previous one draws (fast handwriting)".
 - **Do not**: bring back a wait after a lift, of any length.
 - **Known limit, kept**: the slot is only freed when nothing touches the screen, so a hand resting flat would stop a passive stylus from drawing. Checked on the iPad after the fix (2026-11-21, round-tip stylus): with the palm resting first, writing works rather well (iPadOS cancels the palm); with the palm landing after the stylus, the next stroke can be blocked until the palm is cancelled. Accepted: resting the palm is not recommended with a round-tip stylus, and a phone screen leaves no room for a hand and a stylus. Multi-finger mode is the way out.
-
-## DF-11 A phone browser tab turns in landscape
-
-- **Seen** (2026-11-22, Pixel 9a, Chrome tab on the dev server): held in landscape, the screens were not turned; the tools stayed under a tiny page. The iPad turned correctly.
-- **Cause**: the screens turned only when the window covered at least 85 % of both screen sides (`fillsScreen`), to leave iPad Split View alone. In a phone tab held in landscape, the status, address and gesture bars take about a fifth of the short side, so the window failed that test.
-- **Fix**: `windowFit` tells three cases apart: `full` (85 % of both sides), `long-side` (85 % of the long side only: a phone tab in landscape) and `shared` (Split View, Stage Manager, Android split screen). A shared window is never turned. A screen angle that matches the window's shape (landscape window and angle 90 or 270, portrait window and angle 0 or 180) is trusted for a `full` or `long-side` window. An angle that disagrees with the shape turns only a `full` window (landscape-natural device, missing angle), still by a quarter.
-- **Code**: `layoutRotation` and `windowFit` in `src/engine/screen-layout.ts`; `src/app/screen-layout.ts`.
-- **Guard**: unit `screen-layout.test.ts` › "turns a phone tab in landscape whose browser bars shorten the window, when the angle matches", "never turns a window sharing the screen" and `windowFit`; e2e `rotation.spec.ts` › "a phone browser tab in landscape turns, though its bars shorten the window" (Chromium, emulated screen angle).
-- **Do not**: require the window to cover the screen's short side when the angle matches, or drop the long-side test (a small iPad Stage Manager window or an Android split-screen half held in landscape would turn).

@@ -66,7 +66,6 @@ export default defineConfig({
         'src/app/share.ts',
         'src/app/replay-screen.ts',
         'src/app/padlock.ts',
-        'src/app/screen-layout.ts',
         'src/parent/drawings.ts',
         'src/parent/transfer.ts',
         'src/parent/input-settings.ts',
