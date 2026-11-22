@@ -42,7 +42,7 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 
 - [x] `npx playwright test e2e/app-shell.spec.ts e2e/draw.spec.ts e2e/rotation.spec.ts`
 - [x] `npm run check`, `npm run e2e`
-- [ ] Manual check (decision gate): rotate the installed app on the Pixel 9a and the iPad 11 (iPad 11: OK 2026-11-22, clean transition; Pixel 9a: not turned in a Chrome tab, fixed by DF-11, to recheck)
+- [x] Manual check (decision gate): rotate the installed app on the Pixel 9a and the iPad 11 (2026-11-22: iPad 11 OK, clean transition; Pixel 9a not turned in a Chrome tab, fixed by DF-11, then OK)
 
 **Dependencies:** Task 1
 
@@ -56,8 +56,8 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 
 ## Checkpoint: Rotation decision gate
 
-- [ ] `npm run check` and `npm run e2e` pass
-- [ ] The user rotates the installed app on the Pixel 9a and the iPad 11 and decides: keep, or drop (revert to the viewport-following layout, update the spec) before task 3
+- [x] `npm run check` and `npm run e2e` pass
+- [x] The user rotates the installed app on the Pixel 9a and the iPad 11 and decides: keep, or drop (revert to the viewport-following layout, update the spec) before task 3. Decision 2026-11-22: keep
 
 ## Phase 2: Theme and buttons
 
