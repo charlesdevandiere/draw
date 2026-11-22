@@ -71,12 +71,12 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 **Acceptance criteria:**
 
-- [ ] With `navigator.vibrate` stubbed, `haptic()` calls it once with 8; without it, the switch is toggled; an exception inside is swallowed.
-- [ ] No visible element added to the screens (the switch is visually hidden and out of the accessibility tree).
+- [x] With `navigator.vibrate` stubbed, `haptic()` calls it once with 8; without it, the switch is toggled; an exception inside is swallowed.
+- [x] No visible element added to the screens (the switch is visually hidden and out of the accessibility tree).
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/haptic.spec.ts`
+- [x] `npx playwright test e2e/haptic.spec.ts`
 - [ ] `npm run check`
 
 **Dependencies:** None (independent of tasks 1–4)
@@ -84,6 +84,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 **Files likely touched:**
 
 - `src/app/haptic.ts` (new), `e2e/haptic.spec.ts` (new), `vite.config.ts` (coverage exclusion)
+- Done as: pure choice in `src/input/haptic.ts` (unit tests, the production build used by e2e cannot import modules), DOM switch in `src/app/haptic.ts`; already wired to the padlock opening (e2e with a stubbed `navigator.vibrate` and with the switch), task 6 moves it to the generic long press.
 
 **Estimated scope:** Small
 
@@ -116,6 +117,6 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 ## Checkpoint: Module complete
 
 - [ ] `npm run check` and `npm run e2e` pass
-- [ ] Spec success criteria 1–5 met; DF entries written (haptics on iPad)
+- [ ] Spec success criteria 1–5 met; DF entries written (haptics on iPad: DF-12)
 - [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a
 - [ ] Fold the module into `spec/SPEC-mvp.md`, set `spec/SPEC-ui-foundation.md` to `Status: implemented`

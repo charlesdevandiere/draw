@@ -98,3 +98,13 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Guard**: unit `input-mode.test.ts` › "frees the slot as soon as everything is lifted (fast handwriting, DF-10)"; e2e `input-modes.spec.ts` › "finger mode: a stroke right after the previous one draws (fast handwriting)".
 - **Do not**: bring back a wait after a lift, of any length.
 - **Known limit, kept**: the slot is only freed when nothing touches the screen, so a hand resting flat would stop a passive stylus from drawing. Checked on the iPad after the fix (2026-11-21, round-tip stylus): with the palm resting first, writing works rather well (iPadOS cancels the palm); with the palm landing after the stylus, the next stroke can be blocked until the palm is cancelled. Accepted: resting the palm is not recommended with a round-tip stylus, and a phone screen leaves no room for a hand and a stylus. Multi-finger mode is the way out.
+
+## DF-12 No haptic tick on the iPad
+
+(DF-11 was a rotation fix, dropped on 2026-11-22 with the layout fixed to the device.)
+
+- **Seen** (2026-11-22): the haptic tick at the end of the padlock's long press vibrates on the Pixel 9a (`navigator.vibrate(8)`); nothing is felt on the iPad 11.
+- **Cause**: iPads have no Taptic Engine, and Safari has no vibration API. The iOS 18+ switch trick (`src/app/haptic.ts`) can only play the system haptic on a device that has one (iPhone), and probably only inside the user gesture, while the long press completes on a timer.
+- **Decision**: accepted, as the spec allows (haptics are best effort). The switch stays: harmless on the iPad, a chance on iPhones. Never make a feedback depend on the haptic alone: the long press also shows its fill.
+- **Code**: `src/input/haptic.ts`, `src/app/haptic.ts`.
+- **Guard**: e2e `haptic.spec.ts` (the switch is hidden and inert; the tick goes through `navigator.vibrate`, else the switch). The felt result is checked by hand on the devices.

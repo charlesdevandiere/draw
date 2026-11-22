@@ -45,6 +45,7 @@ import { initTools } from './tools';
 import { protectGestures } from './gesture-protections';
 import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
+import { initHaptic } from './haptic';
 import { initPadlock } from './padlock';
 import { initReplayScreen } from './replay-screen';
 import { shareFile } from './share';
@@ -305,7 +306,9 @@ openGallery.addEventListener('click', () => {
     });
 });
 backToDrawing.addEventListener('click', showDrawScreen);
+const haptic = initHaptic();
 initPadlock(requireElement('parent-lock', HTMLButtonElement), () => {
+  haptic();
   // DF-05: docs/device-fixes.md
   // Save before leaving the app page. Replace, not assign: a swipe back from the edge
   // must not bring the parent page back (see replaceHistoryOnLinks).

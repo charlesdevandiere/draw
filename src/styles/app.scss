@@ -359,3 +359,17 @@ body {
   display: flex;
   gap: var(--app-tool-gap);
 }
+
+// The hidden switch of the iOS haptic tick (src/app/haptic.ts): rendered (a switch that
+// is not rendered plays nothing), but 1 px, transparent and never hit by a finger.
+.haptic-switch {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+}
