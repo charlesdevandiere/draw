@@ -7,6 +7,61 @@ $ink: #2b2b2b;
 $page: #ffffff;
 $accent: #e0692a;
 
+// Pebble buttons (spec/SPEC-ui-foundation.md, "Theme and buttons"): one fill per action
+// role, a dark icon on it (contrast > 10:1). Added to Bootstrap's `$theme-colors`, used
+// as `.btn.btn-solid.theme-<role>`. Disabled pebbles take the disabled pair below.
+$pebble-icon: #1a1a1a;
+$action-colors: (
+  'history': #ffd54f,
+  // undo, redo, back
+  'mode': #ce93d8,
+  // input mode, restart replay
+  'create': #a5d6a7,
+  // new page, play / pause
+  'gallery': #81d4fa,
+  // gallery, share
+  'eraser': #f48fb1,
+  'continue': #ffab91,
+);
+// Long-press actions (settings, trash) at rest, and disabled pebbles.
+$hold-bg: #ebe0c4;
+$hold-icon: #5d5442;
+$disabled-bg: #ebe0c4;
+$disabled-icon: #a39882;
+// Radius of a pebble: 16 px at 56 px, scaling with the size.
+$pebble-radius: 29%;
+// Selection: a paper gap, then an ink ring.
+$selection-ring:
+  0 0 0 3px $paper,
+  0 0 0 6px $ink;
+
+// Bootstrap theme entries for the action colors (keys used by `.btn-solid`).
+@function action-themes() {
+  $themes: ();
+  @each $role, $color in $action-colors {
+    $themes: map.set(
+      $themes,
+      $role,
+      (
+        'base': $color,
+        'bg': $color,
+        'contrast': $pebble-icon,
+        'focus-ring': $ink,
+      )
+    );
+  }
+  @return map.set(
+    $themes,
+    'hold',
+    (
+      'base': $hold-bg,
+      'bg': $hold-bg,
+      'contrast': $hold-icon,
+      'focus-ring': $ink,
+    )
+  );
+}
+
 // Touch targets: 48 px is the minimum for children; tool buttons are larger.
 $target-min: 48px;
 $tool-size: 56px;

@@ -7,7 +7,7 @@ Plan: `tasks/ui-foundation/plan.md`. Spec: `spec/SPEC-ui-foundation.md`. End of 
 Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upright icons, rotation-aware input; commits 676a9d5, b7550d9, then ddcac6d for Pixel browser tabs). Decision gate, 2026-11-22: clean on the iPad 11, working on the Pixel 9a after the fix, but **dropped** by the user for the simpler rule: the layout follows the window's shape. The code is removed; what stays is the device class breakpoint (576 px, Bootstrap `sm`) for the tablet margins (DF-02). Spec: "Layout follows the window's shape" and "Decision history".
 
 - [x] Rotation code removed, DF-02 on the 576 px breakpoint, `npm run check` and `npm run e2e` pass
-- [ ] Manual check: rotate the Pixel 9a and the iPad 11 (tools along the long sides, nothing under the iPadOS status bar blur)
+- [x] Manual check: rotate the Pixel 9a and the iPad 11 (tools along the long sides, nothing under the iPadOS status bar blur), OK 2026-11-22
 
 ## Phase 2: Theme and buttons
 
@@ -17,13 +17,13 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 **Acceptance criteria:**
 
-- [ ] The drawing screen's action buttons are `.btn.btn-pebble.theme-<role>` with the spec colors; the eraser selected shows the ink ring; disabled undo/redo use the disabled colors.
-- [ ] The page has square corners; DF-01 (6 per row on 375 px) and DF-03 (24 px icons on even pixel sizes) still hold.
-- [ ] No orange selection border left in the app.
+- [x] The drawing screen's action buttons are `.btn.btn-pebble.theme-<role>` with the spec colors; the eraser selected shows the ink ring; disabled undo/redo use the disabled colors.
+- [x] The page has square corners; DF-01 (6 per row on 375 px) and DF-03 (24 px icons on even pixel sizes) still hold.
+- [x] No orange selection border left in the app.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/app-shell.spec.ts e2e/tools.spec.ts e2e/history.spec.ts`
+- [x] `npx playwright test e2e/app-shell.spec.ts e2e/tools.spec.ts e2e/history.spec.ts e2e/theme.spec.ts`
 - [ ] `npm run check`, `npm run e2e`
 - [ ] Manual check: compare with the foundations board
 

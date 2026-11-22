@@ -28,10 +28,11 @@ const COLOR_LABELS: Record<ColorId, MessageKey> = {
 };
 const WIDTH_LABELS: Record<WidthId, MessageKey> = { thin: 'tools.thin', thick: 'tools.thick' };
 
+/** A button with the given classes (`tool-button …`, or a pebble `btn …`). */
 function button(className: string, label: string, content: string): HTMLButtonElement {
   const element = document.createElement('button');
   element.type = 'button';
-  element.className = `tool-button ${className}`;
+  element.className = className;
   element.setAttribute('aria-label', label);
   element.innerHTML = content;
   return element;
@@ -46,7 +47,7 @@ export function initTools(
   let state = initial;
 
   const swatches = PALETTE.map(({ id, value }) => {
-    const swatch = button('swatch', t(COLOR_LABELS[id]), '');
+    const swatch = button('tool-button swatch', t(COLOR_LABELS[id]), '');
     swatch.style.setProperty('--swatch', value);
     swatch.dataset['color'] = id;
     swatch.addEventListener('click', () => update(selectColor(state, id)));
@@ -55,7 +56,7 @@ export function initTools(
 
   const widths = (['thin', 'thick'] as const).map((width) => {
     const element = button(
-      `width width-${width}`,
+      `tool-button width width-${width}`,
       t(WIDTH_LABELS[width]),
       '<span class="width-dot"></span>',
     );
@@ -65,7 +66,7 @@ export function initTools(
   });
 
   const eraser = button(
-    'eraser',
+    'btn btn-solid btn-pebble theme-eraser eraser',
     t('tools.eraser'),
     '<span class="icon icon-eraser" aria-hidden="true"></span>',
   );

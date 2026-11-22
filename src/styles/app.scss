@@ -5,13 +5,16 @@
   $enable-shadows: false,
   $enable-gradients: false
 );
+@use 'tokens' as *;
 @use 'bootstrap/scss/colors';
-@use 'bootstrap/scss/theme';
+// The action colors join Bootstrap's theme colors: `.theme-<role>` classes and tokens.
+@use 'bootstrap/scss/theme' with (
+  $theme-colors: action-themes()
+);
 @use 'bootstrap/scss/root';
 @use 'bootstrap/scss/content';
 @use 'bootstrap/scss/buttons';
 @use 'bootstrap/scss/helpers';
-@use 'tokens' as *;
 @use 'icons';
 
 :root {
@@ -120,7 +123,7 @@ body {
   width: min(100cqw, 100cqh);
   aspect-ratio: 1;
   background: var(--app-page);
-  border-radius: 12px;
+  // Square corners: the exported PNG is a square, no corner may hide part of it.
   box-shadow: 0 2px 12px rgb(0 0 0 / 15%);
   overflow: hidden;
   touch-action: none;
@@ -178,7 +181,7 @@ body {
   touch-action: manipulation;
 
   &[aria-pressed='true'] {
-    border-color: var(--app-accent);
+    box-shadow: $selection-ring;
   }
 
   &:disabled {
@@ -190,12 +193,31 @@ body {
 .swatch {
   background: var(--swatch);
   border-color: var(--app-page);
+}
+
+// Pebble buttons: Bootstrap `.btn.btn-solid.theme-<role>` with this shape. One size,
+// shrinking with the tool size, never under the 48 px target.
+// DF-01, DF-03: docs/device-fixes.md
+.btn-pebble {
+  --btn-border-width: 0;
+  --btn-border-radius: #{$pebble-radius};
+  // A tap leaves :hover stuck on touch screens: no hover shade, it would look selected.
+  --btn-hover-bg: var(--btn-bg);
+  --btn-hover-color: var(--btn-color);
+  --btn-disabled-bg: #{$disabled-bg};
+  --btn-disabled-color: #{$disabled-icon};
+  --btn-disabled-opacity: 1;
+  display: inline-grid;
+  place-items: center;
+  width: var(--app-tool-size);
+  height: var(--app-tool-size);
+  min-width: $target-min;
+  min-height: $target-min;
+  padding: 0;
+  touch-action: manipulation;
 
   &[aria-pressed='true'] {
-    border-color: var(--app-accent);
-    box-shadow:
-      0 0 0 3px var(--app-page),
-      0 0 0 6px var(--app-accent);
+    box-shadow: $selection-ring;
   }
 }
 
