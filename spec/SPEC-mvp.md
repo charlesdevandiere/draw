@@ -25,7 +25,7 @@ Sources: `docs/ideas/carnet-magique.md` (vision, scope, "Not Doing") and `docs/d
 - **Square page only**: one format, 1000 × 1000 page units. The format picker from the framing note is dropped.
 - **"Pencil" eraser**: rubbing erases what is underneath. In vector terms it is an eraser stroke rendered with `destination-out`, and replayable.
 - **Accelerated replay**: pauses between strokes shortened, total duration capped at ~15 s.
-- **Parent access**: press and hold a small padlock icon for 3 s, with a filling progress ring (changed by module `ui-foundation`, `spec/SPEC-ui-foundation.md`: 1.5 s, the button fills from the bottom).
+- **Parent access**: press and hold a small padlock icon for 1.5 s; the button fills from the bottom (3 s with a ring until module `ui-foundation`, `spec/SPEC-ui-foundation.md`).
 - **Input mode** Pen / Finger / Multi-finger, offered on **every platform**: Apple Pencil, Logitech Crayon, Metapen, S Pen (Galaxy Tab), USI 2.0 pens (Pixel Tablet) and Surface Pen all report `pen`. Passive styluses report `touch`. Automatic switch to Pen only until a mode has been chosen by hand.
 - **Bootstrap 6.0.0-alpha.1**, exact version, **compiled from Sass**, importing only the modules we use, with our own theme. Its CSS is used everywhere; its JavaScript only where a component needs it.
 - **"Magic PNG"**: a drawing file is a normal PNG that also carries the vector drawing in a metadata chunk. It is the format for sharing (phase A) and for export / import (phase B).
@@ -73,7 +73,9 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **A4 — Drawing screen and layout**
 
-- **Portrait phone**: the page spans the full width, tools below. **Landscape tablet**: the page spans the full height, tools on the sides. The layout follows the screen's aspect ratio, not the device type.
+- **Portrait**: the page spans the full width, tools below. **Landscape**: the page spans the full height, tools on the sides. The layout follows the window's shape (`min-aspect-ratio: 1/1`), not the device type; a layout fixed to the hardware was tried and dropped (`spec/SPEC-ui-foundation.md`, Decision history).
+- **Device class**, for margins only: a tablet has both viewport sides ≥ 576 px (Bootstrap `sm`), in either orientation (DF-02).
+- **Theme** (module `ui-foundation`): paper background `#fff4d6`, square white page with a shadow, ink `#2b2b2b`. Action buttons are **pebbles**: Bootstrap `.btn.btn-solid.btn-pebble.theme-<role>`, rounded squares (29 %) at the tool size (56 px, shrinking by DF-01, never under 48 px), one color per role (`$action-colors` in `src/styles/_tokens.scss`), dark icons; disabled pebbles beige with a grey icon. Selection: a paper gap then an ink ring. Color swatches and width buttons stay round until module `draw-tools`.
 - **No control** within a margin near the top and bottom edges (≥ 32 px plus `safe-area-inset`).
 - **Gesture protections** always on (list in `docs/diagnostic/conclusions.md`).
 - No visible text: pictograms from Bootstrap Icons (only the icons used, imported in Sass as CSS masks, `src/styles/_icons.scss`), targets ≥ 48 px, translated `aria-label`s.
@@ -132,7 +134,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **B2 — Parent access**
 
-- A small padlock icon in the gallery. **Press and hold for 3 s**, with a filling ring (changed by module `ui-foundation`, `spec/SPEC-ui-foundation.md`: 1.5 s, the button fills from the bottom); releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
+- A small padlock icon in the gallery, a **long press** (`LONG_PRESS_MS` = 1.5 s, the same for every long press): while held the button grows and fills from the bottom with a darker shade of its color; on completion a light haptic tick (Android; none on iPad, DF-12), then the parent page opens; releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
 
 **B3 — Parent page** (Bootstrap, translated)
 
@@ -322,7 +324,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
 **Phase B**
 
 14. Replaying a 10-minute drawing takes ~15 s, eraser included; a 20-second drawing replays at real speed (shortened pauses).
-15. A child tapping the padlock does not open the parent page; a 3-second press does (1.5 s since module `ui-foundation`).
+15. A child tapping the padlock does not open the parent page; a 1.5-second press does.
 16. Delete a drawing, export the gallery to Files, delete everything, import the PNGs back: every drawing returns, identical and replayable. Importing a photo is refused.
 17. **Child test**: a 5-year-old draws, finds and reopens a drawing alone, without explanation, on the iPad and on a phone.
 

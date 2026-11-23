@@ -24,8 +24,8 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 **Verification:**
 
 - [x] `npx playwright test e2e/app-shell.spec.ts e2e/tools.spec.ts e2e/history.spec.ts e2e/theme.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
-- [ ] Manual check: compare with the foundations board
+- [x] `npm run check`, `npm run e2e`
+- [x] Manual check: compare with the foundations board
 
 **Dependencies:** Phase 1
 
@@ -49,7 +49,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 **Verification:**
 
 - [x] `npx playwright test e2e/gallery.spec.ts e2e/share.spec.ts e2e/replay.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 3
 
@@ -61,7 +61,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 ## Checkpoint: Theme
 
-- [ ] `npm run check` and `npm run e2e` pass; child screens match the foundations board
+- [x] `npm run check` and `npm run e2e` pass; child screens match the foundations board
 
 ## Phase 3: Long press and haptics
 
@@ -77,7 +77,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 **Verification:**
 
 - [x] `npx playwright test e2e/haptic.spec.ts`
-- [ ] `npm run check`
+- [x] `npm run check`
 
 **Dependencies:** None (independent of tasks 1–4)
 
@@ -102,7 +102,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 - [x] `npx vitest run src/input/hold.test.ts`
 - [x] `npx playwright test e2e/parent.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 5
 
@@ -116,7 +116,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 ## Checkpoint: Module complete
 
-- [ ] `npm run check` and `npm run e2e` pass
-- [ ] Spec success criteria 1–5 met; DF entries written (haptics on iPad: DF-12)
-- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a
-- [ ] Fold the module into `spec/SPEC-mvp.md`, set `spec/SPEC-ui-foundation.md` to `Status: implemented`
+- [x] `npm run check` and `npm run e2e` pass
+- [x] Spec success criteria 1–5 met; DF entries written (haptics on iPad: DF-12)
+- [x] Device check on the iPad 11 (pen and finger) and the Pixel 9a
+- [x] Fold the module into `spec/SPEC-mvp.md`, set `spec/SPEC-ui-foundation.md` to `Status: implemented`

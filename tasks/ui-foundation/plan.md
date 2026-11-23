@@ -26,23 +26,23 @@ Shared building blocks for the redesigned child screens: a device class for marg
 
 ### Phase 2: Theme and buttons
 
-- [ ] Task 3: Paper theme, square page, action colors and pebble buttons on the drawing screen
-- [ ] Task 4: Pebble buttons on the gallery and replay screens
+- [x] Task 3: Paper theme, square page, action colors and pebble buttons on the drawing screen
+- [x] Task 4: Pebble buttons on the gallery and replay screens
 
 ### Checkpoint: Theme
 
-- [ ] `npm run check` and `npm run e2e` pass; screens match the foundations board
+- [x] `npm run check` and `npm run e2e` pass; screens match the foundations board
 
 ### Phase 3: Long press and haptics
 
-- [ ] Task 5: Haptic helper
-- [ ] Task 6: Generic 1.5 s long press with a fill (padlock moves to it)
+- [x] Task 5: Haptic helper
+- [x] Task 6: Generic 1.5 s long press with a fill (padlock moves to it)
 
 ### Checkpoint: Module complete
 
-- [ ] All spec success criteria met (1–5), DF entries written (haptics on iPad)
-- [ ] Device check on the three reference devices
-- [ ] Spec status → implemented after the module is folded into `spec/SPEC-mvp.md`
+- [x] All spec success criteria met (1–5), DF entries written (haptics on iPad)
+- [x] Device check on the three reference devices
+- [x] Spec status → implemented after the module is folded into `spec/SPEC-mvp.md`
 
 ## Risks and Mitigations
 
