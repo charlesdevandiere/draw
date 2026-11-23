@@ -5,3 +5,6 @@ package-lock.json
 
 # Device reports, kept exactly as copied from the diagnostic page
 docs/diagnostic/*.json
+
+# Written by the SonarLint IDE extension, in its own format
+.sonarlint
