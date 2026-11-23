@@ -33,9 +33,9 @@ The data layer of a 30-day trash: a `trashedAt` field next to each stored drawin
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–6 met
+- [x] Spec success criteria 1–6 met
 - [ ] Quick check on a device: the app opens on the last drawing, the gallery and the parent page export / import work as before
-- [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-trash.md` to `Status: implemented`
+- [x] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-trash.md` to `Status: implemented`
 
 ## Risks and Mitigations
 

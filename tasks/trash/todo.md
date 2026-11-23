@@ -75,6 +75,6 @@ Plan: `tasks/trash/plan.md`. Spec: `spec/SPEC-trash.md`. End of every task (CLAU
 
 ## Checkpoint: Module complete
 
-- [ ] `npm run check` and `npm run e2e` pass; spec success criteria 1–6 met
-- [ ] Quick device check (app opens on the last drawing, gallery, export / import)
-- [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-trash.md` to `Status: implemented`
+- [x] `npm run check` and `npm run e2e` pass; spec success criteria 1–6 met
+- [ ] Quick device check (app opens on the last drawing, gallery, export / import): with the next module's device test
+- [x] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-trash.md` to `Status: implemented`

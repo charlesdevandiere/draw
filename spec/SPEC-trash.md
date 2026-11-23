@@ -1,6 +1,6 @@
 # Spec Delta: Trash — redesign module 2 of 5
 
-Status: approved (2026-11-23)
+Status: implemented (2026-11-23, folded into `spec/SPEC-mvp.md`)
 
 Module `trash` of the UI redesign (`spec/capability-map.md`). Inherits everything from `spec/SPEC-mvp.md` (stack, commands, structure, code style, testing strategy, boundaries) except what is stated here.
 

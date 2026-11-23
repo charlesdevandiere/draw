@@ -82,10 +82,11 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **A5 — Autosave**
 
-- Each drawing is an IndexedDB record: id, created and modified dates, schema version, strokes, PNG thumbnail. The database is named `draw`: the origin `charlesdevandiere.github.io` is shared with every other GitHub Pages project of the account.
+- Each drawing is an IndexedDB record: id, created and modified dates, schema version, strokes, PNG thumbnail, and `trashedAt` once moved to the trash (module `trash`, `spec/SPEC-trash.md`). The database is named `draw`: the origin `charlesdevandiere.github.io` is shared with every other GitHub Pages project of the account.
 - A stroke = tool (`pen` or `eraser`), color, width, points `[x, y, t]` (t in ms since the drawing started, for replay). Coordinates rounded to 0.1 unit.
 - Saved **after each finished stroke** (batched over ~1 s) and when the app goes to the background (`visibilitychange`). No UI, no message.
-- On launch, the app reopens the **last drawing**.
+- On launch, the app reopens the **last drawing**, unless it is in the trash (then a blank page).
+- **Trash** (module `trash`): a deleted drawing can go to the trash first. Its record stays, with `trashedAt` next to the drawing (never in the drawing format or the magic PNG); it leaves the gallery, the parent page list and the export, stays restorable 30 days, and is purged for good at the next app or parent page start after that. A save never takes a drawing out of the trash; importing the PNG of a trashed drawing restores it. Pure rules in `src/store/trash.ts`. The buttons come with modules `gallery-viewer` (move to trash) and `settings` (trash list); until then the parent page's delete stays final.
 - `navigator.storage.persist()` requested on first launch in standalone mode.
 
 **A6 — Gallery and sharing**

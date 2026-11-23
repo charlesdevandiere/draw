@@ -12,6 +12,6 @@ The redesign mocked up in Claude Design (2026-11-21/22) changes the MVP (`spec/S
 
 Build order: `ui-foundation`, `trash` → `draw-tools` → `gallery-viewer` → `settings`.
 
-Progress: `ui-foundation` implemented (2026-11-23).
+Progress: `ui-foundation` and `trash` implemented (2026-11-23).
 
 Each module gets its own spec in `spec/` (`spec/SPEC-<module id>.md`), then its plan and tasks, then its implementation, one at a time in this order. Not part of this redesign: template layers (milestone 2) and the frozen stroke format v1 (before release 1.0.0), both in `spec/SPEC-mvp.md`, Out of Scope.
