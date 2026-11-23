@@ -19,7 +19,7 @@ Source spec: `spec/SPEC-draw-tools.md` (module `draw-tools` of `spec/capability-
 
 ### Phase 1: New tool state
 
-- [ ] Task 1: 56-color palette, 6 sizes and the bar of 5 in the current layout (engine, settings, tools UI)
+- [x] Task 1: 56-color palette, 6 sizes and the bar of 5 in the current layout (engine, settings, tools UI)
 
 ### Checkpoint: State
 

@@ -46,7 +46,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 - Two blocks of 7 families: **warm and neutral** (pink to grey), then **cool** (light green to purple). Inside a block, a "paint box": square cells without gaps, rounded outer corners only.
 - Color ids: `<family>-<tone>` (e.g. `blue-medium`). Labels translated from the family and the tone ("Blue, medium" / "Bleu moyen").
 - The 8 MVP colors are all in it (medium tone, black = grey dark): a stored MVP color maps to its new id (`black` → `grey-dark`, `purple` → `purple-medium`, others → `<id>-medium`). White (grey light) draws over other strokes.
-- **Selection** of a cell: a double inset ring, black then white (`inset 0 0 0 3px #000, inset 0 0 0 6px #fff`), visible on every color. With the eraser on, the color kept for later shows a softer ring (black then grey).
+- **Selection** of a cell: Bootstrap's focus ring (`--focus-ring-width`, `--focus-ring-offset`) outside the cell, in a subtle (light) tint of the selected color, over the neighbouring cells (changed 2026-11-23 at the user's request: the black and white inset ring looked heavy). With the eraser on, the color kept for later shows a fainter ring.
 - Built on Bootstrap: one radio group (`.btn-check` inputs, one color chosen), laid out with CSS grid.
 
 ### Phones: a bar of 5 colors and an "all colors" dialog
@@ -54,7 +54,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 - Above the page: a **bar of 5 square cells** (paint-box style) and next to it a **palette pebble** (multicolor, `bi-palette-fill`) that opens a **dialog with all 56 colors** (two blocks of 7 families × 4 tones, 48 px cells, close button, centered; Bootstrap dialog).
 - At the start of a drawing (new page, a drawing reopened from the gallery, first launch), the bar holds the **base colors**: black, red, green, blue, yellow (`grey-dark`, `red-medium`, `green-medium`, `blue-medium`, `yellow-medium`).
 - Picking a color in the dialog closes it and selects that color; if it is not in the bar, it **enters first** and the last one leaves. Picking in the bar never reorders it.
-- The bar is remembered with the drawing on the slate (a reload keeps it), and reset to the base colors when the slate changes drawing.
+- The bar is remembered with the drawing on the slate (a reload keeps it), and reset to the base colors when the slate changes drawing. The current color is kept: if it is not a base color, it enters the reset bar first (the bar always shows the current color).
 
 ### Tablets: the full box
 

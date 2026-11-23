@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
 import { lastDrawingId, savedStrokeCounts, savedStrokes } from './helpers/storage';
+import { barColor, pickColor } from './helpers/tools';
 
 const RED = [0xe5, 0x39, 0x35];
 
@@ -33,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('the drawing is there after a relaunch, and the colors and mode too', async ({ page }) => {
-  await page.getByRole('button', { name: 'Red', exact: true }).click();
+  await pickColor(page, 'Red');
   await strokeAt(page, 0.5);
   await expect(page.locator('#mode-button')).toHaveAttribute('data-mode', 'pen');
   // The batched save happens within about a second.
@@ -41,10 +42,7 @@ test('the drawing is there after a relaunch, and the colors and mode too', async
 
   await page.reload();
   await expect.poll(async () => isColor(await pixel(page, 0.5), RED)).toBe(true);
-  await expect(page.getByRole('button', { name: 'Red', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  await expect(barColor(page, 'Red')).toBeChecked();
   await expect(page.locator('#mode-button')).toHaveAttribute('data-mode', 'pen');
   await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
 });

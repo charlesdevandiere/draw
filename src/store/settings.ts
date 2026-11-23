@@ -2,7 +2,18 @@
  * Settings kept in IndexedDB, validated when read back: a missing or corrupt value falls
  * back to the default instead of breaking the app.
  */
-import { DEFAULT_TOOLS, isColorId, isWidthId, type ToolState } from '../engine/palette';
+import {
+  BAR_LENGTH,
+  BASE_COLORS,
+  DEFAULT_TOOLS,
+  fromMvpColor,
+  isColorId,
+  isSizeStep,
+  resetBar,
+  type ColorId,
+  type SizeStep,
+  type ToolState,
+} from '../engine/palette';
 import {
   DEFAULT_FINGER_SETTINGS,
   isInputMode,
@@ -28,13 +39,37 @@ export function parseInputModeState(value: unknown): InputModeState {
   return { mode: value['mode'], chosenByHand: value['chosenByHand'] === true };
 }
 
+/** MVP widths (before module draw-tools) as slider steps: thin 8 units, thick 24. */
+const MVP_SIZES: Readonly<Record<string, SizeStep>> = { thin: 1, thick: 3 };
+
+/** A stored bar of 5 distinct colors, or null. */
+function parseBar(value: unknown): readonly ColorId[] | null {
+  if (!Array.isArray(value) || value.length !== BAR_LENGTH) return null;
+  if (!value.every(isColorId) || new Set(value).size !== BAR_LENGTH) return null;
+  return value;
+}
+
+/**
+ * The tools setting (spec/SPEC-draw-tools.md): `{ tool, color, size, recent }`. An MVP value
+ * (`color: 'red'`, `width: 'thin'`) is migrated; a bar that does not hold the current color
+ * is rebuilt from the base colors.
+ */
 export function parseToolState(value: unknown): ToolState {
   if (!isRecord(value)) return DEFAULT_TOOLS;
-  const { tool, color, width } = value;
-  if ((tool !== 'pen' && tool !== 'eraser') || !isColorId(color) || !isWidthId(width)) {
-    return DEFAULT_TOOLS;
+  const { tool } = value;
+  if (tool !== 'pen' && tool !== 'eraser') return DEFAULT_TOOLS;
+  const mvpColor = fromMvpColor(value['color']);
+  const width = value['width'];
+  const mvpSize =
+    typeof width === 'string' && Object.hasOwn(MVP_SIZES, width) ? MVP_SIZES[width] : undefined;
+  if (mvpColor && mvpSize !== undefined) {
+    return resetBar({ tool, color: mvpColor, size: mvpSize, recent: BASE_COLORS });
   }
-  return { tool, color, width };
+  const { color, size } = value;
+  if (!isColorId(color) || !isSizeStep(size)) return DEFAULT_TOOLS;
+  const recent = parseBar(value['recent']);
+  const state: ToolState = { tool, color, size, recent: recent ?? BASE_COLORS };
+  return recent?.includes(color) ? state : resetBar(state);
 }
 
 export function parseDrawingId(value: unknown): string | null {

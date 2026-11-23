@@ -10,15 +10,15 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 **Acceptance criteria:**
 
-- [ ] Unit: 56 colors with the spec's values and order; MVP ids map to the same `#rrggbb`; `styleFor` uses the step for pen and eraser; bar rule (enters first, known keeps order, always 5, reset to base colors); MVP setting migrated, invalid → defaults.
-- [ ] e2e: each slider step changes the stroke width and the preview size; a tick per step; the eraser follows the slider; picking a bar color draws with it; new page resets the bar.
-- [ ] Existing e2e updated (swatches, widths) and passing; DF-01 still holds on 375 px.
+- [x] Unit: 56 colors with the spec's values and order; MVP ids map to the same `#rrggbb`; `styleFor` uses the step for pen and eraser; bar rule (enters first, known keeps order, always 5, reset to base colors); MVP setting migrated, invalid → defaults.
+- [x] e2e: each slider step changes the stroke width and the preview size; a tick per step; the eraser follows the slider; picking a bar color draws with it; new page resets the bar.
+- [x] Existing e2e updated (swatches, widths) and passing; DF-01 still holds on 375 px.
 
 **Verification:**
 
-- [ ] `npx vitest run src/engine/palette.test.ts src/store/settings.test.ts`
-- [ ] `npx playwright test e2e/tools.spec.ts e2e/theme.spec.ts e2e/app-shell.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx vitest run src/engine/palette.test.ts src/store/settings.test.ts`
+- [x] `npx playwright test e2e/tools.spec.ts e2e/theme.spec.ts e2e/app-shell.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** None
 

@@ -21,7 +21,7 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Cause**: fixed 56 px buttons; six of them plus the gaps do not fit 375 px.
 - **Fix**: the tool size is computed from the screen: between 48 px (minimum touch target) and 56 px, so that `$tools-per-row` (6) buttons fit a row.
 - **Code**: `src/styles/app.scss` (tool size), `src/styles/_tokens.scss` (`$tools-per-row`).
-- **Guard**: e2e `app-shell.spec.ts` › "on a narrow phone (iPhone 8), the drawing tools wrap on two rows".
+- **Guard**: e2e `app-shell.spec.ts` › "on a narrow phone (iPhone 8), the bar of 5 and the eraser share one row" (since module `draw-tools`: the bar of 5 colors and the eraser make the row of 6; before, 8 swatches, 2 widths and the eraser wrapped on two rows).
 - **Do not**: add a tool to a row, or raise the minimum size, without rechecking a 375 px screen.
 
 ## DF-02 Nothing under the iPadOS status bar blur

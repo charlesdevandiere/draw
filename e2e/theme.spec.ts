@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from '@playwright/test';
+import { colorCell, pickColor } from './helpers/tools';
 
 /**
  * Paper theme and pebble buttons (spec/SPEC-ui-foundation.md, "Theme and buttons"): action
@@ -85,10 +86,12 @@ test('the selection is an ink ring, never the old orange border', async ({ page 
   await expect(eraser).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => styleOf(eraser, 'box-shadow')).toBe(INK_RING);
 
-  const red = page.locator('[aria-label="Red"]');
-  await red.click();
-  await expect(red).toHaveAttribute('aria-pressed', 'true');
-  await expect.poll(() => styleOf(red, 'box-shadow')).toBe(INK_RING);
+  // A color cell: Bootstrap's focus ring outside it, in a subtle tint of the color.
+  await pickColor(page, 'Red');
+  const red = colorCell(page.locator('.color-bar'), 'Red');
+  await expect.poll(() => styleOf(red, 'outline-style')).toBe('solid');
+  expect(await styleOf(red, 'outline-width')).toBe('3px');
+  expect(await styleOf(red, 'outline-color')).not.toBe(await styleOf(red, 'background-color'));
 
   for (const button of await page.locator('#draw-screen button').all()) {
     await expect.poll(() => styleOf(button, 'border-top-color')).not.toBe(ORANGE);

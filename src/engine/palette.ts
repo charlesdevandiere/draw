@@ -1,66 +1,165 @@
+/**
+ * Colors and sizes of the slate (spec/SPEC-draw-tools.md), pure. 14 families × 4 tones in
+ * two blocks (warm and neutral, then cool), 6 stroke sizes, and the bar of 5 colors shown
+ * on phones. Strokes store `#rrggbb` and a width in page units, never these ids.
+ */
 import type { StrokeStyle, Tool } from './types';
 
-/** The 8 colors of the slate, in display order. */
-export const PALETTE = [
-  { id: 'black', value: '#212121' },
-  { id: 'red', value: '#e53935' },
-  { id: 'orange', value: '#fb8c00' },
-  { id: 'yellow', value: '#fdd835' },
-  { id: 'green', value: '#43a047' },
-  { id: 'blue', value: '#1e88e5' },
-  { id: 'purple', value: '#8e24aa' },
-  { id: 'brown', value: '#6d4c41' },
+export const FAMILIES = [
+  'pink',
+  'red',
+  'orange',
+  'yellow',
+  'beige',
+  'brown',
+  'grey',
+  'light-green',
+  'green',
+  'teal',
+  'sky-blue',
+  'blue',
+  'indigo',
+  'purple',
 ] as const;
+export type Family = (typeof FAMILIES)[number];
 
-export type ColorId = (typeof PALETTE)[number]['id'];
+export const TONES = ['light', 'bright', 'medium', 'dark'] as const;
+export type Tone = (typeof TONES)[number];
 
-/** Stroke diameters in page units (the page is 1000 units wide). */
-export const WIDTHS = { thin: 8, thick: 24 } as const;
-export type WidthId = keyof typeof WIDTHS;
-export const ERASER_WIDTH = 48;
+export type ColorId = `${Family}-${Tone}`;
 
-/** What the tool buttons currently select. */
+/** The two blocks of the box: warm and neutral, then cool. */
+export const WARM_FAMILIES = FAMILIES.slice(0, 7) as readonly Family[];
+export const COOL_FAMILIES = FAMILIES.slice(7) as readonly Family[];
+
+/** Values by family, light → dark (foundations board of the mockups). */
+const VALUES: Record<Family, readonly [string, string, string, string]> = {
+  pink: ['#f48fb1', '#ec407a', '#d81b60', '#ad1457'],
+  red: ['#ef9a9a', '#ef5350', '#e53935', '#c62828'],
+  orange: ['#ffcc80', '#ffa726', '#fb8c00', '#ef6c00'],
+  yellow: ['#fff59d', '#ffee58', '#fdd835', '#f9a825'],
+  beige: ['#f8eedc', '#efd9b4', '#dfc08f', '#c8a26b'],
+  brown: ['#bcaaa4', '#8d6e63', '#6d4c41', '#4e342e'],
+  grey: ['#ffffff', '#bdbdbd', '#757575', '#212121'],
+  'light-green': ['#c5e1a5', '#9ccc65', '#7cb342', '#558b2f'],
+  green: ['#a5d6a7', '#66bb6a', '#43a047', '#2e7d32'],
+  teal: ['#80cbc4', '#26a69a', '#00897b', '#00695c'],
+  'sky-blue': ['#81d4fa', '#29b6f6', '#039be5', '#0277bd'],
+  blue: ['#90caf9', '#42a5f5', '#1e88e5', '#1565c0'],
+  indigo: ['#9fa8da', '#5c6bc0', '#3949ab', '#283593'],
+  purple: ['#ce93d8', '#ab47bc', '#8e24aa', '#6a1b9a'],
+};
+
+export interface PaletteColor {
+  id: ColorId;
+  family: Family;
+  tone: Tone;
+  value: string;
+}
+
+/** All 56 colors, family by family, light → dark. */
+export const PALETTE: readonly PaletteColor[] = FAMILIES.flatMap((family) =>
+  TONES.map((tone, index) => ({
+    id: `${family}-${tone}` as ColorId,
+    family,
+    tone,
+    value: VALUES[family][index] as string,
+  })),
+);
+
+const BY_ID = new Map(PALETTE.map((color) => [color.id as string, color]));
+
+export function isColorId(value: unknown): value is ColorId {
+  return typeof value === 'string' && BY_ID.has(value);
+}
+
+export function colorValue(id: ColorId): string {
+  return (BY_ID.get(id) as PaletteColor).value;
+}
+
+/** The 8 colors of the MVP (stored tool settings), all in the palette at the same value. */
+const MVP_COLORS: Readonly<Record<string, ColorId>> = {
+  black: 'grey-dark',
+  red: 'red-medium',
+  orange: 'orange-medium',
+  yellow: 'yellow-medium',
+  green: 'green-medium',
+  blue: 'blue-medium',
+  purple: 'purple-medium',
+  brown: 'brown-medium',
+};
+
+export function fromMvpColor(id: unknown): ColorId | null {
+  return typeof id === 'string' && Object.hasOwn(MVP_COLORS, id)
+    ? (MVP_COLORS[id] as ColorId)
+    : null;
+}
+
+/** Stroke diameters in page units (the page is 1000 units wide), one per slider step. */
+export const SIZES = [4, 8, 16, 24, 40, 64] as const;
+export type SizeStep = 0 | 1 | 2 | 3 | 4 | 5;
+
+export function isSizeStep(value: unknown): value is SizeStep {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < SIZES.length;
+}
+
+/** Colors of the bar at the start of a drawing: black, red, green, blue, yellow. */
+export const BASE_COLORS: readonly ColorId[] = [
+  'grey-dark',
+  'red-medium',
+  'green-medium',
+  'blue-medium',
+  'yellow-medium',
+];
+export const BAR_LENGTH = 5;
+
+/**
+ * What the tools currently select. `recent` is the bar of 5 (phones); the current color is
+ * always in it.
+ */
 export interface ToolState {
   tool: Tool;
   color: ColorId;
-  width: WidthId;
+  size: SizeStep;
+  recent: readonly ColorId[];
 }
 
-export const DEFAULT_TOOLS: ToolState = { tool: 'pen', color: 'black', width: 'thin' };
+export const DEFAULT_TOOLS: ToolState = {
+  tool: 'pen',
+  color: 'grey-dark',
+  size: 1,
+  recent: BASE_COLORS,
+};
 
-const COLOR_VALUES = Object.fromEntries(PALETTE.map(({ id, value }) => [id, value])) as Record<
-  ColorId,
-  string
->;
-
-export function colorValue(id: ColorId): string {
-  return COLOR_VALUES[id];
-}
-
-/** Style of the next stroke. */
+/** Style of the next stroke: the slider size for the pen and the eraser alike. */
 export function styleFor(state: ToolState): StrokeStyle {
-  return state.tool === 'eraser'
-    ? { tool: 'eraser', color: colorValue(state.color), width: ERASER_WIDTH }
-    : { tool: 'pen', color: colorValue(state.color), width: WIDTHS[state.width] };
+  return { tool: state.tool, color: colorValue(state.color), width: SIZES[state.size] };
 }
 
-/** Picking a color or a width goes back to drawing; the eraser keeps both for later. */
-export function selectColor(state: ToolState, color: ColorId): ToolState {
-  return { ...state, tool: 'pen', color };
+/** The bar with `color` in it: kept as is when known, else `color` enters first. */
+function barWith(recent: readonly ColorId[], color: ColorId): readonly ColorId[] {
+  return recent.includes(color) ? recent : [color, ...recent].slice(0, BAR_LENGTH);
 }
 
-export function selectWidth(state: ToolState, width: WidthId): ToolState {
-  return { ...state, tool: 'pen', width };
+/**
+ * A color picked in the bar, the box (tablets) or the "all colors" dialog (phones): back
+ * to the pen. A color already in the bar keeps the order; a new one enters first.
+ */
+export function pickColor(state: ToolState, color: ColorId): ToolState {
+  return { ...state, tool: 'pen', color, recent: barWith(state.recent, color) };
 }
 
+/** Moving the slider keeps the tool: the eraser takes the size too. */
+export function selectSize(state: ToolState, size: SizeStep): ToolState {
+  return { ...state, size };
+}
+
+/** The eraser keeps the color and size for later. */
 export function selectEraser(state: ToolState): ToolState {
   return { ...state, tool: 'eraser' };
 }
 
-export function isColorId(value: unknown): value is ColorId {
-  return PALETTE.some((color) => color.id === value);
-}
-
-export function isWidthId(value: unknown): value is WidthId {
-  return value === 'thin' || value === 'thick';
+/** A new drawing on the slate: the base colors, with the current color kept in the bar. */
+export function resetBar(state: ToolState): ToolState {
+  return { ...state, recent: barWith(BASE_COLORS, state.color) };
 }

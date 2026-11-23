@@ -14,6 +14,7 @@
 @use 'bootstrap/scss/root';
 @use 'bootstrap/scss/content';
 @use 'bootstrap/scss/buttons';
+@use 'bootstrap/scss/forms/form-range';
 @use 'bootstrap/scss/helpers';
 @use 'icons';
 
@@ -164,36 +165,6 @@ body {
   }
 }
 
-.tool-button {
-  display: inline-grid;
-  place-items: center;
-  width: var(--app-tool-size);
-  height: var(--app-tool-size);
-  min-width: $target-min;
-  min-height: $target-min;
-  padding: 0;
-  border: 3px solid transparent;
-  border-radius: 50%;
-  background: var(--app-page);
-  color: var(--app-ink);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 20%);
-  touch-action: manipulation;
-
-  &[aria-pressed='true'] {
-    box-shadow: $selection-ring;
-  }
-
-  &:disabled {
-    opacity: 0.35;
-  }
-}
-
-// Color swatches: the button is the color.
-.swatch {
-  background: var(--swatch);
-  border-color: var(--app-page);
-}
-
 // Pebble buttons: Bootstrap `.btn.btn-solid.theme-<role>` with this shape. One size,
 // shrinking with the tool size, never under the 48 px target.
 // DF-01, DF-03: docs/device-fixes.md
@@ -228,28 +199,139 @@ body {
   }
 }
 
-// With the eraser on, the color and width kept for later show a soft ring.
-.tool-button[data-kept] {
-  border-color: rgb(0 0 0 / 25%);
+// Drawing tools (spec/SPEC-draw-tools.md). Color cells are Bootstrap `.btn-check` labels
+// around a radio, laid out as a paint box: square cells without gaps, rounded outer corners
+// (on the end cells: the bar does not clip, the selection ring goes outside the cell).
+.color-bar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--app-tool-size);
+  grid-template-rows: var(--app-tool-size);
+  --paint-box-radius: 12px;
+
+  > :first-child {
+    border-radius: var(--paint-box-radius) 0 0 var(--paint-box-radius);
+  }
+
+  > :last-child {
+    border-radius: 0 var(--paint-box-radius) var(--paint-box-radius) 0;
+  }
 }
 
-// Width buttons preview a dot of the current color at that size.
-.width-dot {
+.color-cell {
+  position: relative;
   display: block;
-  border-radius: 50%;
-  background: var(--current-color, var(--app-ink));
-  // Keeps a light color (yellow) visible on the white button.
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 25%);
+  margin: 0;
+  padding: 0;
+  background: var(--cell-color);
+  cursor: pointer;
+  touch-action: manipulation;
+
+  // The current color: Bootstrap's focus ring, in a subtle (light) tint of that color,
+  // drawn over the neighbouring cells.
+  &:has(input:checked) {
+    z-index: 1;
+    outline: var(--focus-ring-width) solid color-mix(in oklch, var(--cell-color) 40%, #fff);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  // With the eraser, the color that will come back keeps a fainter ring.
+  [data-erasing] &:has(input:checked) {
+    outline-color: color-mix(in oklch, var(--cell-color) 40%, transparent);
+  }
 }
 
-.width-thin .width-dot {
-  width: 8px;
-  height: 8px;
+// Size slider (6 steps) on a white rounded track, with the stroke at real size before it.
+.size-control {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  height: var(--app-tool-size);
+  padding: 0 16px 0 4px;
+  border-radius: calc(var(--app-tool-size) / 2);
+  background: var(--app-page);
+  touch-action: manipulation;
+
+  .form-range {
+    --range-track-bg: #{$disabled-bg};
+    --range-track-fill-bg: #{$ink};
+    --range-thumb-bg: #{$ink};
+    --range-thumb-width: 28px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .form-range-input {
+    height: 44px;
+  }
 }
 
-.width-thick .width-dot {
-  width: 22px;
-  height: 22px;
+.size-preview {
+  display: grid;
+  flex: none;
+  place-items: center;
+  // At least a touch target; the largest stroke on a big page (64 units ≈ 51 px on an
+  // iPad in portrait) widens it rather than spilling over the track.
+  min-width: $target-min;
+  min-height: $target-min;
+
+  &::before {
+    content: '';
+    width: max(2px, var(--size-units) * var(--page-px, 400px) / 1000);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--current-color, #{$ink});
+  }
+
+  [data-erasing] &::before {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #9e9e9e;
+  }
+}
+
+// Landscape: the tools stand in columns; the bar and the slider turn vertical.
+@media (min-aspect-ratio: 1/1) {
+  .color-bar {
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: var(--app-tool-size);
+    grid-auto-rows: var(--app-tool-size);
+
+    > :first-child {
+      border-radius: var(--paint-box-radius) var(--paint-box-radius) 0 0;
+    }
+
+    > :last-child {
+      border-radius: 0 0 var(--paint-box-radius) var(--paint-box-radius);
+    }
+  }
+
+  .size-control {
+    flex: none;
+    flex-direction: column;
+    width: var(--app-tool-size);
+    min-width: 0;
+    height: 200px;
+    padding: 4px 0 12px;
+
+    // The range turned a quarter: its box is laid out across, then rotated in place.
+    .form-range {
+      position: relative;
+      flex: 1;
+      width: 100%;
+    }
+
+    .form-range-input {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 128px;
+      translate: -50% -50%;
+      rotate: -90deg;
+    }
+  }
 }
 
 // Replay screen: the page as large as possible, the "play again" button below.

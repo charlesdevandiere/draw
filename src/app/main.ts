@@ -79,10 +79,17 @@ const modeButton = initModeButton(modeButtonElement, inputFilter, translator.t, 
 
 const toolsContainer = document.getElementById('tools-primary');
 if (!toolsContainer) throw new Error('Tool bar missing');
-const tools = initTools(toolsContainer, DEFAULT_TOOLS, translator.t, (state) => {
-  changedBeforeRestore.tools = true;
-  writeSetting(SETTING_KEYS.tools, state).catch(() => undefined);
-});
+const haptic = initHaptic();
+const tools = initTools(
+  toolsContainer,
+  DEFAULT_TOOLS,
+  translator.t,
+  (state) => {
+    changedBeforeRestore.tools = true;
+    writeSetting(SETTING_KEYS.tools, state).catch(() => undefined);
+  },
+  { page: requireElement('page', HTMLElement), haptic },
+);
 
 /** The drawing on the slate: its identity, and its strokes in `history`. */
 let current: { id: string; createdAt: number } = { id: newId(), createdAt: Date.now() };
@@ -140,6 +147,8 @@ function switchDrawing(drawing: Drawing): Promise<void> {
   history = createHistory(drawing.strokes);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();
+  // Another drawing: the bar of 5 starts again from the base colors.
+  tools.resetBar();
   return saved;
 }
 
@@ -307,7 +316,6 @@ openGallery.addEventListener('click', () => {
     });
 });
 backToDrawing.addEventListener('click', showDrawScreen);
-const haptic = initHaptic();
 initLongPress(
   requireElement('parent-lock', HTMLButtonElement),
   () => {

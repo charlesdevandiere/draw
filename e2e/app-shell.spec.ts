@@ -72,15 +72,18 @@ test('turned a quarter, the layout follows the window and keeps its drawing', as
   await page.screenshot({ path: test.info().outputPath('draw-screen-turned.png') });
 });
 
-test('on a narrow phone (iPhone 8), the drawing tools wrap on two rows', async ({ page }) => {
+// DF-01: docs/device-fixes.md
+test('on a narrow phone (iPhone 8), the bar of 5 and the eraser share one row', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('en/');
   const rows = new Set<number>();
-  for (const button of await page.locator('#tools-primary button').all()) {
-    const rect = await button.boundingBox();
+  for (const cell of await page.locator('.color-bar label, #tools-primary .eraser').all()) {
+    const rect = await cell.boundingBox();
     if (rect) rows.add(Math.round(rect.y));
   }
-  expect(rows.size).toBe(2);
+  expect(rows.size).toBe(1);
 });
 
 test('the gallery button switches screens and back', async ({ page }) => {
