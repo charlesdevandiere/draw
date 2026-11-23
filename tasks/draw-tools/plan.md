@@ -23,11 +23,11 @@ Source spec: `spec/SPEC-draw-tools.md` (module `draw-tools` of `spec/capability-
 
 ### Checkpoint: State
 
-- [ ] `npm run check` and `npm run e2e` pass; an MVP `tools` setting is migrated
+- [x] `npm run check` and `npm run e2e` pass; an MVP `tools` setting is migrated
 
 ### Phase 2: Choosing among 56 colors
 
-- [ ] Task 2: "All colors" dialog behind the palette pebble (phones)
+- [x] Task 2: "All colors" dialog behind the palette pebble (phones)
 - [ ] Task 3: The full box on tablets
 
 ### Phase 3: Layout

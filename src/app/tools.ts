@@ -1,10 +1,15 @@
 /**
  * DOM side of the drawing tools (spec/SPEC-draw-tools.md): the bar of 5 colors (a radio
  * group of Bootstrap `.btn-check` cells), the 6-step size slider (`.form-range`) with a
- * preview at real size, and the eraser pebble. The rules live in src/engine/palette.ts.
+ * preview at real size, the eraser pebble, and the palette pebble that opens the "all colors"
+ * dialog (phones). The rules live in src/engine/palette.ts.
  */
+import Dialog from 'bootstrap/js/dist/dialog.js';
 import {
+  COOL_FAMILIES,
   SIZES,
+  TONES,
+  WARM_FAMILIES,
   colorValue,
   isColorId,
   isSizeStep,
@@ -97,6 +102,34 @@ export function colorCell(
   return cell;
 }
 
+/**
+ * The paint box: two blocks (warm and neutral, then cool) of 7 families × 4 tones, square
+ * cells without gaps. `across` puts the families across and the tones down (dialog); else
+ * the tones across and the families down (the box beside the page on tablets).
+ */
+export function paintBox(
+  t: Translator['t'],
+  name: string,
+  across: 'families' | 'tones',
+  onPick: (id: ColorId) => void,
+): HTMLElement {
+  const box = document.createElement('div');
+  box.className = `paint-box paint-box-${across}`;
+  box.setAttribute('role', 'radiogroup');
+  box.setAttribute('aria-label', t('tools.allColors'));
+  for (const families of [WARM_FAMILIES, COOL_FAMILIES]) {
+    const block = document.createElement('div');
+    block.className = 'paint-box-block';
+    const ids =
+      across === 'families'
+        ? TONES.flatMap((tone) => families.map((family) => `${family}-${tone}` as ColorId))
+        : families.flatMap((family) => TONES.map((tone) => `${family}-${tone}` as ColorId));
+    block.append(...ids.map((id) => colorCell(t, id, name, onPick)));
+    box.append(block);
+  }
+  return box;
+}
+
 export function initTools(
   container: HTMLElement,
   initial: ToolState,
@@ -141,7 +174,38 @@ export function initTools(
   eraser.innerHTML = '<span class="icon icon-eraser" aria-hidden="true"></span>';
   eraser.addEventListener('click', () => update(selectEraser(state)));
 
-  container.append(bar, eraser, sizeControl);
+  // Phones: the palette pebble opens a dialog with all the colors (Bootstrap dialog).
+  const paletteButton = document.createElement('button');
+  paletteButton.type = 'button';
+  paletteButton.className = 'btn btn-pebble palette-button';
+  paletteButton.setAttribute('aria-label', t('tools.allColors'));
+  paletteButton.setAttribute('aria-haspopup', 'dialog');
+  paletteButton.innerHTML = '<span class="icon icon-palette" aria-hidden="true"></span>';
+
+  const dialogElement = document.createElement('dialog');
+  dialogElement.className = 'dialog dialog-instant palette-dialog';
+  dialogElement.setAttribute('aria-label', t('tools.allColors'));
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'btn btn-solid btn-pebble theme-hold palette-close';
+  close.setAttribute('aria-label', t('tools.close'));
+  close.innerHTML = '<span class="icon icon-close" aria-hidden="true"></span>';
+  const dialogBox = paintBox(t, 'dialog-color', 'families', (id) => {
+    update(pickColor(state, id));
+    void dialog.hide();
+  });
+  // The content sits in an inner box: Bootstrap closes the dialog on a click whose target is
+  // the <dialog> itself (the backdrop), so a near miss beside a cell must not land on it.
+  const dialogBody = document.createElement('div');
+  dialogBody.className = 'palette-dialog-body';
+  dialogBody.append(close, dialogBox);
+  dialogElement.append(dialogBody);
+  document.body.append(dialogElement);
+  const dialog = new Dialog(dialogElement);
+  paletteButton.addEventListener('click', () => void dialog.show(paletteButton));
+  close.addEventListener('click', () => void dialog.hide());
+
+  container.append(bar, paletteButton, eraser, sizeControl);
 
   // The preview is drawn at the page's scale: the page's width in CSS pixels.
   const observer = new ResizeObserver(() => {
@@ -163,9 +227,15 @@ export function initTools(
         ),
       );
     }
-    for (const input of bar.querySelectorAll('input')) input.checked = input.value === state.color;
+    for (const input of [
+      ...bar.querySelectorAll('input'),
+      ...dialogBox.querySelectorAll('input'),
+    ]) {
+      input.checked = input.value === state.color;
+    }
     // With the eraser, the color that will come back shows a softer ring.
     container.toggleAttribute('data-erasing', !drawing);
+    dialogElement.toggleAttribute('data-erasing', !drawing);
     eraser.setAttribute('aria-pressed', String(!drawing));
     slider.value = String(state.size);
     container.style.setProperty('--current-color', colorValue(state.color));

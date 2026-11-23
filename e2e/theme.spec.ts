@@ -90,7 +90,8 @@ test('the selection is an ink ring, never the old orange border', async ({ page 
   await pickColor(page, 'Red');
   const red = colorCell(page.locator('.color-bar'), 'Red');
   await expect.poll(() => styleOf(red, 'outline-style')).toBe('solid');
-  expect(await styleOf(red, 'outline-width')).toBe('3px');
+  // Bootstrap's 3 px, snapped to device pixels by WebKit (2.67 px at 2.625×).
+  expect(Number.parseFloat(await styleOf(red, 'outline-width'))).toBeGreaterThan(2.5);
   expect(await styleOf(red, 'outline-color')).not.toBe(await styleOf(red, 'background-color'));
 
   for (const button of await page.locator('#draw-screen button').all()) {

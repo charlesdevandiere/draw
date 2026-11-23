@@ -72,6 +72,8 @@
   "mode.multi": "Input: several fingers (tap to change)",
   "tools.colors": "Colors",
   "tools.size": "Stroke size",
+  "tools.allColors": "All colors",
+  "tools.close": "Close",
   "color.tone.light": "{family}, light",
   "color.tone.bright": "{family}, bright",
   "color.tone.medium": "{family}",

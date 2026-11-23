@@ -20,6 +20,8 @@ $icons: (
   'play': 'play',
   'lock': 'lock',
   'back': 'arrow-left',
+  'palette': 'palette-fill',
+  'close': 'x-lg',
 );
 
 @function icon-url($file) {

@@ -72,6 +72,8 @@
   "mode.multi": "Saisie : plusieurs doigts (toucher pour changer)",
   "tools.colors": "Couleurs",
   "tools.size": "Taille du trait",
+  "tools.allColors": "Toutes les couleurs",
+  "tools.close": "Fermer",
   "color.tone.light": "{family} clair",
   "color.tone.bright": "{family} vif",
   "color.tone.medium": "{family}",

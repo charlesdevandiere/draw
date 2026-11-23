@@ -28,7 +28,7 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 ## Checkpoint: State
 
-- [ ] `npm run check` and `npm run e2e` pass
+- [x] `npm run check` and `npm run e2e` pass
 
 ## Phase 2: Choosing among 56 colors
 
@@ -38,13 +38,13 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 **Acceptance criteria:**
 
-- [ ] e2e (phone): open, pick → dialog closed, color first in the bar, next stroke in it; picking a bar color does not reorder; close button and backdrop close without changing the color.
-- [ ] Selection ring (inset black + white) on the current color in the dialog; kept ring with the eraser.
+- [x] e2e (phone): open, pick → dialog closed, color first in the bar, next stroke in it; picking a bar color does not reorder; close button and backdrop close without changing the color.
+- [x] Selection ring (inset black + white) on the current color in the dialog; kept ring with the eraser.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/palette.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx playwright test e2e/palette.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 1
 
