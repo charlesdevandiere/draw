@@ -96,6 +96,6 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 ## Checkpoint: Module complete
 
-- [ ] `npm run check` and `npm run e2e` pass; spec success criteria 1–7 met
+- [x] `npm run check` and `npm run e2e` pass; spec success criteria 1–7 met (by eye on the e2e screenshots; on the devices: next box)
 - [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations, plus the `trash` quick check
 - [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-draw-tools.md` to `Status: implemented`
