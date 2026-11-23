@@ -118,3 +118,31 @@ test('phone: no box, the bar and the pebble instead', async ({ page }) => {
   await expect(page.locator('.color-bar')).toBeVisible();
   await expect(page.getByRole('button', { name: 'All colors' })).toBeVisible();
 });
+
+// DF-06: docs/device-fixes.md (the colors are a tool bar: a tap there never draws)
+test('a contact on a color next to the page never draws', async ({ page }) => {
+  const palette = page.locator('#color-box:visible, #tools-colors:visible').first();
+  const cells = palette.locator('label.color-cell:visible');
+  // The cell closest to the page edge.
+  const sheet = await page.locator('#page').boundingBox();
+  let closest = cells.first();
+  let best = Number.POSITIVE_INFINITY;
+  for (const cell of await cells.all()) {
+    const box = await cell.boundingBox();
+    if (!box || !sheet) continue;
+    const distance = Math.min(
+      Math.abs(sheet.x - (box.x + box.width)),
+      Math.abs(sheet.y - (box.y + box.height)),
+    );
+    if (distance < best) {
+      best = distance;
+      closest = cell;
+    }
+  }
+  const box = await closest.boundingBox();
+  if (!box) throw new Error('No cell');
+  await drawStrokes(page, [
+    { points: [[box.x + box.width / 2, box.y + box.height / 2]], pointerType: 'touch' },
+  ]);
+  await expect(page.locator('#undo')).toBeDisabled();
+});

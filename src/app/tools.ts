@@ -37,6 +37,8 @@ export interface ToolsOptions {
   page: HTMLElement;
   /** Where the full box goes (tablets; the stylesheet shows the one fitting the window). */
   boxHost: HTMLElement;
+  /** Where the bar of 5 and the palette pebble go (phones). */
+  colorsHost: HTMLElement;
   /** Light tick at each step of the slider. */
   haptic?: () => void;
 }
@@ -208,7 +210,8 @@ export function initTools(
   paletteButton.addEventListener('click', () => void dialog.show(paletteButton));
   close.addEventListener('click', () => void dialog.hide());
 
-  container.append(bar, paletteButton, sizeControl, eraser);
+  options.colorsHost.append(bar, paletteButton);
+  container.append(sizeControl, eraser);
 
   // Tablets: the full box, tones across beside the page (landscape) or families across
   // above it (portrait); the stylesheet shows one of them, never on phones.
@@ -246,6 +249,7 @@ export function initTools(
     }
     // With the eraser, the color that will come back shows a softer ring.
     container.toggleAttribute('data-erasing', !drawing);
+    options.colorsHost.toggleAttribute('data-erasing', !drawing);
     dialogElement.toggleAttribute('data-erasing', !drawing);
     options.boxHost.toggleAttribute('data-erasing', !drawing);
     eraser.setAttribute('aria-pressed', String(!drawing));

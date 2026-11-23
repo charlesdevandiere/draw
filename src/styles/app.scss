@@ -85,107 +85,6 @@ body {
   display: none;
 }
 
-// Drawing screen: portrait = page on top, tools below; landscape = tools on both sides.
-// Contacts just around the page start a stroke on its edge (draw-screen.ts): no browser
-// gesture anywhere on the screen (touch-action intersects with the ancestors', so this
-// also applies to the tool buttons: taps still click).
-.draw-screen {
-  touch-action: none;
-  display: grid;
-  gap: var(--app-tool-gap);
-  grid-template:
-    'page' minmax(0, 1fr)
-    'primary' auto
-    'secondary' auto
-    / minmax(0, 1fr);
-}
-
-@media (min-aspect-ratio: 1/1) {
-  .draw-screen {
-    grid-template:
-      'primary page secondary' minmax(0, 1fr)
-      / auto minmax(0, 1fr) auto;
-  }
-}
-
-// Tablets: a track for the full box. Only there: an empty track would still take a gap.
-@media #{$tablet} {
-  .draw-screen {
-    grid-template:
-      'box' auto
-      'page' minmax(0, 1fr)
-      'primary' auto
-      'secondary' auto
-      / minmax(0, 1fr);
-  }
-}
-
-@media #{$tablet} and (min-aspect-ratio: 1/1) {
-  .draw-screen {
-    grid-template:
-      'box primary page secondary' minmax(0, 1fr)
-      / auto auto minmax(0, 1fr) auto;
-  }
-}
-
-.page-area {
-  grid-area: page;
-  display: grid;
-  // Portrait: the page sits right above the tools, free space goes to the top.
-  place-items: end center;
-  min-width: 0;
-  min-height: 0;
-  container-type: size;
-}
-
-// The square page: as large as the area allows.
-.page {
-  position: relative;
-  width: min(100cqw, 100cqh);
-  aspect-ratio: 1;
-  background: var(--app-page);
-  // Square corners: the exported PNG is a square, no corner may hide part of it.
-  box-shadow: 0 2px 12px rgb(0 0 0 / 15%);
-  overflow: hidden;
-  touch-action: none;
-}
-
-.page canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-}
-
-.tools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--app-tool-gap);
-}
-
-.tools-primary {
-  grid-area: primary;
-}
-
-.tools-secondary {
-  grid-area: secondary;
-}
-
-@media (min-aspect-ratio: 1/1) {
-  .page-area {
-    place-items: center;
-  }
-
-  .tools {
-    flex-direction: column;
-    flex-wrap: wrap;
-    max-height: 100%;
-  }
-}
-
 // Pebble buttons: Bootstrap `.btn.btn-solid.theme-<role>` with this shape. One size,
 // shrinking with the tool size, never under the 48 px target.
 // DF-01, DF-03: docs/device-fixes.md
@@ -226,8 +125,8 @@ body {
 .color-bar {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: var(--app-tool-size);
-  grid-template-rows: var(--app-tool-size);
+  grid-auto-columns: var(--cell-size, var(--app-tool-size));
+  grid-template-rows: var(--cell-size, var(--app-tool-size));
   --paint-box-radius: 12px;
 
   > :first-child {
@@ -322,48 +221,6 @@ body {
   }
 }
 
-// The full box (tablets): the box fitting the window's shape; phones get the bar and the
-// palette pebble instead.
-.color-box-area {
-  grid-area: box;
-  display: none;
-  place-self: center;
-}
-
-@media #{$tablet} {
-  .color-box-area {
-    display: block;
-  }
-
-  .color-bar,
-  .palette-button {
-    display: none;
-  }
-}
-
-// Landscape: tones across, the blocks stacked beside the page. Portrait: families across,
-// the blocks side by side above the page.
-.color-box-tones,
-.color-box-families {
-  display: none;
-}
-
-.color-box-families {
-  flex-direction: row;
-}
-
-@media (min-aspect-ratio: 1/1) {
-  .color-box-tones {
-    display: flex;
-  }
-}
-
-@media (max-aspect-ratio: 1/1) {
-  .color-box-families {
-    display: flex;
-  }
-}
-
 // The "all colors" dialog (phones), centered on the paper.
 .palette-dialog {
   width: fit-content;
@@ -439,13 +296,200 @@ body {
   }
 }
 
-// Landscape: the tools stand in columns; the bar and the slider turn vertical.
+// Drawing screen (spec/SPEC-draw-tools.md, boards 1 and 2 of the mockups). The layout
+// follows the window's shape; the device class picks the palette: the full box on tablets
+// when it fits, else the bar of 5 and the palette pebble.
+// - Portrait: colors, page, slider + eraser, actions | pages; free space at the top.
+// - Landscape: colors, page, then the tools in one column (tablets) or two (phones).
+// The colors sit inside the page area, so they stay against the page; the page takes the
+// rest of the area (`--colors-w` / `--colors-h`).
+// Contacts just around the page start a stroke on its edge (draw-screen.ts): no browser
+// gesture anywhere on the screen (touch-action intersects with the ancestors', so this
+// also applies to the tool buttons: taps still click). Every group is a toolbar (DF-06).
+.draw-screen {
+  touch-action: none;
+  display: grid;
+  // The tools column measures the screen's content box (the vertical slider's `cqh`).
+  container-type: size;
+  gap: 12px;
+  grid-template:
+    'page page' minmax(0, 1fr)
+    'size size' auto
+    'actions pages' auto
+    / auto auto;
+  justify-content: space-between;
+}
+
 @media (min-aspect-ratio: 1/1) {
+  // Phones: the slider column, then actions over pages.
+  .draw-screen {
+    grid-template:
+      'page size actions' minmax(0, 1fr)
+      'page size pages' auto
+      / minmax(0, 1fr) auto auto;
+    justify-content: normal;
+  }
+
+  .tools-secondary {
+    align-self: end;
+  }
+
+  .tools-pages {
+    align-self: start;
+  }
+}
+
+@media #{$tablet} and (min-aspect-ratio: 1/1) {
+  // Tablets (board 2): one column, pages on top, then the eraser and slider, then actions.
+  .draw-screen {
+    grid-template:
+      'page pages' auto
+      'page size' minmax(0, 1fr)
+      'page actions' auto
+      / minmax(0, 1fr) auto;
+  }
+
+  .tools-secondary,
+  .tools-pages {
+    align-self: auto;
+  }
+}
+
+.page-area {
+  grid-area: page;
+  display: flex;
+  flex-direction: column;
+  // Portrait: the colors and the page right above the tools, free space at the top.
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  container: drawing / size;
+}
+
+// The square page: as large as the area allows, beside or under the colors.
+.page {
+  position: relative;
+  flex: none;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  background: var(--app-page);
+  // Square corners: the exported PNG is a square, no corner may hide part of it.
+  box-shadow: 0 2px 12px rgb(0 0 0 / 15%);
+  overflow: hidden;
+  touch-action: none;
+
+  // Room taken by the colors above (portrait: the bar of 5) or beside it (landscape).
+  .draw-screen & {
+    --colors-w: 0px;
+    --colors-h: calc(var(--app-tool-size) + 12px);
+    width: min(100cqw - var(--colors-w), 100cqh - var(--colors-h));
+  }
+}
+
+.page canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--app-tool-gap);
+}
+
+.tools-primary {
+  grid-area: size;
+}
+
+.tools-secondary {
+  grid-area: actions;
+}
+
+// The pages group stands apart from the actions: a thin line between them.
+.tools-pages {
+  grid-area: pages;
+  padding-left: 12px;
+  border-left: 2px solid rgb(43 43 43 / 15%);
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .page-area {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .tools {
+    flex-direction: column;
+  }
+
+  .tools-pages {
+    padding: 12px 0 0;
+    border-top: 2px solid rgb(43 43 43 / 15%);
+    border-left: 0;
+  }
+
+  // The eraser above the slider.
+  .tools-primary .eraser {
+    order: -1;
+  }
+}
+
+@media #{$tablet} and (min-aspect-ratio: 1/1) {
+  .tools-pages {
+    flex-direction: row;
+    padding: 0 0 20px;
+    border-top: 0;
+    border-bottom: 2px solid rgb(43 43 43 / 15%);
+  }
+
+  .tools-primary {
+    justify-content: center;
+  }
+
+  // Undo, redo, mode in two columns.
+  .tools-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, var(--app-tool-size));
+  }
+}
+
+// Phones (and tablet windows too narrow for the box): the bar of 5 and the palette pebble.
+.tools-colors {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  // Cells as large as the tools, down to 48 px when a landscape phone lacks height.
+  --cell-size: var(--app-tool-size);
+
+  .palette-button {
+    width: var(--cell-size);
+    height: var(--cell-size);
+  }
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .tools-colors {
+    flex-direction: column;
+    --cell-size: max(#{$target-min}, min(var(--app-tool-size), (100cqh - 12px) / 6));
+  }
+
+  .draw-screen .page {
+    --colors-h: 0px;
+    --colors-w: calc(max(#{$target-min}, min(var(--app-tool-size), (100cqh - 12px) / 6)) + 12px);
+  }
+
+  // The bar of 5 stands vertical, with rounded ends at the top and bottom.
   .color-bar {
     grid-auto-flow: row;
     grid-template-rows: none;
-    grid-template-columns: var(--app-tool-size);
-    grid-auto-rows: var(--app-tool-size);
+    grid-template-columns: var(--cell-size);
+    grid-auto-rows: var(--cell-size);
 
     > :first-child {
       border-radius: var(--paint-box-radius) var(--paint-box-radius) 0 0;
@@ -456,12 +500,13 @@ body {
     }
   }
 
+  // The slider stands vertical under the eraser (board 2).
   .size-control {
     flex: none;
     flex-direction: column;
     width: var(--app-tool-size);
     min-width: 0;
-    height: 200px;
+    height: min(200px, 100cqh - var(--app-tool-size) - 12px);
     padding: 4px 0 12px;
 
     // The range turned a quarter: its box is laid out across, then rotated in place.
@@ -475,9 +520,96 @@ body {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 128px;
+      width: calc(min(200px, 100cqh - var(--app-tool-size) - 12px) - 72px);
       translate: -50% -50%;
       rotate: -90deg;
+    }
+  }
+}
+
+// The full box (tablets), when it fits: tones across, the blocks stacked beside the page
+// (landscape; side by side when the window lacks height), or families across, the blocks
+// side by side above the page (portrait).
+.color-box-area {
+  display: none;
+  flex: none;
+}
+
+.color-box-tones,
+.color-box-families {
+  display: none;
+}
+
+.color-box-families {
+  flex-direction: row;
+}
+
+@media #{$tablet} {
+  .color-box-area {
+    display: block;
+  }
+
+  .tools-colors {
+    display: none;
+  }
+
+  .draw-screen .page {
+    --colors-h: calc(4 * #{$target-min} + 12px);
+    --colors-w: 0px;
+  }
+
+  .color-box-families {
+    display: flex;
+  }
+
+  // Too narrow for 14 columns (Split View): the bar and the pebble instead.
+  @container drawing (max-width: #{14 * 48px + 12px - 1px}) {
+    .color-box-area {
+      display: none;
+    }
+
+    .tools-colors {
+      display: flex;
+    }
+
+    .draw-screen .page {
+      --colors-h: calc(var(--app-tool-size) + 12px);
+    }
+  }
+}
+
+@media #{$tablet} and (min-aspect-ratio: 1/1) {
+  // Beside the page the box needs no width for 14 columns: the narrow fallback above is
+  // for portrait only.
+  .color-box-area {
+    display: block;
+  }
+
+  .tools-colors {
+    display: none;
+  }
+
+  .draw-screen .page {
+    --colors-h: 0px;
+    --colors-w: calc(4 * #{$target-min} + 12px);
+  }
+
+  .color-box-families {
+    display: none;
+  }
+
+  .color-box-tones {
+    display: flex;
+  }
+
+  // Not tall enough for 14 rows: the two blocks side by side.
+  @container drawing (max-height: #{14 * 48px + 12px - 1px}) {
+    .color-box-tones {
+      flex-direction: row;
+    }
+
+    .draw-screen .page {
+      --colors-w: calc(8 * #{$target-min} + 24px);
     }
   }
 }

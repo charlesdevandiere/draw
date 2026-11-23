@@ -91,6 +91,7 @@ const tools = initTools(
   {
     page: requireElement('page', HTMLElement),
     boxHost: requireElement('color-box', HTMLElement),
+    colorsHost: requireElement('tools-colors', HTMLElement),
     haptic,
   },
 );
@@ -127,7 +128,11 @@ function refreshHistoryButtons(): void {
   newPageButton.disabled = !canUndo(history);
   // A focused button that gets disabled drops the focus to the body: keep it in the tool bar.
   if (focused instanceof HTMLButtonElement && focused.disabled) {
-    const fallback = [undoButton, redoButton].find((button) => !button.disabled);
+    // The new page button keeps the focus in its own group (pages), on the gallery button.
+    const fallback =
+      focused === newPageButton
+        ? document.getElementById('open-gallery')
+        : [undoButton, redoButton].find((button) => !button.disabled);
     (fallback ?? document.getElementById('mode-button'))?.focus();
   }
 }

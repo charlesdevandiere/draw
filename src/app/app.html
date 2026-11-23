@@ -1,18 +1,19 @@
 <h1 class="visually-hidden" data-i18n="app.name"></h1>
 
 <section id="draw-screen" class="screen draw-screen">
+  <div class="page-area">
+    <div id="color-box" class="color-box-area" role="toolbar" data-i18n-aria="tools.colors"></div>
+    <div id="tools-colors" class="tools-colors" role="toolbar" data-i18n-aria="tools.colors"></div>
+    <div id="page" class="page">
+      <canvas id="drawing-layer"></canvas>
+    </div>
+  </div>
   <div
     id="tools-primary"
     class="tools tools-primary"
     role="toolbar"
     data-i18n-aria="tools.drawing"
   ></div>
-  <div id="color-box" class="color-box-area"></div>
-  <div class="page-area">
-    <div id="page" class="page">
-      <canvas id="drawing-layer"></canvas>
-    </div>
-  </div>
   <div
     id="tools-secondary"
     class="tools tools-secondary"
@@ -40,6 +41,8 @@
     <button id="mode-button" class="btn btn-solid btn-pebble theme-mode" type="button">
       <span class="icon icon-mode-finger" aria-hidden="true"></span>
     </button>
+  </div>
+  <div id="tools-pages" class="tools tools-pages" role="toolbar" data-i18n-aria="tools.pages">
     <button
       id="new-page"
       class="btn btn-solid btn-pebble theme-create"

@@ -32,7 +32,7 @@ Source spec: `spec/SPEC-draw-tools.md` (module `draw-tools` of `spec/capability-
 
 ### Phase 3: Layout
 
-- [ ] Task 4: Drawing screen layout in the four window shapes (boards 1 and 2), vertical slider in landscape
+- [x] Task 4: Drawing screen layout in the four window shapes (boards 1 and 2), vertical slider in landscape
 
 ### Checkpoint: Module complete
 

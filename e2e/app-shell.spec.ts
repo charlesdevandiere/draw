@@ -20,21 +20,54 @@ async function expectDrawingLayout(page: Page): Promise<void> {
   const topMargin = tablet ? TABLET_TOP_MARGIN : EDGE_MARGIN;
 
   expect(Math.abs(box.width - box.height)).toBeLessThan(1);
-  // The layout follows the window's shape: tools below the page in portrait, on both
-  // sides in landscape, so the page takes the full width or the full height.
+  // The layout follows the window's shape (spec/SPEC-draw-tools.md, boards 1 and 2).
   const portrait = viewport.height > viewport.width;
-  const tools = await page.locator('#tools-primary').boundingBox();
-  if (!tools) throw new Error('Tools not visible');
+  const rect = async (selector: string) => {
+    const found = await page.locator(selector).boundingBox();
+    if (!found) throw new Error(`${selector} not visible`);
+    return found;
+  };
+  const colors = await rect('#color-box:visible, #tools-colors:visible');
+  const size = await rect('#tools-primary');
+  const actions = await rect('#tools-secondary');
+  const pages = await rect('#tools-pages');
   if (portrait) {
     // Phones: the full width. Tablets: the full box of colors above takes some height.
     expect(box.width).toBeGreaterThan(tablet ? viewport.width * 0.8 : viewport.width - 24);
-    expect(tools.y).toBeGreaterThanOrEqual(box.y + box.height - 1);
+    // Colors right above the page, then the slider, then actions | pages on one row.
+    expect(colors.y + colors.height).toBeLessThanOrEqual(box.y + 1);
+    expect(box.y - (colors.y + colors.height)).toBeLessThan(24);
+    expect(size.y).toBeGreaterThanOrEqual(box.y + box.height - 1);
+    expect(actions.y).toBeGreaterThanOrEqual(size.y + size.height - 1);
+    expect(Math.abs(actions.y - pages.y)).toBeLessThan(2);
+    expect(actions.x + actions.width).toBeLessThanOrEqual(pages.x + 1);
   } else {
     expect(box.height).toBeGreaterThan(viewport.height - topMargin - EDGE_MARGIN - 1);
-    expect(tools.x + tools.width).toBeLessThanOrEqual(box.x + 1);
-    const secondary = await page.locator('#tools-secondary').boundingBox();
-    if (!secondary) throw new Error('Secondary tools not visible');
-    expect(secondary.x).toBeGreaterThanOrEqual(box.x + box.width - 1);
+    // Colors left of the page, every tool right of it.
+    expect(colors.x + colors.width).toBeLessThanOrEqual(box.x + 1);
+    for (const tools of [size, actions, pages]) {
+      expect(tools.x).toBeGreaterThanOrEqual(box.x + box.width - 1);
+    }
+    if (tablet) {
+      // One column (board 2): pages, then the eraser and slider, then the actions.
+      expect(pages.y + pages.height).toBeLessThanOrEqual(size.y + 1);
+      expect(size.y + size.height).toBeLessThanOrEqual(actions.y + 1);
+    } else {
+      // Phones: the slider column, then actions over pages.
+      expect(size.x + size.width).toBeLessThanOrEqual(actions.x + 1);
+      expect(actions.y + actions.height).toBeLessThanOrEqual(pages.y + 1);
+    }
+  }
+  // Every color cell and the slider on screen too.
+  for (const control of await page
+    .locator('#draw-screen label.color-cell:visible, #draw-screen input[type="range"]')
+    .all()) {
+    const cell = await control.boundingBox();
+    if (!cell) continue;
+    expect(cell.y).toBeGreaterThanOrEqual(topMargin - 1);
+    expect(cell.y + cell.height).toBeLessThanOrEqual(viewport.height - EDGE_MARGIN + 1);
+    expect(cell.x).toBeGreaterThanOrEqual(0);
+    expect(cell.x + cell.width).toBeLessThanOrEqual(viewport.width);
   }
 
   for (const button of await page.locator('#draw-screen button').all()) {
@@ -55,6 +88,18 @@ test('the square page fills the drawing area and controls stay away from the edg
   await page.goto('en/');
   await expectDrawingLayout(page);
   await page.screenshot({ path: test.info().outputPath('draw-screen.png') });
+});
+
+test('on the iPhone SE, in portrait and in landscape, every control fits', async ({ page }) => {
+  for (const size of [
+    { width: 375, height: 667 },
+    { width: 667, height: 375 },
+  ]) {
+    await page.setViewportSize(size);
+    await page.goto('en/');
+    await expectDrawingLayout(page);
+    await page.screenshot({ path: test.info().outputPath(`iphone-se-${size.width}.png`) });
+  }
 });
 
 test('turned a quarter, the layout follows the window and keeps its drawing', async ({ page }) => {

@@ -80,13 +80,13 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 **Acceptance criteria:**
 
-- [ ] e2e for each shape (375 × 667, 412 × 915, 1180 × 820 and the turned viewports): controls on screen, out of the edge margins, the page square and as large as the spec's layout allows; the expected order of groups.
-- [ ] Screenshots compared with boards 1 and 2 by eye.
+- [x] e2e for each shape (375 × 667, 412 × 915, 1180 × 820 and the turned viewports): controls on screen, out of the edge margins, the page square and as large as the spec's layout allows; the expected order of groups.
+- [x] Screenshots compared with boards 1 and 2 by eye.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/app-shell.spec.ts e2e/palette.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx playwright test e2e/app-shell.spec.ts e2e/palette.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 3
 

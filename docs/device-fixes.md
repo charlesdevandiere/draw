@@ -61,7 +61,7 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Seen** (2026-11-21, iPad): strokes aimed at the edge of the page often did not start; the contact landed a few pixels outside.
 - **Fix**: the whole drawing screen receives the contacts. One within 24 px of the page starts a stroke, pulled onto the page edge. A tap on a tool bar (a button or the gap between buttons) never draws.
 - **Code**: `EDGE_MARGIN_PX` and the tool bar guard in `src/app/draw-screen.ts`; `strokeStart` in `src/engine/page-transform.ts`; `touch-action: none` on `.draw-screen` in `src/styles/app.scss`.
-- **Guard**: unit `page-transform.test.ts` (`strokeStart`); e2e `draw.spec.ts` › "a contact just outside the page starts a stroke on its edge" and "a tap on a tool bar next to the page never draws".
+- **Guard**: unit `page-transform.test.ts` (`strokeStart`); e2e `draw.spec.ts` › "a contact just outside the page starts a stroke on its edge" and "a tap on a tool bar next to the page never draws"; `palette.spec.ts` › "a contact on a color next to the page never draws" (since module `draw-tools`, the colors sit right against the page: the bar and the box are tool bars, `role="toolbar"`).
 - **Do not**: listen for contacts on the canvas only, or grow the margin until a tap aimed at a tool can draw.
 
 ## DF-07 Strokes drawn at the same time replay together
