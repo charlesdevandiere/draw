@@ -2,10 +2,13 @@
  * IndexedDB access (DOM). Database `draw`: the origin charlesdevandiere.github.io is shared
  * with the account's other GitHub Pages projects, so the name says whose data it is.
  * Stores: `drawings` (key `id`) and `settings` (free keys). Everything read back from
- * `drawings` is validated by `parseDrawing`.
+ * `drawings` is validated by `parseDrawing`. A drawing record also holds its gallery
+ * thumbnail and, in the trash, its `trashedAt` date (spec/SPEC-trash.md, src/store/trash.ts):
+ * both sit next to the drawing, never inside its format.
  */
 import type { Drawing } from '../engine/types';
 import { parseDrawing, toStored } from './schema';
+import { isExpired, keepTrashState, readTrashedAt, sortTrash } from './trash';
 
 const DB_NAME = 'draw';
 const DB_VERSION = 1;
@@ -16,7 +19,12 @@ const SETTINGS = 'settings';
 export interface DrawingRecord {
   drawing: Drawing;
   thumbnail: Blob | null;
+  /** When it was moved to the trash (epoch ms), or null outside the trash. */
+  trashedAt: number | null;
 }
+
+/** A drawing in the trash. */
+export type TrashedRecord = DrawingRecord & { trashedAt: number };
 
 function request<T>(req: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -100,6 +108,7 @@ function toRecord(value: unknown): DrawingRecord | null {
     return {
       drawing: parseDrawing(value),
       thumbnail: bytes instanceof ArrayBuffer ? new Blob([bytes], { type: 'image/png' }) : null,
+      trashedAt: readTrashedAt(value),
     };
   } catch {
     // A corrupt record is skipped rather than breaking the whole gallery.
@@ -112,9 +121,64 @@ export async function saveDrawing(drawing: Drawing, thumbnail: Blob | null): Pro
   const bytes = thumbnail ? await thumbnail.arrayBuffer() : null;
   return withDb((db) => {
     const transaction = db.transaction(DRAWINGS, 'readwrite');
-    transaction.objectStore(DRAWINGS).put({ ...toStored(drawing), thumbnail: bytes });
+    const store = transaction.objectStore(DRAWINGS);
+    // Read and write in one transaction: a save never takes a drawing out of the trash
+    // (an autosave of the drawing being left lands after its move to the trash).
+    const existing = store.get(drawing.id);
+    existing.onsuccess = () => {
+      store.put(keepTrashState(existing.result, { ...toStored(drawing), thumbnail: bytes }));
+    };
     return done(transaction);
   });
+}
+
+/** Sets or clears the trash date of a stored drawing, leaving the rest of its record as is. */
+function setTrashedAt(id: string, trashedAt: number | null): Promise<void> {
+  return withDb((db) => {
+    const transaction = db.transaction(DRAWINGS, 'readwrite');
+    const store = transaction.objectStore(DRAWINGS);
+    const existing = store.get(id);
+    existing.onsuccess = () => {
+      const value: unknown = existing.result;
+      if (typeof value === 'object' && value !== null) store.put({ ...value, trashedAt });
+    };
+    return done(transaction);
+  });
+}
+
+/** Moves a drawing to the trash: it leaves the gallery, restorable for 30 days. */
+export function moveToTrash(id: string, now: number): Promise<void> {
+  return setTrashedAt(id, now);
+}
+
+/** Brings a drawing back from the trash to the gallery. */
+export function restoreFromTrash(id: string): Promise<void> {
+  return setTrashedAt(id, null);
+}
+
+/** Deletes for good every stored drawing whose raw record matches. */
+function deleteWhere(matches: (value: unknown) => boolean): Promise<void> {
+  return withDb((db) => {
+    const transaction = db.transaction(DRAWINGS, 'readwrite');
+    const cursor = transaction.objectStore(DRAWINGS).openCursor();
+    cursor.onsuccess = () => {
+      const position = cursor.result;
+      if (!position) return;
+      if (matches(position.value)) position.delete();
+      position.continue();
+    };
+    return done(transaction);
+  });
+}
+
+/** Deletes for good every drawing in the trash. */
+export function emptyTrash(): Promise<void> {
+  return deleteWhere((value) => readTrashedAt(value) !== null);
+}
+
+/** Deletes for good the drawings trashed 30 days ago or more (run at each start). */
+export function purgeTrash(now: number): Promise<void> {
+  return deleteWhere((value) => isExpired(readTrashedAt(value), now));
 }
 
 export async function loadDrawing(id: string): Promise<DrawingRecord | null> {
@@ -124,15 +188,25 @@ export async function loadDrawing(id: string): Promise<DrawingRecord | null> {
   return value === undefined ? null : toRecord(value);
 }
 
-/** Every valid drawing, most recently modified first. */
-export async function listDrawings(): Promise<DrawingRecord[]> {
+async function listRecords(): Promise<DrawingRecord[]> {
   const values: unknown[] = await withDb((db) =>
     request(db.transaction(DRAWINGS).objectStore(DRAWINGS).getAll()),
   );
-  return values
-    .map(toRecord)
-    .filter((record): record is DrawingRecord => record !== null)
+  return values.map(toRecord).filter((record): record is DrawingRecord => record !== null);
+}
+
+/** Every valid drawing outside the trash, most recently modified first. */
+export async function listDrawings(): Promise<DrawingRecord[]> {
+  return (await listRecords())
+    .filter((record) => record.trashedAt === null)
     .sort((a, b) => b.drawing.updatedAt - a.drawing.updatedAt);
+}
+
+/** Every valid drawing in the trash, most recently trashed first. */
+export async function listTrash(): Promise<TrashedRecord[]> {
+  return sortTrash(
+    (await listRecords()).filter((record): record is TrashedRecord => record.trashedAt !== null),
+  );
 }
 
 export function deleteDrawing(id: string): Promise<void> {

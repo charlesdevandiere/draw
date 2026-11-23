@@ -21,7 +21,7 @@ The data layer of a 30-day trash: a `trashedAt` field next to each stored drawin
 ### Phase 1: Rules and storage
 
 - [x] Task 1: Pure trash rules and the save rule
-- [ ] Task 2: Database operations, lists, purge at startup, blank page for a trashed last drawing
+- [x] Task 2: Database operations, lists, purge at startup, blank page for a trashed last drawing
 
 ### Checkpoint: Storage
 

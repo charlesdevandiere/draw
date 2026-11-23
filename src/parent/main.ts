@@ -13,7 +13,14 @@ import {
 } from '../i18n/apply';
 import { createTranslator, isLanguage } from '../i18n/i18n';
 import { checkForUpdate, resetAppCache } from '../pwa/app-update';
-import { deleteDrawing, listDrawings, readSetting, saveDrawing, writeSetting } from '../store/db';
+import {
+  deleteDrawing,
+  listDrawings,
+  purgeTrash,
+  readSetting,
+  saveDrawing,
+  writeSetting,
+} from '../store/db';
 import { initDrawingsSection } from './drawings';
 import { initInputSettings } from './input-settings';
 import { initTransferSection } from './transfer';
@@ -36,6 +43,8 @@ const drawings = initDrawingsSection({
   remove: deleteDrawing,
 });
 drawings.refresh().catch(() => undefined);
+// Drawings trashed 30 days ago or more go for good (spec/SPEC-trash.md); retried next time.
+purgeTrash(Date.now()).catch(() => undefined);
 
 // Export and import of magic PNGs.
 const transfer = initTransferSection({

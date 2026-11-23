@@ -31,14 +31,14 @@ Plan: `tasks/trash/plan.md`. Spec: `spec/SPEC-trash.md`. End of every task (CLAU
 
 **Acceptance criteria:**
 
-- [ ] At app start, a drawing trashed 31 days ago is deleted, one trashed 1 day ago is kept; neither appears in the gallery or the parent page list; a drawing outside the trash appears (e2e).
-- [ ] `lastDrawingId` naming a trashed drawing opens a blank page (e2e).
-- [ ] Existing drawings (no `trashedAt`) behave as before; every existing e2e passes.
+- [x] At app start, a drawing trashed 31 days ago is deleted, one trashed 1 day ago is kept; neither appears in the gallery or the parent page list; a drawing outside the trash appears (e2e).
+- [x] `lastDrawingId` naming a trashed drawing opens a blank page (e2e).
+- [x] Existing drawings (no `trashedAt`) behave as before; every existing e2e passes.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/trash.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx playwright test e2e/trash.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 1
 
@@ -48,7 +48,7 @@ Plan: `tasks/trash/plan.md`. Spec: `spec/SPEC-trash.md`. End of every task (CLAU
 
 ## Checkpoint: Storage
 
-- [ ] `npm run check` and `npm run e2e` pass
+- [x] `npm run check` and `npm run e2e` pass
 
 ## Phase 2: Export and import
 

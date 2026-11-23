@@ -12,6 +12,7 @@ import {
   deleteDrawing,
   listDrawings,
   loadDrawing,
+  purgeTrash,
   readSetting,
   saveDrawing,
   writeSetting,
@@ -394,7 +395,9 @@ async function restore(): Promise<void> {
   if (!changedBeforeRestore.tools) tools.setState(parseToolState(toolsValue));
 
   const lastId = parseDrawingId(lastIdValue);
-  const record = lastId ? await loadDrawing(lastId) : null;
+  const stored = lastId ? await loadDrawing(lastId) : null;
+  // A last drawing moved to the trash is not reopened: a blank page, as on a first launch.
+  const record = stored?.trashedAt === null ? stored : null;
   // Anything done on the slate meanwhile (strokes, undo, new page, drawing reopened) wins.
   const touched = current.id !== slate || canUndo(history) || canRedo(history);
   if (!record || touched || drawScreen.isDrawing()) return;
@@ -414,3 +417,5 @@ function requestPersistence(): void {
 
 restore().catch(() => undefined);
 requestPersistence();
+// Drawings trashed 30 days ago or more go for good (spec/SPEC-trash.md); retried next start.
+purgeTrash(Date.now()).catch(() => undefined);
