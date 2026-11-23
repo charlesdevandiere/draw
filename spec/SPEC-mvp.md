@@ -134,7 +134,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **B2 — Parent access**
 
-- A small padlock icon in the gallery, a **long press** (`LONG_PRESS_MS` = 1.5 s, the same for every long press): while held the button grows and fills from the bottom with a darker shade of its color; on completion a light haptic tick (Android; none on iPad, DF-12), then the parent page opens; releasing earlier cancels. Then the parent page opens (`parent.html`, in the same language folder).
+- A small padlock icon in the gallery, a **long press** (`LONG_PRESS_MS` = 1.5 s, the same for every long press): while held the button grows and fills from the bottom with a darker shade of its color; on completion a light haptic tick (Android; none on iPad, DF-12), then the parent page opens (`parent.html`, in the same language folder); releasing earlier cancels.
 
 **B3 — Parent page** (Bootstrap, translated)
 

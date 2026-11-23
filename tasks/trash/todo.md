@@ -10,14 +10,14 @@ Plan: `tasks/trash/plan.md`. Spec: `spec/SPEC-trash.md`. End of every task (CLAU
 
 **Acceptance criteria:**
 
-- [ ] Expired at exactly 30 days, not 1 ms before; a `trashedAt` in the future counts as trashed now; a missing or non-finite `trashedAt` is never expired.
-- [ ] `daysLeft` is 30 on the first day, 1 on the last, never 0 while not expired.
-- [ ] `keepTrashState` keeps a stored `trashedAt`, and gives `null` when nothing was stored.
+- [x] Expired at exactly 30 days, not 1 ms before; a `trashedAt` in the future counts as trashed now; a missing or non-finite `trashedAt` is never expired.
+- [x] `daysLeft` is 30 on the first day, 1 on the last, never 0 while not expired.
+- [x] `keepTrashState` keeps a stored `trashedAt`, and gives `null` when nothing was stored.
 
 **Verification:**
 
-- [ ] `npx vitest run src/store/trash.test.ts`
-- [ ] `npm run check` (coverage ≥ 90 %)
+- [x] `npx vitest run src/store/trash.test.ts`
+- [x] `npm run check` (coverage ≥ 90 %)
 
 **Dependencies:** None
 
