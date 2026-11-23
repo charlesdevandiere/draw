@@ -25,11 +25,11 @@ The data layer of a 30-day trash: a `trashedAt` field next to each stored drawin
 
 ### Checkpoint: Storage
 
-- [ ] `npm run check` and `npm run e2e` pass
+- [x] `npm run check` and `npm run e2e` pass
 
 ### Phase 2: Export and import
 
-- [ ] Task 3: Export leaves the trash out, import restores from it
+- [x] Task 3: Export leaves the trash out, import restores from it
 
 ### Checkpoint: Module complete
 

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { pagePoint } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
-import { savedStrokeCounts } from './helpers/storage';
+import { savedStrokeCounts, seedDatabase } from './helpers/storage';
 
 test.use({ locale: 'en-US' });
 
@@ -97,4 +97,63 @@ test('export the gallery, delete everything, import it back; a photo is refused'
   await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
   await page.getByRole('button', { name: 'My drawings' }).click();
   await expect(page.locator('.gallery-card img')).toHaveCount(2);
+});
+
+test('export leaves the trash out; importing a trashed drawing restores it', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    const captured: File[] = [];
+    (window as unknown as { captured: File[] }).captured = captured;
+    const create = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = (object: Blob | MediaSource) => {
+      if (object instanceof File) captured.push(object);
+      return create(object);
+    };
+  });
+  const now = Date.now();
+  await seedDatabase(page, [
+    { id: 'kept', updatedAt: now - 2000, lineAt: 300 },
+    { id: 'thrown', updatedAt: now - 1000, lineAt: 600 },
+  ]);
+
+  // Export both while they are in the gallery, to have the PNG of 'thrown'.
+  await page.goto('en/parent.html');
+  await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
+  await page.getByRole('button', { name: 'Share 2 pictures' }).click();
+  await expect(page.locator('#transfer-status')).toHaveText('2 drawings exported.');
+  const both = await capturedFiles(page);
+
+  // 'thrown' goes to the trash (no button yet: straight into the database).
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('draw');
+        open.onsuccess = () => {
+          const transaction = open.result.transaction('drawings', 'readwrite');
+          const store = transaction.objectStore('drawings');
+          const get = store.get('thrown');
+          get.onsuccess = () => store.put({ ...get.result, trashedAt: Date.now() });
+          transaction.oncomplete = () => {
+            open.result.close();
+            resolve();
+          };
+          transaction.onerror = () => reject(transaction.error);
+        };
+      }),
+  );
+
+  // Export now leaves it out.
+  await page.reload();
+  await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
+  await expect(page.locator('#transfer-status')).toHaveText('1 picture ready.');
+
+  // Importing its PNG brings it back, counted as already there.
+  await importFiles(page, both);
+  await expect(page.locator('#transfer-status')).toHaveText(
+    'No drawing imported, 2 already there.',
+  );
+  await expect(page.locator('#drawings-list li')).toHaveCount(2);
+  await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
+  await page.getByRole('button', { name: 'My drawings' }).click();
+  await expect(page.locator('.gallery-card')).toHaveCount(2);
 });

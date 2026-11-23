@@ -16,8 +16,10 @@ import { checkForUpdate, resetAppCache } from '../pwa/app-update';
 import {
   deleteDrawing,
   listDrawings,
+  listTrash,
   purgeTrash,
   readSetting,
+  restoreFromTrash,
   saveDrawing,
   writeSetting,
 } from '../store/db';
@@ -50,6 +52,8 @@ purgeTrash(Date.now()).catch(() => undefined);
 const transfer = initTransferSection({
   t,
   list: listDrawings,
+  trashedIds: async () => (await listTrash()).map(({ drawing }) => drawing.id),
+  restore: restoreFromTrash,
   selected: () => drawings.selected(),
   // Thumbnail rendered now, so the list here and the gallery show it (null if it fails:
   // the gallery then renders one).

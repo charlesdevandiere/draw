@@ -58,14 +58,14 @@ Plan: `tasks/trash/plan.md`. Spec: `spec/SPEC-trash.md`. End of every task (CLAU
 
 **Acceptance criteria:**
 
-- [ ] Unit: a decoded drawing whose id is in the trash goes to `restored`, not `added`, counted in `alreadyThere`.
-- [ ] e2e: export from the parent page leaves a trashed drawing out; importing the PNG of a trashed drawing brings it back to the gallery.
+- [x] Unit: a decoded drawing whose id is in the trash goes to `restored`, not `added`, counted in `alreadyThere`.
+- [x] e2e: export from the parent page leaves a trashed drawing out; importing the PNG of a trashed drawing brings it back to the gallery.
 
 **Verification:**
 
-- [ ] `npx vitest run src/store/import-merge.test.ts`
-- [ ] `npx playwright test e2e/trash.spec.ts e2e/transfer.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx vitest run src/store/import-merge.test.ts`
+- [x] `npx playwright test e2e/trash.spec.ts e2e/transfer.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 2
 

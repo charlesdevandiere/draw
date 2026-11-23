@@ -132,27 +132,37 @@ export async function saveDrawing(drawing: Drawing, thumbnail: Blob | null): Pro
   });
 }
 
-/** Sets or clears the trash date of a stored drawing, leaving the rest of its record as is. */
-function setTrashedAt(id: string, trashedAt: number | null): Promise<void> {
+/**
+ * Sets or clears the trash date of a stored drawing, leaving the rest of its record as is.
+ * Resolves to whether the drawing was there (a purge may have deleted it meanwhile).
+ */
+function setTrashedAt(id: string, trashedAt: number | null): Promise<boolean> {
   return withDb((db) => {
     const transaction = db.transaction(DRAWINGS, 'readwrite');
     const store = transaction.objectStore(DRAWINGS);
     const existing = store.get(id);
+    let found = false;
     existing.onsuccess = () => {
       const value: unknown = existing.result;
-      if (typeof value === 'object' && value !== null) store.put({ ...value, trashedAt });
+      if (typeof value === 'object' && value !== null) {
+        store.put({ ...value, trashedAt });
+        found = true;
+      }
     };
-    return done(transaction);
+    return done(transaction).then(() => found);
   });
 }
 
 /** Moves a drawing to the trash: it leaves the gallery, restorable for 30 days. */
-export function moveToTrash(id: string, now: number): Promise<void> {
-  return setTrashedAt(id, now);
+export async function moveToTrash(id: string, now: number): Promise<void> {
+  await setTrashedAt(id, now);
 }
 
-/** Brings a drawing back from the trash to the gallery. */
-export function restoreFromTrash(id: string): Promise<void> {
+/**
+ * Brings a drawing back from the trash to the gallery. Resolves to false when it is no
+ * longer stored (purged meanwhile).
+ */
+export function restoreFromTrash(id: string): Promise<boolean> {
   return setTrashedAt(id, null);
 }
 

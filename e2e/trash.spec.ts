@@ -38,6 +38,7 @@ test('the parent page lists only drawings outside the trash, and purges too', as
   ]);
   await page.goto('en/parent.html');
   await expect(page.locator('#drawings-list li')).toHaveCount(1);
+  await expect(page.locator('#drawings-list li')).not.toHaveText('No drawings yet.');
   await expect
     .poll(async () => Object.keys(await savedStrokeCounts(page)).sort())
     .toEqual(['kept', 'recent']);
@@ -54,7 +55,10 @@ test('a last drawing in the trash is not reopened: the app starts on a blank pag
     { lastDrawingId: 'thrown', tools: { tool: 'pen', color: 'red', width: 'thin' } },
   );
   await page.goto('en/');
-  await expect(page.getByRole('button', { name: 'Red' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Red', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   // The drawing is read right after the settings: leave it time to (wrongly) show up.
   await page.waitForTimeout(500);
   await expect(page.locator('#undo')).toBeDisabled();

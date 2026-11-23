@@ -14,7 +14,12 @@ import type { Drawing } from '../engine/types';
 
 export interface TransferOptions {
   t: Translator['t'];
+  /** Drawings outside the trash (the ones exported). */
   list: () => Promise<DrawingRecord[]>;
+  /** Ids of the drawings in the trash: an import brings them back (spec/SPEC-trash.md). */
+  trashedIds: () => Promise<string[]>;
+  /** Takes a drawing out of the trash; false when it is no longer stored (purged meanwhile). */
+  restore: (id: string) => Promise<boolean>;
   /** Ids chosen in the drawings list; empty means "all". */
   selected: () => string[];
   save: (drawing: Drawing) => Promise<void>;
@@ -114,7 +119,10 @@ export function initTransferSection(options: TransferOptions): TransferSection {
         }
       }
       const existing = new Set((await options.list()).map(({ drawing }) => drawing.id));
-      const outcome = mergeImport(existing, decoded);
+      const outcome = mergeImport(existing, decoded, new Set(await options.trashedIds()));
+      // A trash entry purged since the listing is gone: save the imported drawing instead.
+      for (const drawing of outcome.restored)
+        if (!(await options.restore(drawing.id))) await options.save(drawing);
       for (const drawing of outcome.added) await options.save(drawing);
       status.textContent = t('parent.transfer.imported', {
         added: outcome.added.length,
