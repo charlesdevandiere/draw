@@ -9,14 +9,25 @@ export function colorCell(scope: Page | Locator, name: string): Locator {
   });
 }
 
-/** Picks a color in the bar of 5 (or in `scope`, a dialog or the box). */
-export async function pickColor(page: Page, name: string, scope?: Locator): Promise<void> {
-  await colorCell(scope ?? page.locator('.color-bar'), name).click();
+/** The colors on screen: the bar of 5 on phones, the full box on tablets. */
+export function visiblePalette(page: Page): Locator {
+  return page.locator('.color-bar:visible, .color-box:visible').first();
 }
 
-/** The radio of a color in the bar, to check its state. */
+/** Picks a color on screen (or in `scope`, the dialog). */
+export async function pickColor(page: Page, name: string, scope?: Locator): Promise<void> {
+  await colorCell(scope ?? visiblePalette(page), name).click();
+}
+
+/** The radio of a color on screen (bar or box), to check its state. */
 export function barColor(page: Page, name: string): Locator {
-  return page.locator('.color-bar').getByRole('radio', { name, exact: true });
+  return visiblePalette(page).getByRole('radio', { name, exact: true });
+}
+
+/** Whether the window is a phone (no full box: the bar of 5). */
+export function isPhone(page: Page): boolean {
+  const viewport = page.viewportSize();
+  return Math.min(viewport?.width ?? 0, viewport?.height ?? 0) < 576;
 }
 
 /** Names of the colors in the bar, in order. */

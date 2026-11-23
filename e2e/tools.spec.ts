@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
 import { seedDatabase } from './helpers/storage';
-import { barColor, barColors, pickColor, setSize } from './helpers/tools';
+import { barColor, barColors, isPhone, pickColor, setSize } from './helpers/tools';
 
 const RED = [0xe5, 0x39, 0x35];
 
@@ -22,6 +22,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('the tool bar shows the 5 base colors, the size slider and the eraser', async ({ page }) => {
+  test.skip(!isPhone(page), 'the bar of 5 is for phones (tablets: e2e/palette.spec.ts)');
   expect(await barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
   await expect(barColor(page, 'Black')).toBeChecked();
   for (const cell of await page.locator('.color-bar label').all()) {
@@ -35,7 +36,9 @@ test('the tool bar shows the 5 base colors, the size slider and the eraser', asy
 test('a picked color draws in that color, and the bar keeps its order', async ({ page }) => {
   await pickColor(page, 'Red');
   await expect(barColor(page, 'Red')).toBeChecked();
-  expect(await barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
+  if (isPhone(page)) {
+    expect(await barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
+  }
   await stroke(page, 0.5);
   const pixel = await pixelAt(page.locator('#drawing-layer'), await pagePoint(page, 0.5, 0.5));
   expect(isColor(pixel, RED)).toBe(true);
@@ -107,6 +110,7 @@ test('the eraser takes the slider size', async ({ page }) => {
 });
 
 test('a new page brings the base colors back to the bar', async ({ page }) => {
+  test.skip(!isPhone(page), 'the bar of 5 is for phones');
   await seedDatabase(page, [], {
     tools: {
       tool: 'pen',

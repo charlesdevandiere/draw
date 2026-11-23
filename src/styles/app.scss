@@ -108,6 +108,26 @@ body {
   }
 }
 
+// Tablets: a track for the full box. Only there: an empty track would still take a gap.
+@media #{$tablet} {
+  .draw-screen {
+    grid-template:
+      'box' auto
+      'page' minmax(0, 1fr)
+      'primary' auto
+      'secondary' auto
+      / minmax(0, 1fr);
+  }
+}
+
+@media #{$tablet} and (min-aspect-ratio: 1/1) {
+  .draw-screen {
+    grid-template:
+      'box primary page secondary' minmax(0, 1fr)
+      / auto auto minmax(0, 1fr) auto;
+  }
+}
+
 .page-area {
   grid-area: page;
   display: grid;
@@ -302,6 +322,48 @@ body {
   }
 }
 
+// The full box (tablets): the box fitting the window's shape; phones get the bar and the
+// palette pebble instead.
+.color-box-area {
+  grid-area: box;
+  display: none;
+  place-self: center;
+}
+
+@media #{$tablet} {
+  .color-box-area {
+    display: block;
+  }
+
+  .color-bar,
+  .palette-button {
+    display: none;
+  }
+}
+
+// Landscape: tones across, the blocks stacked beside the page. Portrait: families across,
+// the blocks side by side above the page.
+.color-box-tones,
+.color-box-families {
+  display: none;
+}
+
+.color-box-families {
+  flex-direction: row;
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .color-box-tones {
+    display: flex;
+  }
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .color-box-families {
+    display: flex;
+  }
+}
+
 // The "all colors" dialog (phones), centered on the paper.
 .palette-dialog {
   width: fit-content;
@@ -329,7 +391,8 @@ body {
 // Size slider (6 steps) on a white rounded track, with the stroke at real size before it.
 .size-control {
   display: flex;
-  flex: 1 1 100%;
+  // Phones in portrait: the row under the bar of 5 and the palette pebble, with the eraser.
+  flex: 1 1 200px;
   align-items: center;
   gap: 8px;
   min-width: 200px;

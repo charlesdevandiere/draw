@@ -1,5 +1,5 @@
 import { expect, test, type Locator } from '@playwright/test';
-import { colorCell, pickColor } from './helpers/tools';
+import { colorCell, pickColor, visiblePalette } from './helpers/tools';
 
 /**
  * Paper theme and pebble buttons (spec/SPEC-ui-foundation.md, "Theme and buttons"): action
@@ -88,7 +88,7 @@ test('the selection is an ink ring, never the old orange border', async ({ page 
 
   // A color cell: Bootstrap's focus ring outside it, in a subtle tint of the color.
   await pickColor(page, 'Red');
-  const red = colorCell(page.locator('.color-bar'), 'Red');
+  const red = colorCell(visiblePalette(page), 'Red');
   await expect.poll(() => styleOf(red, 'outline-style')).toBe('solid');
   // Bootstrap's 3 px, snapped to device pixels by WebKit (2.67 px at 2.625×).
   expect(Number.parseFloat(await styleOf(red, 'outline-width'))).toBeGreaterThan(2.5);

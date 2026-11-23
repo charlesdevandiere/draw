@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { isColor, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
-import { barColor, barColors, pickColor } from './helpers/tools';
+import { barColor, barColors, isPhone, pickColor } from './helpers/tools';
 
 /** The 56 colors (spec/SPEC-draw-tools.md): a dialog behind the palette pebble on phones. */
 test.use({ locale: 'en-US' });
@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('phone: a color picked in the dialog enters the bar first and draws', async ({ page }) => {
-  test.skip((page.viewportSize()?.width ?? 0) >= 576, 'phones only');
+  test.skip(!isPhone(page), 'phones only');
   await page.getByRole('button', { name: 'All colors' }).click();
   const dialog = page.getByRole('dialog', { name: 'All colors' });
   await expect(dialog).toBeVisible();
@@ -46,7 +46,7 @@ test('phone: a color picked in the dialog enters the bar first and draws', async
 test('phone: the close button and the backdrop close the dialog without a change', async ({
   page,
 }) => {
-  test.skip((page.viewportSize()?.width ?? 0) >= 576, 'phones only');
+  test.skip(!isPhone(page), 'phones only');
   const dialog = page.getByRole('dialog', { name: 'All colors' });
   await page.getByRole('button', { name: 'All colors' }).click();
   await dialog.getByRole('button', { name: 'Close' }).click();
@@ -64,7 +64,7 @@ test('phone: the close button and the backdrop close the dialog without a change
 test('phone: with the eraser on, the dialog shows the kept color and picking leaves the eraser', async ({
   page,
 }) => {
-  test.skip((page.viewportSize()?.width ?? 0) >= 576, 'phones only');
+  test.skip(!isPhone(page), 'phones only');
   await page.getByRole('button', { name: 'Eraser' }).click();
   await page.getByRole('button', { name: 'All colors' }).click();
   const dialog = page.getByRole('dialog', { name: 'All colors' });
@@ -74,4 +74,47 @@ test('phone: with the eraser on, the dialog shows the kept color and picking lea
     'aria-pressed',
     'false',
   );
+});
+
+test('tablet: the 56 colors are always shown beside the page, no bar or pebble', async ({
+  page,
+}) => {
+  test.skip(isPhone(page), 'tablets only');
+  const box = page.locator('.color-box:visible');
+  await expect(box).toHaveCount(1);
+  await expect(box.getByRole('radio')).toHaveCount(56);
+  await expect(page.locator('.color-bar')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'All colors' })).toBeHidden();
+  // Left of the page in landscape.
+  const sheet = await page.locator('#page').boundingBox();
+  const boxRect = await box.boundingBox();
+  expect((boxRect?.x ?? 0) + (boxRect?.width ?? 0)).toBeLessThanOrEqual(sheet?.x ?? 0);
+
+  await pickColor(page, 'Teal, light', box);
+  await expect(box.getByRole('radio', { name: 'Teal, light', exact: true })).toBeChecked();
+  await stroke(page, 0.5);
+  const pixel = await pixelAt(page.locator('#drawing-layer'), await pagePoint(page, 0.5, 0.5));
+  expect(isColor(pixel, TEAL_LIGHT)).toBe(true);
+});
+
+test('tablet in portrait: the box sits above the page, its two blocks side by side', async ({
+  page,
+}) => {
+  test.skip(isPhone(page), 'tablets only');
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ width: viewport?.height ?? 0, height: viewport?.width ?? 0 });
+  const box = page.locator('.color-box:visible');
+  await expect(box.getByRole('radio')).toHaveCount(56);
+  const sheet = await page.locator('#page').boundingBox();
+  const boxRect = await box.boundingBox();
+  expect((boxRect?.y ?? 0) + (boxRect?.height ?? 0)).toBeLessThanOrEqual(sheet?.y ?? 0);
+  // 14 columns of 48 px: wider than tall.
+  expect(boxRect?.width ?? 0).toBeGreaterThan((boxRect?.height ?? 0) * 2);
+});
+
+test('phone: no box, the bar and the pebble instead', async ({ page }) => {
+  test.skip(!isPhone(page), 'phones only');
+  await expect(page.locator('.color-box:visible')).toHaveCount(0);
+  await expect(page.locator('.color-bar')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'All colors' })).toBeVisible();
 });

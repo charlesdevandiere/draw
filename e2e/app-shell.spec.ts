@@ -26,7 +26,8 @@ async function expectDrawingLayout(page: Page): Promise<void> {
   const tools = await page.locator('#tools-primary').boundingBox();
   if (!tools) throw new Error('Tools not visible');
   if (portrait) {
-    expect(box.width).toBeGreaterThan(viewport.width - 24);
+    // Phones: the full width. Tablets: the full box of colors above takes some height.
+    expect(box.width).toBeGreaterThan(tablet ? viewport.width * 0.8 : viewport.width - 24);
     expect(tools.y).toBeGreaterThanOrEqual(box.y + box.height - 1);
   } else {
     expect(box.height).toBeGreaterThan(viewport.height - topMargin - EDGE_MARGIN - 1);
@@ -73,13 +74,13 @@ test('turned a quarter, the layout follows the window and keeps its drawing', as
 });
 
 // DF-01: docs/device-fixes.md
-test('on a narrow phone (iPhone 8), the bar of 5 and the eraser share one row', async ({
+test('on a narrow phone (iPhone 8), the bar of 5 and the palette pebble share one row', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('en/');
   const rows = new Set<number>();
-  for (const cell of await page.locator('.color-bar label, #tools-primary .eraser').all()) {
+  for (const cell of await page.locator('.color-bar label, .palette-button').all()) {
     const rect = await cell.boundingBox();
     if (rect) rows.add(Math.round(rect.y));
   }

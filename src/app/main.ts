@@ -88,7 +88,11 @@ const tools = initTools(
     changedBeforeRestore.tools = true;
     writeSetting(SETTING_KEYS.tools, state).catch(() => undefined);
   },
-  { page: requireElement('page', HTMLElement), haptic },
+  {
+    page: requireElement('page', HTMLElement),
+    boxHost: requireElement('color-box', HTMLElement),
+    haptic,
+  },
 );
 
 /** The drawing on the slate: its identity, and its strokes in `history`. */

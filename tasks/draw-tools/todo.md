@@ -58,13 +58,13 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 **Acceptance criteria:**
 
-- [ ] e2e (tablet): 56 cells visible, no bar or pebble; picking one selects it and the next stroke uses it.
-- [ ] e2e (phone): the box is hidden, the bar and pebble are shown.
+- [x] e2e (tablet): 56 cells visible, no bar or pebble; picking one selects it and the next stroke uses it.
+- [x] e2e (phone): the box is hidden, the bar and pebble are shown.
 
 **Verification:**
 
-- [ ] `npx playwright test e2e/palette.spec.ts`
-- [ ] `npm run check`, `npm run e2e`
+- [x] `npx playwright test e2e/palette.spec.ts`
+- [x] `npm run check`, `npm run e2e`
 
 **Dependencies:** Task 2
 

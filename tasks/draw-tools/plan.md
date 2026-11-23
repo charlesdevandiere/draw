@@ -28,7 +28,7 @@ Source spec: `spec/SPEC-draw-tools.md` (module `draw-tools` of `spec/capability-
 ### Phase 2: Choosing among 56 colors
 
 - [x] Task 2: "All colors" dialog behind the palette pebble (phones)
-- [ ] Task 3: The full box on tablets
+- [x] Task 3: The full box on tablets
 
 ### Phase 3: Layout
 

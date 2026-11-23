@@ -1,8 +1,9 @@
 /**
  * DOM side of the drawing tools (spec/SPEC-draw-tools.md): the bar of 5 colors (a radio
  * group of Bootstrap `.btn-check` cells), the 6-step size slider (`.form-range`) with a
- * preview at real size, the eraser pebble, and the palette pebble that opens the "all colors"
- * dialog (phones). The rules live in src/engine/palette.ts.
+ * preview at real size, the eraser pebble, the palette pebble that opens the "all colors"
+ * dialog (phones), and the full box beside the page (tablets). The rules live in
+ * src/engine/palette.ts.
  */
 import Dialog from 'bootstrap/js/dist/dialog.js';
 import {
@@ -34,6 +35,8 @@ export interface Tools {
 export interface ToolsOptions {
   /** The page: the size preview is drawn at its scale (1:1). */
   page: HTMLElement;
+  /** Where the full box goes (tablets; the stylesheet shows the one fitting the window). */
+  boxHost: HTMLElement;
   /** Light tick at each step of the slider. */
   haptic?: () => void;
 }
@@ -205,7 +208,17 @@ export function initTools(
   paletteButton.addEventListener('click', () => void dialog.show(paletteButton));
   close.addEventListener('click', () => void dialog.hide());
 
-  container.append(bar, paletteButton, eraser, sizeControl);
+  container.append(bar, paletteButton, sizeControl, eraser);
+
+  // Tablets: the full box, tones across beside the page (landscape) or families across
+  // above it (portrait); the stylesheet shows one of them, never on phones.
+  const pickFromBox = (id: ColorId): void => update(pickColor(state, id));
+  const boxes = (['tones', 'families'] as const).map((across) => {
+    const box = paintBox(t, `box-color-${across}`, across, pickFromBox);
+    box.classList.add('color-box', `color-box-${across}`);
+    return box;
+  });
+  options.boxHost.append(...boxes);
 
   // The preview is drawn at the page's scale: the page's width in CSS pixels.
   const observer = new ResizeObserver(() => {
@@ -227,15 +240,14 @@ export function initTools(
         ),
       );
     }
-    for (const input of [
-      ...bar.querySelectorAll('input'),
-      ...dialogBox.querySelectorAll('input'),
-    ]) {
+    const groups = [bar, dialogBox, ...boxes];
+    for (const input of groups.flatMap((group) => [...group.querySelectorAll('input')])) {
       input.checked = input.value === state.color;
     }
     // With the eraser, the color that will come back shows a softer ring.
     container.toggleAttribute('data-erasing', !drawing);
     dialogElement.toggleAttribute('data-erasing', !drawing);
+    options.boxHost.toggleAttribute('data-erasing', !drawing);
     eraser.setAttribute('aria-pressed', String(!drawing));
     slider.value = String(state.size);
     container.style.setProperty('--current-color', colorValue(state.color));
