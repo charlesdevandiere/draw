@@ -41,7 +41,7 @@ Users: children aged 5+ (child screens); the long press and haptics are also use
   | disabled                                     | `#ebe0c4`, icon `#a39882` |
 
 - **Pebble buttons**: square with rounded corners (radius ≈ 29 % of the size: 16 px at 56 px), no border, no shadow. **One size, 56 px, on every device**, shrinking only when the screen is too narrow for a row (the existing DF-01 rule: 6 buttons per row, rounded down to an even pixel count, never under the 48 px `$target-min`). The iPhone SE (375 px) gets 52 px (six 56 px buttons do not fit 375 px, DF-01); a 360 px wide Android phone gets 50 px. (The 52 px phone buttons of the mockups were a margin of safety, not a design choice.)
-- **Selection** (a pressed tool, the eraser): a 3 px paper-colored gap then a 3 px ink ring (`0 0 0 3px #fff4d6, 0 0 0 6px #2b2b2b`). Replaces the orange border.
+- **Selection** (a pressed tool, the eraser): the pebble drawn larger (scale 1.15) with a light shadow (`0 2px 8px rgb(0 0 0 / 35%)`), like the selected color. Replaces the orange border. (Changed 2026-11-24 at the user's request; before: a 3 px paper-colored gap then a 3 px ink ring.)
 - **Built on Bootstrap 6**: each action color is an entry of the Sass `$theme-colors` map (roles `history`, `mode`, `create`, `gallery`, `eraser`, `continue`, `hold`; `$action-colors` in `src/styles/_tokens.scss`), used as `.btn.btn-solid.theme-<role>`; the pebble shape is a project class over `.btn` (radius and size from tokens). No hand-rolled button component outside Bootstrap's `.btn`.
 
 ### Long press (1.5 s)
@@ -73,7 +73,7 @@ Decided 2026-11-22, after a device trial of a layout fixed to the hardware (see 
 
 ## Success Criteria
 
-1. Buttons, page and selection match the foundations board of the mockups: paper background, square white page, pebble buttons in the action colors, ink selection ring; all are Bootstrap `.btn` with `theme-*` colors.
+1. Buttons, page and selection match the foundations board of the mockups: paper background, square white page, pebble buttons in the action colors, a selection drawn larger with a light shadow; all are Bootstrap `.btn` with `theme-*` colors.
 2. Every long press takes 1.5 s: a release at 1.4 s does nothing, a 1.5 s press triggers the action; the fill shows the progress (unit tests on `createHold`, an e2e on the padlock).
 3. On the Pixel 9a, a completed long press gives a light vibration. On the iPad, nothing breaks (no vibration API, DF-12).
 4. In portrait and landscape, on the iPhone SE (or Pixel 9a) and the iPad 11: the tools run along the long sides, the page is square and keeps its drawing, nothing sits in the system edge margins (tablet top margin from 576 px, DF-02) (e2e with portrait and landscape viewports for both device classes).

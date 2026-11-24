@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BOX_FAMILIES,
   COOL_FAMILIES,
   DEFAULT_TOOLS,
   FAMILIES,
@@ -44,6 +45,40 @@ describe('palette', () => {
       'indigo',
       'purple',
     ]);
+  });
+
+  it('orders the tablet palette by wavelength, black and white at the bottom', () => {
+    expect(BOX_FAMILIES).toEqual([
+      'red',
+      'brown',
+      'orange',
+      'beige',
+      'yellow',
+      'light-green',
+      'green',
+      'teal',
+      'sky-blue',
+      'blue',
+      'indigo',
+      'purple',
+      'pink',
+      'grey',
+    ]);
+    // By the hue of each row's medium tone (the grey row aside).
+    const hue = (hex: string): number => {
+      const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255) as [
+        number,
+        number,
+        number,
+      ];
+      const max = Math.max(r, g, b);
+      const delta = max - Math.min(r, g, b);
+      const h =
+        max === r ? ((g - b) / delta) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+      return (h * 60 + 360) % 360;
+    };
+    const hues = BOX_FAMILIES.slice(0, -1).map((family) => hue(colorValue(`${family}-medium`)));
+    expect([...hues].sort((a, b) => a - b)).toEqual(hues);
   });
 
   it('uses the values of the foundations board', () => {

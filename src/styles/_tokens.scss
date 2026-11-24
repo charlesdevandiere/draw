@@ -29,11 +29,8 @@ $disabled-bg: #ebe0c4;
 $disabled-icon: #a39882;
 // Radius of a pebble: 16 px at 56 px, scaling with the size.
 $pebble-radius: 29%;
-// Selection: a paper gap, then an ink ring.
-$selection-ring:
-  0 0 0 3px $paper,
-  0 0 0 6px $ink;
-
+// A selected pebble or color cell is drawn larger, with this shadow.
+$selection-shadow: 0 2px 8px rgb(0 0 0 / 35%);
 // Bootstrap theme entries for the action colors (keys used by `.btn-solid`).
 @function action-themes() {
   $themes: ();

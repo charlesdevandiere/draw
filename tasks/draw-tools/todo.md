@@ -108,6 +108,20 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 - [x] `npx playwright test e2e/palette.spec.ts e2e/app-shell.spec.ts e2e/tools.spec.ts e2e/theme.spec.ts`
 - [x] `npm run check`, `npm run e2e`
 
+## Task 6: Device feedback, round 2 (2026-11-24)
+
+**Description:** Tablet palette rows by wavelength (black and white at the bottom, the dialog keeps warm / cool); iPad landscape: palette | page | tools spread across; the eraser selected drawn larger with a shadow; animations on pebble and color selection and on the dialog; mockups (boards 1, 2, 9) updated.
+
+**Acceptance criteria:**
+
+- [x] Unit: `BOX_FAMILIES` by the hue of each row's medium tone, grey last.
+- [x] e2e: rows red first, black last; palette at the left edge, page centered between palette and tools; eraser scale and shadow; a pick during the dialog fade-in closes it.
+
+**Verification:**
+
+- [x] `npx playwright test e2e/palette.spec.ts e2e/theme.spec.ts e2e/app-shell.spec.ts e2e/tools.spec.ts`
+- [x] `npm run check`, `npm run e2e`
+
 ## Checkpoint: Module complete
 
 - [x] `npm run check` and `npm run e2e` pass; spec success criteria 1–7 met (by eye on the e2e screenshots; on the devices: next box)

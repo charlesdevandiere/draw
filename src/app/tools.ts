@@ -7,6 +7,7 @@
  */
 import Dialog from 'bootstrap/js/dist/dialog.js';
 import {
+  BOX_FAMILIES,
   COOL_FAMILIES,
   SIZES,
   TONES,
@@ -105,7 +106,8 @@ export function colorCell(
 /**
  * The paint box, square cells without gaps. `across` puts the families across and the
  * tones down, else the tones across and the families down. `split` makes two blocks (warm
- * and neutral, then cool: the dialog), else one grid of all 14 families (tablets).
+ * and neutral, then cool: the dialog), else one grid of the 14 families by wavelength
+ * (tablets, `BOX_FAMILIES`).
  */
 export function paintBox(
   t: Translator['t'],
@@ -118,7 +120,7 @@ export function paintBox(
   box.className = `paint-box paint-box-${across}${split ? '' : ' paint-box-single'}`;
   box.setAttribute('role', 'radiogroup');
   box.setAttribute('aria-label', t('tools.allColors'));
-  const groups = split ? [WARM_FAMILIES, COOL_FAMILIES] : [[...WARM_FAMILIES, ...COOL_FAMILIES]];
+  const groups = split ? [WARM_FAMILIES, COOL_FAMILIES] : [BOX_FAMILIES];
   for (const families of groups) {
     const block = document.createElement('div');
     block.className = 'paint-box-block';
@@ -181,7 +183,7 @@ export function initTools(
   paletteButton.innerHTML = '<span class="icon icon-palette" aria-hidden="true"></span>';
 
   const dialogElement = document.createElement('dialog');
-  dialogElement.className = 'dialog dialog-instant palette-dialog';
+  dialogElement.className = 'dialog palette-dialog';
   dialogElement.setAttribute('aria-label', t('tools.allColors'));
   const close = document.createElement('button');
   close.type = 'button';
@@ -190,7 +192,7 @@ export function initTools(
   close.innerHTML = '<span class="icon icon-close" aria-hidden="true"></span>';
   const dialogBox = paintBox(t, 'dialog-color', 'families', true, (id) => {
     update(pickColor(state, id));
-    void dialog.hide();
+    closeDialog();
   });
   // The content sits in an inner box: Bootstrap closes the dialog on a click whose target is
   // the <dialog> itself (the backdrop), so a near miss beside a cell must not land on it.
@@ -200,8 +202,30 @@ export function initTools(
   dialogElement.append(dialogBody);
   document.body.append(dialogElement);
   const dialog = new Dialog(dialogElement);
+  // Bootstrap ignores a hide while the dialog fades in: a color picked, the close button, a
+  // backdrop tap or Escape that fast close the dialog as soon as it is fully open.
+  let opening = false;
+  let closeWhenOpen = false;
+  dialogElement.addEventListener('show.bs.dialog', () => {
+    opening = true;
+    closeWhenOpen = false;
+  });
+  dialogElement.addEventListener('shown.bs.dialog', () => {
+    opening = false;
+    if (closeWhenOpen) void dialog.hide();
+  });
+  function closeDialog(): void {
+    if (opening) closeWhenOpen = true;
+    else void dialog.hide();
+  }
+  dialogElement.addEventListener('click', (event) => {
+    if (opening && event.target === dialogElement) closeWhenOpen = true;
+  });
+  dialogElement.addEventListener('cancel', () => {
+    if (opening) closeWhenOpen = true;
+  });
   paletteButton.addEventListener('click', () => void dialog.show(paletteButton));
-  close.addEventListener('click', () => void dialog.hide());
+  close.addEventListener('click', closeDialog);
 
   container.append(paletteButton, sizeControl, eraser);
 

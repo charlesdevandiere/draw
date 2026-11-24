@@ -7,7 +7,7 @@ import { colorCell, isPhone, pickColor, visiblePalette } from './helpers/tools';
  */
 test.use({ locale: 'en-US' });
 
-const INK_RING = 'rgb(255, 244, 214) 0px 0px 0px 3px, rgb(43, 43, 43) 0px 0px 0px 6px';
+const SELECTION_SHADOW = 'rgba(0, 0, 0, 0.35) 0px 2px 8px 0px';
 const DISABLED_BG = 'rgb(235, 224, 196)';
 const DISABLED_ICON = 'rgb(163, 152, 130)';
 const ORANGE = 'rgb(224, 105, 42)';
@@ -80,13 +80,13 @@ test('undo, redo enabled take the yellow, new page the green', async ({ page }) 
     .toBe('rgb(255, 213, 79)');
 });
 
-test('the selection is an ink ring or a larger cell, never the old orange border', async ({
-  page,
-}) => {
+test('a selection is drawn larger with a shadow, never the old orange border', async ({ page }) => {
   const eraser = page.locator('[aria-label="Eraser"]');
   await eraser.click();
   await expect(eraser).toHaveAttribute('aria-pressed', 'true');
-  await expect.poll(() => styleOf(eraser, 'box-shadow')).toBe(INK_RING);
+  // Drawn larger with a light shadow, like the selected color.
+  await expect.poll(() => styleOf(eraser, 'scale')).toBe('1.15');
+  expect(await styleOf(eraser, 'box-shadow')).toBe(SELECTION_SHADOW);
 
   // A color cell: drawn larger and rounded (the palette on tablets, the dialog on phones).
   await pickColor(page, 'Red');

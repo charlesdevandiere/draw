@@ -48,11 +48,23 @@ test('phone: the close button and the backdrop close the dialog without a change
   await expect(dialog).toBeHidden();
 
   await page.getByRole('button', { name: 'All colors' }).click();
-  await expect(dialog).toBeVisible();
-  // A tap on the backdrop, outside the dialog box.
+  // Fully open (it fades in), then a tap on the backdrop, outside the dialog box.
+  await expect
+    .poll(() => dialog.evaluate((element) => getComputedStyle(element).opacity))
+    .toBe('1');
   await page.mouse.click(4, 4);
   await expect(dialog).toBeHidden();
   await expect(colorRadio(page, 'Black')).toBeChecked();
+});
+
+test('phone: a color picked while the dialog still fades in closes it anyway', async ({ page }) => {
+  test.skip(!isPhone(page), 'phones only');
+  const dialog = page.getByRole('dialog', { name: 'All colors' });
+  await page.getByRole('button', { name: 'All colors' }).click();
+  // At once, without waiting for the end of the opening animation.
+  await colorCell(page.locator('dialog.palette-dialog'), 'Red').click({ force: true });
+  await expect(dialog).toBeHidden();
+  await expect(colorRadio(page, 'Red')).toBeChecked();
 });
 
 test('phone: with the eraser on, the dialog shows the kept color and picking leaves the eraser', async ({
@@ -85,6 +97,18 @@ test('tablet: the 56 colors are one grid of 4 × 14 left of the page, no pebble'
   const first = await box.locator('label').first().boundingBox();
   expect((boxRect?.width ?? 0) / (first?.width ?? 1)).toBeCloseTo(4, 0);
   expect((boxRect?.height ?? 0) / (first?.height ?? 1)).toBeCloseTo(14, 0);
+  // Rows by wavelength: red at the top, black and white at the bottom.
+  const labels = await box
+    .locator('input')
+    .evaluateAll((inputs) => inputs.map((input) => input.getAttribute('aria-label')));
+  expect(labels.slice(0, 4)).toEqual(['Red, light', 'Red, bright', 'Red', 'Red, dark']);
+  expect(labels.slice(-4)).toEqual(['White', 'Light grey', 'Grey', 'Black']);
+  // Palette at the left edge, tools at the right edge, the page centered between them.
+  const tools = await page.locator('#tools-primary').boundingBox();
+  expect(boxRect?.x ?? 0).toBeLessThan(16);
+  const left = (sheet?.x ?? 0) - ((boxRect?.x ?? 0) + (boxRect?.width ?? 0));
+  const right = (tools?.x ?? 0) - ((sheet?.x ?? 0) + (sheet?.width ?? 0));
+  expect(Math.abs(left - right)).toBeLessThan(40);
   await page.screenshot({ path: test.info().outputPath('palette-tablet.png') });
 
   await pickColor(page, 'Teal, light', box);

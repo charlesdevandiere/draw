@@ -43,7 +43,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
   | indigo      | `#9fa8da` | `#5c6bc0` | `#3949ab` | `#283593` |
   | purple      | `#ce93d8` | `#ab47bc` | `#8e24aa` | `#6a1b9a` |
 
-- Order: **warm and neutral** families (pink to grey), then **cool** ones (light green to purple). A "paint box": square cells without gaps, rounded outer corners only.
+- Order: in the phone dialog, **warm and neutral** families (pink to grey), then **cool** ones (light green to purple); on tablets, one grid by wavelength (`BOX_FAMILIES`: red, brown, orange, beige, yellow, light green, green, teal, sky blue, blue, indigo, purple, pink, then grey at the end). A "paint box": square cells without gaps, rounded outer corners only.
 - Color ids: `<family>-<tone>` (e.g. `blue-medium`). Labels translated from the family and the tone ("Blue, medium" / "Bleu moyen").
 - The 8 MVP colors are all in it (medium tone, black = grey dark): a stored MVP color maps to its new id (`black` → `grey-dark`, `purple` → `purple-medium`, others → `<id>-medium`). White (grey light) draws over other strokes.
 - **Selection** of a cell: the selected cell is drawn **larger** than the others (about 1.3×), with **rounded corners** and a light shadow, over its neighbours: the grid does not move. With the eraser on, the color kept for later stays a little larger, without the shadow. (Changed 2026-11-24 at the user's request; before: a black and white inset ring, then Bootstrap's focus ring in a subtle tint.)
@@ -58,6 +58,11 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 
 - The whole palette always visible as **one grid**: **4 tones across × 14 families down**, left of the page in landscape; turned to **14 families across × 4 tones down** above the page in portrait. The cells are 48 px, smaller when the window lacks room (each cell = the space / 14), never hiding a color. Color cells may go under the 48 px touch target there (the user's choice, 2026-11-24: one palette rather than a fallback); the buttons keep 48 px.
 
+### Selection and motion
+
+- The eraser selected: the pebble drawn larger (1.15×) with the same light shadow as the selected color (changed 2026-11-24; before: an ink ring).
+- Short animations (0.15 s) when a pebble or a color cell is selected; the "all colors" dialog fades in and out (Bootstrap dialog, 0.2 s). A pick, a backdrop tap or Escape during the fade-in closes it once open; nothing can be picked during the fade-out. No motion with `prefers-reduced-motion`.
+
 ### Size slider
 
 - **6 steps**: 4, 8, 16, 24, 40, 64 page units (default: 8, the MVP's thin; the MVP's thick, 24, is step 4).
@@ -70,7 +75,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 The layout still follows the window's shape (`ui-foundation`); the device class (both sides ≥ 576 px) picks the palette form.
 
 - **Portrait, phone** (board 1, without the bar): the page; palette pebble + slider + eraser; actions (undo, redo, mode | new page, gallery, the two groups separated by a thin line). The whole group is **centered vertically** (changed 2026-11-24: aligned to the bottom, it left an empty band at the top).
-- **Landscape, tablet** (board 2): the palette (4 × 14) on the left; the page in the middle; the right column: new page + gallery on top (separated by a line), then the eraser, the vertical slider, and undo, redo, mode in a 2-column grid.
+- **Landscape, tablet** (board 2): palette | page | tools spread across the screen (`justify-content: space-between`): the palette (4 × 14) at the left edge, the tools column at the right edge, the page centered between them; the column: new page + gallery on top (separated by a line), then the eraser over the vertical slider, then undo, redo, mode in a 2-column grid.
 - **Landscape, phone** (no board): the page, then on the right the palette pebble, the eraser and the vertical slider, then the actions over the pages.
 - **Portrait, tablet** (no board): the palette (14 × 4) above the page, the slider and eraser, the actions below; centered vertically.
 - Nothing in the system edge margins (DF-02), touch targets ≥ 48 px, DF-01 / DF-03 kept for the pebbles.

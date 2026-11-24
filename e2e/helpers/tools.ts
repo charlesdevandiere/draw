@@ -25,7 +25,10 @@ export async function pickColor(page: Page, name: string, scope?: Locator): Prom
   }
   if (isPhone(page)) {
     await page.getByRole('button', { name: 'All colors' }).click();
-    await colorCell(page.getByRole('dialog', { name: 'All colors' }), name).click();
+    const dialog = page.getByRole('dialog', { name: 'All colors' });
+    await colorCell(dialog, name).click();
+    // The dialog fades out; its backdrop covers the page until then.
+    await dialog.waitFor({ state: 'hidden' });
     return;
   }
   await colorCell(visiblePalette(page), name).click();

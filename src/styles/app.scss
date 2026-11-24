@@ -100,6 +100,12 @@ body {
   min-height: $target-min;
   padding: 0;
   touch-action: manipulation;
+  // The selection grows in and out (the long press sets its own transition).
+  transition:
+    scale 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
 
   // Bootstrap sets these on `.btn-solid:hover` / `:disabled`: override them on the same
   // states (same specificity, declared later), not on `.btn-pebble` alone.
@@ -114,8 +120,11 @@ body {
     --btn-disabled-color: #{$disabled-icon};
   }
 
+  // A pressed pebble (the eraser): drawn larger with a light shadow, like the selected
+  // color (changed 2026-11-24 at the user's request; before: an ink ring).
   &[aria-pressed='true'] {
-    box-shadow: $selection-ring;
+    scale: 1.15;
+    box-shadow: $selection-shadow;
   }
 }
 
@@ -129,7 +138,10 @@ body {
   background: var(--cell-color);
   cursor: pointer;
   touch-action: manipulation;
-  transition: scale 0.1s ease-out;
+  transition:
+    scale 0.15s ease-out,
+    border-radius 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 }
 
 // The current color: its cell drawn larger, rounded, over its neighbours (the grid does not
@@ -140,7 +152,7 @@ body {
   z-index: 1;
   scale: 1.3;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+  box-shadow: $selection-shadow;
 }
 
 [data-erasing] .paint-box .paint-box-block > .color-cell:has(input:checked) {
@@ -231,8 +243,10 @@ body {
   }
 }
 
-// The "all colors" dialog (phones), centered on the paper.
+// The "all colors" dialog (phones), centered on the paper; Bootstrap's fade, a little
+// faster. While it fades out, a second tap must not pick another color.
 .palette-dialog {
+  --dialog-transition-duration: 0.2s;
   width: fit-content;
   max-width: none;
   padding: 0;
@@ -243,6 +257,10 @@ body {
 
   &::backdrop {
     background: rgb(43 43 43 / 40%);
+  }
+
+  &.hiding {
+    pointer-events: none;
   }
 
   .palette-dialog-body {
@@ -542,6 +560,15 @@ body {
   .draw-screen .page {
     --colors-h: 0px;
     --colors-w: calc(4 * min(#{$target-min}, 100cqh / 14) + 12px);
+  }
+
+  // Palette at the left edge, tools at the right edge, the page centered between them.
+  .page-area {
+    justify-content: flex-start;
+  }
+
+  .draw-screen .page {
+    margin-inline: auto;
   }
 }
 

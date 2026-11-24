@@ -32,6 +32,28 @@ export type ColorId = `${Family}-${Tone}`;
 export const WARM_FAMILIES = FAMILIES.slice(0, 7) as readonly Family[];
 export const COOL_FAMILIES = FAMILIES.slice(7) as readonly Family[];
 
+/**
+ * The rows of the palette shown in full on tablets: by wavelength, from the hue of each
+ * row's medium tone (red to purple; pink, out of the rainbow, after purple where the hue
+ * circle puts it), black and white at the bottom. The dialog keeps the warm / cool blocks.
+ */
+export const BOX_FAMILIES: readonly Family[] = [
+  'red',
+  'brown',
+  'orange',
+  'beige',
+  'yellow',
+  'light-green',
+  'green',
+  'teal',
+  'sky-blue',
+  'blue',
+  'indigo',
+  'purple',
+  'pink',
+  'grey',
+];
+
 /** Values by family, light → dark (foundations board of the mockups). */
 const VALUES: Record<Family, readonly [string, string, string, string]> = {
   pink: ['#f48fb1', '#ec407a', '#d81b60', '#ad1457'],
