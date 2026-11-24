@@ -8,7 +8,7 @@ Module `draw-tools` of the UI redesign (`spec/capability-map.md`). Inherits ever
 
 More colors and more sizes, without losing the simplicity of the slate:
 
-1. a palette of **56 colors** (14 families × 4 tones), shown in full on tablets, through a bar of 5 colors and a "all colors" dialog on phones;
+1. a palette of **56 colors** (14 families × 4 tones), shown in full on tablets, behind a palette pebble ("all colors" dialog) on phones;
 2. a **size slider in 6 steps** with a preview at real size (1:1 with the page);
 3. the new drawing screen layout of the mockups (boards 1 and 2: "Dessin — iPhone SE" and "Dessin — tablette paysage").
 
@@ -43,52 +43,50 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
   | indigo      | `#9fa8da` | `#5c6bc0` | `#3949ab` | `#283593` |
   | purple      | `#ce93d8` | `#ab47bc` | `#8e24aa` | `#6a1b9a` |
 
-- Two blocks of 7 families: **warm and neutral** (pink to grey), then **cool** (light green to purple). Inside a block, a "paint box": square cells without gaps, rounded outer corners only.
+- Order: **warm and neutral** families (pink to grey), then **cool** ones (light green to purple). A "paint box": square cells without gaps, rounded outer corners only.
 - Color ids: `<family>-<tone>` (e.g. `blue-medium`). Labels translated from the family and the tone ("Blue, medium" / "Bleu moyen").
 - The 8 MVP colors are all in it (medium tone, black = grey dark): a stored MVP color maps to its new id (`black` → `grey-dark`, `purple` → `purple-medium`, others → `<id>-medium`). White (grey light) draws over other strokes.
-- **Selection** of a cell: Bootstrap's focus ring (`--focus-ring-width`, `--focus-ring-offset`) outside the cell, in a subtle (light) tint of the selected color, over the neighbouring cells (changed 2026-11-23 at the user's request: the black and white inset ring looked heavy). With the eraser on, the color kept for later shows a fainter ring.
+- **Selection** of a cell: the selected cell is drawn **larger** than the others (about 1.3×), with **rounded corners** and a light shadow, over its neighbours: the grid does not move. With the eraser on, the color kept for later stays a little larger, without the shadow. (Changed 2026-11-24 at the user's request; before: a black and white inset ring, then Bootstrap's focus ring in a subtle tint.)
 - Built on Bootstrap: one radio group (`.btn-check` inputs, one color chosen), laid out with CSS grid.
 
-### Phones: a bar of 5 colors and an "all colors" dialog
+### Phones: a palette pebble and an "all colors" dialog
 
-- Above the page: a **bar of 5 square cells** (paint-box style) and next to it a **palette pebble** (multicolor, `bi-palette-fill`) that opens a **dialog with all 56 colors** (two blocks of 7 families × 4 tones, 48 px cells, close button, centered; Bootstrap dialog).
-- At the start of a drawing (new page, a drawing reopened from the gallery, first launch), the bar holds the **base colors**: black, red, green, blue, yellow (`grey-dark`, `red-medium`, `green-medium`, `blue-medium`, `yellow-medium`).
-- Picking a color in the dialog closes it and selects that color; if it is not in the bar, it **enters first** and the last one leaves. Picking in the bar never reorders it.
-- The bar is remembered with the drawing on the slate (a reload keeps it), and reset to the base colors when the slate changes drawing. The current color is kept: if it is not a base color, it enters the reset bar first (the bar always shows the current color).
+- No colors on the screen itself: a **palette pebble** (multicolor, `bi-palette-fill`) next to the slider opens a **dialog with all 56 colors** (two blocks of 7 families × 4 tones, 48 px cells, close button, centered; Bootstrap dialog). Picking a color closes it and selects the color; the close button and the backdrop close it without a change. The current color shows in the slider's preview dot.
+- (Changed 2026-11-24 at the user's request: a bar of the 5 last colors above the page was not intuitive and is removed.)
 
-### Tablets: the full box
+### Tablets: the full palette
 
-- The whole palette always visible: two blocks of 4 tones × 7 families (48 px cells), warm on top, cool below, left of the page in landscape.
+- The whole palette always visible as **one grid**: **4 tones across × 14 families down**, left of the page in landscape; turned to **14 families across × 4 tones down** above the page in portrait. The cells are 48 px, smaller when the window lacks room (each cell = the space / 14), never hiding a color. Color cells may go under the 48 px touch target there (the user's choice, 2026-11-24: one palette rather than a fallback); the buttons keep 48 px.
 
 ### Size slider
 
 - **6 steps**: 4, 8, 16, 24, 40, 64 page units (default: 8, the MVP's thin; the MVP's thick, 24, is step 4).
 - A Bootstrap **`.form-range`** with steps (min 0, max 5, step 1), on a white rounded track, with a **preview dot at real size** next to it: the stroke diameter at the current page scale, in the current color (white with a grey outline for the eraser). A light **haptic tick** at each step.
-- Phones: horizontal, below the page, next to the eraser. Tablets: vertical, in the right column (the range turned by CSS).
+- Portrait: horizontal, below the page, between the palette pebble (phones) and the eraser. Landscape: vertical, in the right column (the range turned by CSS).
 - The **eraser uses the slider size** too (the preview shows it). Moving the slider keeps the current tool (pen or eraser); picking a color goes back to the pen.
 
 ### Drawing screen layout
 
 The layout still follows the window's shape (`ui-foundation`); the device class (both sides ≥ 576 px) picks the palette form.
 
-- **Portrait, phone** (board 1): from top to bottom: bar of 5 + palette pebble; the page; slider + eraser; actions (undo, redo, mode | new page, gallery, the two groups separated by a thin line). Free space goes to the top.
-- **Landscape, tablet** (board 2): the box on the left; the page in the middle; the right column: new page + gallery on top (separated by a line), then the eraser, the vertical slider, and undo, redo, mode in a 2-column grid.
-- **Landscape, phone** (no board): the bar of 5 (vertical) + palette pebble on the left, the page, and on the right the eraser, the vertical slider and the actions.
-- **Portrait, tablet** (no board): the box above the page (the two blocks side by side, 14 columns × 4 tones), the slider, eraser and actions below.
+- **Portrait, phone** (board 1, without the bar): the page; palette pebble + slider + eraser; actions (undo, redo, mode | new page, gallery, the two groups separated by a thin line). The whole group is **centered vertically** (changed 2026-11-24: aligned to the bottom, it left an empty band at the top).
+- **Landscape, tablet** (board 2): the palette (4 × 14) on the left; the page in the middle; the right column: new page + gallery on top (separated by a line), then the eraser, the vertical slider, and undo, redo, mode in a 2-column grid.
+- **Landscape, phone** (no board): the page, then on the right the palette pebble, the eraser and the vertical slider, then the actions over the pages.
+- **Portrait, tablet** (no board): the palette (14 × 4) above the page, the slider and eraser, the actions below; centered vertically.
 - Nothing in the system edge margins (DF-02), touch targets ≥ 48 px, DF-01 / DF-03 kept for the pebbles.
 
 ### Stored state
 
-- The `tools` setting becomes `{ tool, color: <color id>, size: <step 0–5>, recent: [5 color ids] }`. An MVP value (`color: 'red'`, `width: 'thin' | 'thick'`) is read as its new id and step (thin → 1, thick → 3); anything invalid falls back to the defaults (black, step 1, base colors). Strokes are unchanged (`#rrggbb` color, width in page units).
+- The `tools` setting becomes `{ tool, color: <color id>, size: <step 0–5> }`. An MVP value (`color: 'red'`, `width: 'thin' | 'thick'`) is read as its new id and step (thin → 1, thick → 3); anything invalid falls back to the defaults (black, step 1); a `recent` field written by an earlier build is ignored. Strokes are unchanged (`#rrggbb` color, width in page units).
 
 ## Success Criteria
 
-1. Unit tests (`src/engine/palette.test.ts`): 56 distinct colors in 14 × 4 order with the table's values; every MVP color id maps to the same `#rrggbb` as before; `styleFor` gives the step's width for the pen and the eraser; the bar rule (a new color enters first, a known one keeps the order, always 5, base colors on reset).
+1. Unit tests (`src/engine/palette.test.ts`): 56 distinct colors in 14 × 4 order with the table's values; every MVP color id maps to the same `#rrggbb` as before; `styleFor` gives the step's width for the pen and the eraser.
 2. Unit tests (`src/store/settings.test.ts`): an MVP `tools` value is migrated; an invalid one falls back to the defaults.
-3. e2e, phone: pick a color in the dialog → it is first in the bar and the next stroke uses it; the dialog closes; picking in the bar does not reorder; new page → base colors.
-4. e2e, tablet: the 56 cells are visible next to the page, picking one selects it, the next stroke uses it.
+3. e2e, phone: no colors on the screen; pick a color in the dialog → the dialog closes and the next stroke uses it.
+4. e2e, tablet: the 56 cells are visible as one grid (4 × 14 left of the page in landscape, 14 × 4 above it in portrait), picking one selects it (drawn larger, grid unchanged), the next stroke uses it.
 5. e2e: each slider step changes the stroke width (pixel measure) and the preview dot's size (1:1 with the page); the eraser takes the slider size; a haptic tick per step (stubbed `navigator.vibrate`).
-6. e2e: the four layouts (phone and tablet, portrait and landscape) keep every control on screen and out of the edge margins; screenshots compared with boards 1 and 2 by eye.
+6. e2e: the four layouts (phone and tablet, portrait and landscape) keep every control on screen and out of the edge margins; portrait layouts are centered vertically; screenshots compared with boards 1 and 2 by eye.
 7. What must NOT change: strokes already stored and the magic PNG format, input handling (modes, palm, DF-01 to DF-12), undo / redo, autosave, replay, gallery.
 
 ## Boundaries (deltas)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BASE_COLORS, DEFAULT_TOOLS } from '../engine/palette';
+import { DEFAULT_TOOLS } from '../engine/palette';
 import { DEFAULT_FINGER_SETTINGS } from '../input/input-mode';
 import {
   DEFAULT_INPUT_MODE,
@@ -29,13 +29,14 @@ describe('parseInputModeState', () => {
 
 describe('parseToolState', () => {
   it('reads stored tools', () => {
-    const state = {
-      tool: 'eraser',
-      color: 'teal-light',
-      size: 4,
-      recent: ['teal-light', 'grey-dark', 'red-medium', 'green-medium', 'blue-medium'],
-    };
+    const state = { tool: 'eraser', color: 'teal-light', size: 4 };
     expect(parseToolState(state)).toEqual(state);
+  });
+
+  it('ignores the bar of 5 an earlier build stored', () => {
+    expect(
+      parseToolState({ tool: 'pen', color: 'pink-dark', size: 2, recent: ['pink-dark'] }),
+    ).toEqual({ tool: 'pen', color: 'pink-dark', size: 2 });
   });
 
   it('migrates the MVP tools: same color, thin → 8 units, thick → 24', () => {
@@ -43,28 +44,12 @@ describe('parseToolState', () => {
       tool: 'pen',
       color: 'blue-medium',
       size: 1,
-      recent: BASE_COLORS,
     });
     expect(parseToolState({ tool: 'eraser', color: 'purple', width: 'thick' })).toEqual({
       tool: 'eraser',
       color: 'purple-medium',
       size: 3,
-      recent: ['purple-medium', ...BASE_COLORS.slice(0, 4)],
     });
-  });
-
-  it('repairs a bar that lost its color or its shape', () => {
-    expect(
-      parseToolState({ tool: 'pen', color: 'pink-dark', size: 2, recent: ['oops'] }).recent,
-    ).toEqual(['pink-dark', ...BASE_COLORS.slice(0, 4)]);
-    expect(
-      parseToolState({
-        tool: 'pen',
-        color: 'grey-dark',
-        size: 2,
-        recent: ['grey-dark', 'grey-dark', 'red-medium', 'green-medium', 'blue-medium'],
-      }).recent,
-    ).toEqual(BASE_COLORS);
   });
 
   it.each([
@@ -73,6 +58,7 @@ describe('parseToolState', () => {
     { tool: 'pen', color: 'pink', size: 1 },
     { tool: 'pen', color: 'red-medium', size: 9 },
     { tool: 'pen', color: 'red', width: 'huge' },
+    { tool: 'pen', color: 'red', width: 'toString' },
   ])('falls back to the default for %j', (value) => {
     expect(parseToolState(value)).toEqual(DEFAULT_TOOLS);
   });

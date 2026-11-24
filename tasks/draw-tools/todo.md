@@ -94,6 +94,20 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 
 **Estimated scope:** Medium
 
+## Task 5: Device feedback, round 1 (2026-11-24)
+
+**Description:** After the first device check: no bar of 5 on phones (only the palette pebble and its dialog), one palette grid on tablets (4 × 14 left of the page in landscape, 14 × 4 above it in portrait, cells shrinking to fit), the selected color drawn larger and rounded instead of a ring, portrait layouts centered vertically.
+
+**Acceptance criteria:**
+
+- [x] Spec updated (palette, phones, tablets, layout, stored state); the bar and its rules removed from the engine, the settings and the UI; an earlier `recent` field is ignored.
+- [x] e2e: phones show no color on the screen; tablets show one 4 × 14 (14 × 4) grid; the selected cell is larger, rounded, its neighbours unmoved; portrait layouts centered; DF-01 rows hold on 375 px.
+
+**Verification:**
+
+- [x] `npx playwright test e2e/palette.spec.ts e2e/app-shell.spec.ts e2e/tools.spec.ts e2e/theme.spec.ts`
+- [x] `npm run check`, `npm run e2e`
+
 ## Checkpoint: Module complete
 
 - [x] `npm run check` and `npm run e2e` pass; spec success criteria 1–7 met (by eye on the e2e screenshots; on the devices: next box)

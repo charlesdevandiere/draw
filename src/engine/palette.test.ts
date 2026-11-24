@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BASE_COLORS,
   COOL_FAMILIES,
   DEFAULT_TOOLS,
   FAMILIES,
@@ -13,7 +12,6 @@ import {
   isColorId,
   isSizeStep,
   pickColor,
-  resetBar,
   selectEraser,
   selectSize,
   styleFor,
@@ -91,15 +89,7 @@ describe('palette', () => {
 });
 
 describe('tool state', () => {
-  it('starts with a black pen, size 8, the base colors in the bar', () => {
-    expect(BASE_COLORS).toEqual([
-      'grey-dark',
-      'red-medium',
-      'green-medium',
-      'blue-medium',
-      'yellow-medium',
-    ]);
-    expect(DEFAULT_TOOLS.recent).toEqual(BASE_COLORS);
+  it('starts with a black pen, size 8', () => {
     expect(styleFor(DEFAULT_TOOLS)).toEqual({ tool: 'pen', color: '#212121', width: 8 });
   });
 
@@ -110,52 +100,16 @@ describe('tool state', () => {
     expect(styleFor(erasing)).toMatchObject({ tool: 'eraser', width: 4 });
   });
 
-  it('picking in the bar draws with that color and never reorders the bar', () => {
-    const state = pickColor(selectEraser(DEFAULT_TOOLS), 'blue-medium');
-    expect(state.tool).toBe('pen');
-    expect(state.color).toBe('blue-medium');
-    expect(state.recent).toEqual(BASE_COLORS);
-  });
-
-  it('a color picked in the box enters the bar first, the last one leaves', () => {
-    const state = pickColor(DEFAULT_TOOLS, 'teal-light');
-    expect(state.color).toBe('teal-light');
-    expect(state.recent).toEqual([
-      'teal-light',
-      'grey-dark',
-      'red-medium',
-      'green-medium',
-      'blue-medium',
-    ]);
-  });
-
-  it('a color of the box already in the bar keeps the order', () => {
-    const state = pickColor(selectEraser(DEFAULT_TOOLS), 'green-medium');
-    expect(state.tool).toBe('pen');
-    expect(state.recent).toEqual(BASE_COLORS);
-  });
-
-  it('a new drawing gets the base colors, the current color kept in the bar', () => {
-    const teal = pickColor(DEFAULT_TOOLS, 'teal-light');
-    const reset = resetBar(teal);
-    expect(reset.color).toBe('teal-light');
-    expect(reset.recent).toEqual([
-      'teal-light',
-      'grey-dark',
-      'red-medium',
-      'green-medium',
-      'blue-medium',
-    ]);
-    const red = resetBar(pickColor(teal, 'red-medium'));
-    expect(red.recent).toEqual(BASE_COLORS);
+  it('picking a color draws with it, leaving the eraser', () => {
+    const state = pickColor(selectEraser(DEFAULT_TOOLS), 'teal-light');
+    expect(state).toEqual({ tool: 'pen', color: 'teal-light', size: 1 });
   });
 
   it('never mutates a state', () => {
-    const state = structuredClone(DEFAULT_TOOLS);
+    const state = { ...DEFAULT_TOOLS };
     pickColor(state, 'pink-light');
     selectSize(state, 4);
     selectEraser(state);
-    resetBar(state);
     expect(state).toEqual(DEFAULT_TOOLS);
   });
 });

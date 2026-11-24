@@ -1,5 +1,5 @@
 import { expect, test, type Locator } from '@playwright/test';
-import { colorCell, pickColor, visiblePalette } from './helpers/tools';
+import { colorCell, isPhone, pickColor, visiblePalette } from './helpers/tools';
 
 /**
  * Paper theme and pebble buttons (spec/SPEC-ui-foundation.md, "Theme and buttons"): action
@@ -80,19 +80,22 @@ test('undo, redo enabled take the yellow, new page the green', async ({ page }) 
     .toBe('rgb(255, 213, 79)');
 });
 
-test('the selection is an ink ring, never the old orange border', async ({ page }) => {
+test('the selection is an ink ring or a larger cell, never the old orange border', async ({
+  page,
+}) => {
   const eraser = page.locator('[aria-label="Eraser"]');
   await eraser.click();
   await expect(eraser).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => styleOf(eraser, 'box-shadow')).toBe(INK_RING);
 
-  // A color cell: Bootstrap's focus ring outside it, in a subtle tint of the color.
+  // A color cell: drawn larger and rounded (the palette on tablets, the dialog on phones).
   await pickColor(page, 'Red');
-  const red = colorCell(visiblePalette(page), 'Red');
-  await expect.poll(() => styleOf(red, 'outline-style')).toBe('solid');
-  // Bootstrap's 3 px, snapped to device pixels by WebKit (2.67 px at 2.625×).
-  expect(Number.parseFloat(await styleOf(red, 'outline-width'))).toBeGreaterThan(2.5);
-  expect(await styleOf(red, 'outline-color')).not.toBe(await styleOf(red, 'background-color'));
+  const red = colorCell(
+    isPhone(page) ? page.locator('dialog.palette-dialog') : visiblePalette(page),
+    'Red',
+  );
+  await expect.poll(() => styleOf(red, 'scale')).toBe('1.3');
+  expect(await styleOf(red, 'border-top-left-radius')).toBe('8px');
 
   for (const button of await page.locator('#draw-screen button').all()) {
     await expect.poll(() => styleOf(button, 'border-top-color')).not.toBe(ORANGE);

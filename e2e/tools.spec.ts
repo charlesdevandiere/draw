@@ -1,8 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
-import { seedDatabase } from './helpers/storage';
-import { barColor, barColors, isPhone, pickColor, setSize } from './helpers/tools';
+import { colorRadio, pickColor, setSize } from './helpers/tools';
 
 const RED = [0xe5, 0x39, 0x35];
 
@@ -21,24 +20,16 @@ test.beforeEach(async ({ page }) => {
   await page.goto('en/');
 });
 
-test('the tool bar shows the 5 base colors, the size slider and the eraser', async ({ page }) => {
-  test.skip(!isPhone(page), 'the bar of 5 is for phones (tablets: e2e/palette.spec.ts)');
-  expect(await barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
-  await expect(barColor(page, 'Black')).toBeChecked();
-  for (const cell of await page.locator('.color-bar label').all()) {
-    const box = await cell.boundingBox();
-    expect(Math.min(box?.width ?? 0, box?.height ?? 0)).toBeGreaterThanOrEqual(48);
-  }
+test('the tools: black and size 8 at first, the slider and the eraser', async ({ page }) => {
+  await expect(colorRadio(page, 'Black')).toBeChecked();
   await expect(page.getByRole('slider', { name: 'Stroke size' })).toHaveValue('1');
+  await expect(page.getByRole('button', { name: 'Eraser' })).toBeVisible();
   await page.screenshot({ path: test.info().outputPath('tools.png') });
 });
 
-test('a picked color draws in that color, and the bar keeps its order', async ({ page }) => {
+test('a picked color draws in that color', async ({ page }) => {
   await pickColor(page, 'Red');
-  await expect(barColor(page, 'Red')).toBeChecked();
-  if (isPhone(page)) {
-    expect(await barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
-  }
+  await expect(colorRadio(page, 'Red')).toBeChecked();
   await stroke(page, 0.5);
   const pixel = await pixelAt(page.locator('#drawing-layer'), await pagePoint(page, 0.5, 0.5));
   expect(isColor(pixel, RED)).toBe(true);
@@ -109,30 +100,11 @@ test('the eraser takes the slider size', async ({ page }) => {
   expect(isBlank(await pixelAt(canvas, await pagePoint(page, 0.51, 0.5)))).toBe(false);
 });
 
-test('a new page brings the base colors back to the bar', async ({ page }) => {
-  test.skip(!isPhone(page), 'the bar of 5 is for phones');
-  await seedDatabase(page, [], {
-    tools: {
-      tool: 'pen',
-      color: 'teal-light',
-      size: 1,
-      recent: ['teal-light', 'grey-dark', 'red-medium', 'green-medium', 'blue-medium'],
-    },
-  });
-  await page.goto('en/');
-  await expect(barColor(page, 'Teal, light')).toBeChecked();
-  await pickColor(page, 'Blue');
-  await stroke(page, 0.5);
-  await page.getByRole('button', { name: 'New page' }).click();
-  await expect.poll(() => barColors(page)).toEqual(['Black', 'Red', 'Green', 'Blue', 'Yellow']);
-  await expect(barColor(page, 'Blue')).toBeChecked();
-});
-
 test('tapping the color kept while erasing goes back to the pen', async ({ page }) => {
   const eraser = page.getByRole('button', { name: 'Eraser' });
   await eraser.click();
   await expect(eraser).toHaveAttribute('aria-pressed', 'true');
-  await expect(barColor(page, 'Black')).toBeChecked();
+  await expect(colorRadio(page, 'Black')).toBeChecked();
   await pickColor(page, 'Black');
   await expect(eraser).toHaveAttribute('aria-pressed', 'false');
 });

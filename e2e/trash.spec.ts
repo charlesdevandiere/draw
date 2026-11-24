@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { isBlank, pagePoint, pixelAt } from './helpers/canvas';
 import { savedStrokeCounts, seedDatabase } from './helpers/storage';
-import { barColor } from './helpers/tools';
+import { colorRadio } from './helpers/tools';
 
 /**
  * Trash (spec/SPEC-trash.md): trashed drawings stay 30 days, out of the gallery, then are
@@ -56,7 +56,7 @@ test('a last drawing in the trash is not reopened: the app starts on a blank pag
     { lastDrawingId: 'thrown', tools: { tool: 'pen', color: 'red', width: 'thin' } },
   );
   await page.goto('en/');
-  await expect(barColor(page, 'Red')).toBeChecked();
+  await expect(colorRadio(page, 'Red')).toBeChecked();
   // The drawing is read right after the settings: leave it time to (wrongly) show up.
   await page.waitForTimeout(500);
   await expect(page.locator('#undo')).toBeDisabled();

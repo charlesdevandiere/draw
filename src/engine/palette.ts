@@ -1,7 +1,7 @@
 /**
  * Colors and sizes of the slate (spec/SPEC-draw-tools.md), pure. 14 families × 4 tones in
- * two blocks (warm and neutral, then cool), 6 stroke sizes, and the bar of 5 colors shown
- * on phones. Strokes store `#rrggbb` and a width in page units, never these ids.
+ * two groups (warm and neutral, then cool) and 6 stroke sizes. Strokes store `#rrggbb` and
+ * a width in page units, never these ids.
  */
 import type { StrokeStyle, Tool } from './types';
 
@@ -103,50 +103,23 @@ export function isSizeStep(value: unknown): value is SizeStep {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < SIZES.length;
 }
 
-/** Colors of the bar at the start of a drawing: black, red, green, blue, yellow. */
-export const BASE_COLORS: readonly ColorId[] = [
-  'grey-dark',
-  'red-medium',
-  'green-medium',
-  'blue-medium',
-  'yellow-medium',
-];
-export const BAR_LENGTH = 5;
-
-/**
- * What the tools currently select. `recent` is the bar of 5 (phones); the current color is
- * always in it.
- */
+/** What the tools currently select. */
 export interface ToolState {
   tool: Tool;
   color: ColorId;
   size: SizeStep;
-  recent: readonly ColorId[];
 }
 
-export const DEFAULT_TOOLS: ToolState = {
-  tool: 'pen',
-  color: 'grey-dark',
-  size: 1,
-  recent: BASE_COLORS,
-};
+export const DEFAULT_TOOLS: ToolState = { tool: 'pen', color: 'grey-dark', size: 1 };
 
 /** Style of the next stroke: the slider size for the pen and the eraser alike. */
 export function styleFor(state: ToolState): StrokeStyle {
   return { tool: state.tool, color: colorValue(state.color), width: SIZES[state.size] };
 }
 
-/** The bar with `color` in it: kept as is when known, else `color` enters first. */
-function barWith(recent: readonly ColorId[], color: ColorId): readonly ColorId[] {
-  return recent.includes(color) ? recent : [color, ...recent].slice(0, BAR_LENGTH);
-}
-
-/**
- * A color picked in the bar, the box (tablets) or the "all colors" dialog (phones): back
- * to the pen. A color already in the bar keeps the order; a new one enters first.
- */
+/** A color picked in the box (tablets) or the "all colors" dialog (phones): back to the pen. */
 export function pickColor(state: ToolState, color: ColorId): ToolState {
-  return { ...state, tool: 'pen', color, recent: barWith(state.recent, color) };
+  return { ...state, tool: 'pen', color };
 }
 
 /** Moving the slider keeps the tool: the eraser takes the size too. */
@@ -157,9 +130,4 @@ export function selectSize(state: ToolState, size: SizeStep): ToolState {
 /** The eraser keeps the color and size for later. */
 export function selectEraser(state: ToolState): ToolState {
   return { ...state, tool: 'eraser' };
-}
-
-/** A new drawing on the slate: the base colors, with the current color kept in the bar. */
-export function resetBar(state: ToolState): ToolState {
-  return { ...state, recent: barWith(BASE_COLORS, state.color) };
 }

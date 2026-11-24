@@ -91,7 +91,6 @@ const tools = initTools(
   {
     page: requireElement('page', HTMLElement),
     boxHost: requireElement('color-box', HTMLElement),
-    colorsHost: requireElement('tools-colors', HTMLElement),
     haptic,
   },
 );
@@ -156,8 +155,6 @@ function switchDrawing(drawing: Drawing): Promise<void> {
   history = createHistory(drawing.strokes);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();
-  // Another drawing: the bar of 5 starts again from the base colors.
-  tools.resetBar();
   return saved;
 }
 

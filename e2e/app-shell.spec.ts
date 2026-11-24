@@ -27,24 +27,31 @@ async function expectDrawingLayout(page: Page): Promise<void> {
     if (!found) throw new Error(`${selector} not visible`);
     return found;
   };
-  const colors = await rect('#color-box:visible, #tools-colors:visible');
+  // The palette is on the screen on tablets only (phones: a pebble and its dialog).
+  const colors = tablet ? await rect('#color-box') : null;
   const size = await rect('#tools-primary');
   const actions = await rect('#tools-secondary');
   const pages = await rect('#tools-pages');
   if (portrait) {
     // Phones: the full width. Tablets: the full box of colors above takes some height.
     expect(box.width).toBeGreaterThan(tablet ? viewport.width * 0.8 : viewport.width - 24);
-    // Colors right above the page, then the slider, then actions | pages on one row.
-    expect(colors.y + colors.height).toBeLessThanOrEqual(box.y + 1);
-    expect(box.y - (colors.y + colors.height)).toBeLessThan(24);
+    // (Palette right above the page,) then the slider, then actions | pages on one row.
+    if (colors) {
+      expect(colors.y + colors.height).toBeLessThanOrEqual(box.y + 1);
+      expect(box.y - (colors.y + colors.height)).toBeLessThan(24);
+    }
+    // The whole group is centered: as much free space above as below.
+    const top = (colors ?? box).y - topMargin;
+    const bottom = viewport.height - EDGE_MARGIN - (actions.y + actions.height);
+    expect(Math.abs(top - bottom)).toBeLessThan(4);
     expect(size.y).toBeGreaterThanOrEqual(box.y + box.height - 1);
     expect(actions.y).toBeGreaterThanOrEqual(size.y + size.height - 1);
     expect(Math.abs(actions.y - pages.y)).toBeLessThan(2);
     expect(actions.x + actions.width).toBeLessThanOrEqual(pages.x + 1);
   } else {
     expect(box.height).toBeGreaterThan(viewport.height - topMargin - EDGE_MARGIN - 1);
-    // Colors left of the page, every tool right of it.
-    expect(colors.x + colors.width).toBeLessThanOrEqual(box.x + 1);
+    // (Palette left of the page,) every tool right of it.
+    if (colors) expect(colors.x + colors.width).toBeLessThanOrEqual(box.x + 1);
     for (const tools of [size, actions, pages]) {
       expect(tools.x).toBeGreaterThanOrEqual(box.x + box.width - 1);
     }
@@ -119,17 +126,17 @@ test('turned a quarter, the layout follows the window and keeps its drawing', as
 });
 
 // DF-01: docs/device-fixes.md
-test('on a narrow phone (iPhone 8), the bar of 5 and the palette pebble share one row', async ({
-  page,
-}) => {
+test('on a narrow phone (iPhone 8), the tools keep to their two rows', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('en/');
-  const rows = new Set<number>();
-  for (const cell of await page.locator('.color-bar label, .palette-button').all()) {
-    const rect = await cell.boundingBox();
-    if (rect) rows.add(Math.round(rect.y));
+  for (const row of ['#tools-primary button', '#tools-secondary button, #tools-pages button']) {
+    const tops = new Set<number>();
+    for (const button of await page.locator(row).all()) {
+      const rect = await button.boundingBox();
+      if (rect) tops.add(Math.round(rect.y));
+    }
+    expect(tops.size).toBe(1);
   }
-  expect(rows.size).toBe(1);
 });
 
 test('the gallery button switches screens and back', async ({ page }) => {

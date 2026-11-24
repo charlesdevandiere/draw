@@ -2,39 +2,39 @@ import type { Locator, Page } from '@playwright/test';
 
 /** A color cell (a `.btn-check` label around its radio), by the color's name. */
 export function colorCell(scope: Page | Locator, name: string): Locator {
-  const page = 'page' in scope && typeof scope.page === 'function' ? scope.page() : (scope as Page);
-  // The inner locator is matched inside each label.
-  return scope.locator('label.color-cell', {
-    has: page.getByRole('radio', { name, exact: true }),
-  });
+  // By attribute, not by role: the cells of the closed dialog are hidden from roles.
+  return scope.locator(`label.color-cell:has(input[aria-label="${name}"])`);
 }
 
-/** The colors on screen: the bar of 5 on phones, the full box on tablets. */
-export function visiblePalette(page: Page): Locator {
-  return page.locator('.color-bar:visible, .color-box:visible').first();
-}
-
-/** Picks a color on screen (or in `scope`, the dialog). */
-export async function pickColor(page: Page, name: string, scope?: Locator): Promise<void> {
-  await colorCell(scope ?? visiblePalette(page), name).click();
-}
-
-/** The radio of a color on screen (bar or box), to check its state. */
-export function barColor(page: Page, name: string): Locator {
-  return visiblePalette(page).getByRole('radio', { name, exact: true });
-}
-
-/** Whether the window is a phone (no full box: the bar of 5). */
+/** Whether the window is a phone (no palette on screen: a pebble and its dialog). */
 export function isPhone(page: Page): boolean {
   const viewport = page.viewportSize();
   return Math.min(viewport?.width ?? 0, viewport?.height ?? 0) < 576;
 }
 
-/** Names of the colors in the bar, in order. */
-export async function barColors(page: Page): Promise<string[]> {
-  return page
-    .locator('.color-bar input')
-    .evaluateAll((inputs) => inputs.map((input) => input.getAttribute('aria-label') ?? ''));
+/** The palette on screen (tablets). */
+export function visiblePalette(page: Page): Locator {
+  return page.locator('.color-box:visible').first();
+}
+
+/** Picks a color: in the palette on tablets, through the "all colors" dialog on phones. */
+export async function pickColor(page: Page, name: string, scope?: Locator): Promise<void> {
+  if (scope) {
+    await colorCell(scope, name).click();
+    return;
+  }
+  if (isPhone(page)) {
+    await page.getByRole('button', { name: 'All colors' }).click();
+    await colorCell(page.getByRole('dialog', { name: 'All colors' }), name).click();
+    return;
+  }
+  await colorCell(visiblePalette(page), name).click();
+}
+
+/** The radio of a color (in the dialog on phones, even closed), to check its state. */
+export function colorRadio(page: Page, name: string): Locator {
+  const group = isPhone(page) ? page.locator('dialog.palette-dialog') : visiblePalette(page);
+  return group.locator(`input[aria-label="${name}"]`);
 }
 
 /** Moves the size slider to a step (0–5). */

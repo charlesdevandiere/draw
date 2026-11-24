@@ -1,8 +1,8 @@
 /**
- * DOM side of the drawing tools (spec/SPEC-draw-tools.md): the bar of 5 colors (a radio
- * group of Bootstrap `.btn-check` cells), the 6-step size slider (`.form-range`) with a
- * preview at real size, the eraser pebble, the palette pebble that opens the "all colors"
- * dialog (phones), and the full box beside the page (tablets). The rules live in
+ * DOM side of the drawing tools (spec/SPEC-draw-tools.md): the colors as radio groups of
+ * Bootstrap `.btn-check` cells (the full palette beside the page on tablets, behind a
+ * palette pebble and its "all colors" dialog on phones), the 6-step size slider
+ * (`.form-range`) with a preview at real size, and the eraser pebble. The rules live in
  * src/engine/palette.ts.
  */
 import Dialog from 'bootstrap/js/dist/dialog.js';
@@ -15,7 +15,6 @@ import {
   isColorId,
   isSizeStep,
   pickColor,
-  resetBar,
   selectEraser,
   selectSize,
   type ColorId,
@@ -28,8 +27,6 @@ import type { MessageKey, Translator } from '../i18n/i18n';
 export interface Tools {
   state(): ToolState;
   setState(state: ToolState): void;
-  /** A new drawing on the slate: the bar goes back to the base colors (saved). */
-  resetBar(): void;
 }
 
 export interface ToolsOptions {
@@ -37,8 +34,6 @@ export interface ToolsOptions {
   page: HTMLElement;
   /** Where the full box goes (tablets; the stylesheet shows the one fitting the window). */
   boxHost: HTMLElement;
-  /** Where the bar of 5 and the palette pebble go (phones). */
-  colorsHost: HTMLElement;
   /** Light tick at each step of the slider. */
   haptic?: () => void;
 }
@@ -108,21 +103,23 @@ export function colorCell(
 }
 
 /**
- * The paint box: two blocks (warm and neutral, then cool) of 7 families × 4 tones, square
- * cells without gaps. `across` puts the families across and the tones down (dialog); else
- * the tones across and the families down (the box beside the page on tablets).
+ * The paint box, square cells without gaps. `across` puts the families across and the
+ * tones down, else the tones across and the families down. `split` makes two blocks (warm
+ * and neutral, then cool: the dialog), else one grid of all 14 families (tablets).
  */
 export function paintBox(
   t: Translator['t'],
   name: string,
   across: 'families' | 'tones',
+  split: boolean,
   onPick: (id: ColorId) => void,
 ): HTMLElement {
   const box = document.createElement('div');
-  box.className = `paint-box paint-box-${across}`;
+  box.className = `paint-box paint-box-${across}${split ? '' : ' paint-box-single'}`;
   box.setAttribute('role', 'radiogroup');
   box.setAttribute('aria-label', t('tools.allColors'));
-  for (const families of [WARM_FAMILIES, COOL_FAMILIES]) {
+  const groups = split ? [WARM_FAMILIES, COOL_FAMILIES] : [[...WARM_FAMILIES, ...COOL_FAMILIES]];
+  for (const families of groups) {
     const block = document.createElement('div');
     block.className = 'paint-box-block';
     const ids =
@@ -143,11 +140,6 @@ export function initTools(
   options: ToolsOptions,
 ): Tools {
   let state = initial;
-
-  const bar = document.createElement('div');
-  bar.className = 'color-bar';
-  bar.setAttribute('role', 'radiogroup');
-  bar.setAttribute('aria-label', t('tools.colors'));
 
   const sizeControl = document.createElement('div');
   sizeControl.className = 'size-control';
@@ -179,7 +171,8 @@ export function initTools(
   eraser.innerHTML = '<span class="icon icon-eraser" aria-hidden="true"></span>';
   eraser.addEventListener('click', () => update(selectEraser(state)));
 
-  // Phones: the palette pebble opens a dialog with all the colors (Bootstrap dialog).
+  // Phones: the palette pebble opens a dialog with all the colors (Bootstrap dialog); the
+  // current color shows in the slider's preview dot.
   const paletteButton = document.createElement('button');
   paletteButton.type = 'button';
   paletteButton.className = 'btn btn-pebble palette-button';
@@ -195,7 +188,7 @@ export function initTools(
   close.className = 'btn btn-solid btn-pebble theme-hold palette-close';
   close.setAttribute('aria-label', t('tools.close'));
   close.innerHTML = '<span class="icon icon-close" aria-hidden="true"></span>';
-  const dialogBox = paintBox(t, 'dialog-color', 'families', (id) => {
+  const dialogBox = paintBox(t, 'dialog-color', 'families', true, (id) => {
     update(pickColor(state, id));
     void dialog.hide();
   });
@@ -210,14 +203,13 @@ export function initTools(
   paletteButton.addEventListener('click', () => void dialog.show(paletteButton));
   close.addEventListener('click', () => void dialog.hide());
 
-  options.colorsHost.append(bar, paletteButton);
-  container.append(sizeControl, eraser);
+  container.append(paletteButton, sizeControl, eraser);
 
-  // Tablets: the full box, tones across beside the page (landscape) or families across
-  // above it (portrait); the stylesheet shows one of them, never on phones.
+  // Tablets: the full palette as one grid, 4 tones × 14 families beside the page
+  // (landscape) or turned above it (portrait); the stylesheet shows one, never on phones.
   const pickFromBox = (id: ColorId): void => update(pickColor(state, id));
   const boxes = (['tones', 'families'] as const).map((across) => {
-    const box = paintBox(t, `box-color-${across}`, across, pickFromBox);
+    const box = paintBox(t, `box-color-${across}`, across, false, pickFromBox);
     box.classList.add('color-box', `color-box-${across}`);
     return box;
   });
@@ -229,27 +221,14 @@ export function initTools(
   });
   observer.observe(options.page);
 
-  /** The cells shown: rebuilt only when the bar changes (a color enters it). */
-  let shown = '';
-
   function render(): void {
     const drawing = state.tool === 'pen';
-    const key = state.recent.join(' ');
-    if (key !== shown) {
-      shown = key;
-      bar.replaceChildren(
-        ...state.recent.map((id) =>
-          colorCell(t, id, 'bar-color', (id) => update(pickColor(state, id))),
-        ),
-      );
-    }
-    const groups = [bar, dialogBox, ...boxes];
+    const groups = [dialogBox, ...boxes];
     for (const input of groups.flatMap((group) => [...group.querySelectorAll('input')])) {
       input.checked = input.value === state.color;
     }
-    // With the eraser, the color that will come back shows a softer ring.
+    // With the eraser, the color that will come back stands out less.
     container.toggleAttribute('data-erasing', !drawing);
-    options.colorsHost.toggleAttribute('data-erasing', !drawing);
     dialogElement.toggleAttribute('data-erasing', !drawing);
     options.boxHost.toggleAttribute('data-erasing', !drawing);
     eraser.setAttribute('aria-pressed', String(!drawing));
@@ -270,11 +249,6 @@ export function initTools(
     setState(next) {
       state = next;
       render();
-    },
-    resetBar() {
-      const next = resetBar(state);
-      // Nothing to save when the bar already holds the base colors.
-      if (next.recent.join(' ') !== state.recent.join(' ')) update(next);
     },
   };
 }
