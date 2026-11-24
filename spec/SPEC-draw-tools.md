@@ -43,7 +43,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
   | indigo      | `#9fa8da` | `#5c6bc0` | `#3949ab` | `#283593` |
   | purple      | `#ce93d8` | `#ab47bc` | `#8e24aa` | `#6a1b9a` |
 
-- Order: in the phone dialog, **warm and neutral** families (pink to grey), then **cool** ones (light green to purple); on tablets, one grid by wavelength (`BOX_FAMILIES`: red, brown, orange, beige, yellow, light green, green, teal, sky blue, blue, indigo, purple, pink, then grey at the end). A "paint box": square cells without gaps, rounded outer corners only.
+- Order: in the phone dialog, **warm and neutral** families (pink to grey), then **cool** ones (light green to purple); on tablets, one grid by wavelength (`BOX_FAMILIES`: red, orange, yellow, light green, green, teal, sky blue, blue, indigo, purple, then pink, out of the rainbow, after purple, then the earth tones beige and brown next to grey, black and white, at the bottom; changed 2026-11-24: brown and beige among the rainbow surprised). A paint box: square cells without gaps, rounded outer corners only.
 - Color ids: `<family>-<tone>` (e.g. `blue-medium`). Labels translated from the family and the tone ("Blue, medium" / "Bleu moyen").
 - The 8 MVP colors are all in it (medium tone, black = grey dark): a stored MVP color maps to its new id (`black` → `grey-dark`, `purple` → `purple-medium`, others → `<id>-medium`). White (grey light) draws over other strokes.
 - **Selection** of a cell: the selected cell is drawn **larger** than the others (about 1.3×), with **rounded corners** and a light shadow, over its neighbours: the grid does not move. With the eraser on, the color kept for later stays a little larger, without the shadow. (Changed 2026-11-24 at the user's request; before: a black and white inset ring, then Bootstrap's focus ring in a subtle tint.)
@@ -56,7 +56,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 
 ### Tablets: the full palette
 
-- The whole palette always visible as **one grid**: **4 tones across × 14 families down**, left of the page in landscape; turned to **14 families across × 4 tones down** above the page in portrait. The cells are 48 px, smaller when the window lacks room (each cell = the space / 14), never hiding a color. Color cells may go under the 48 px touch target there (the user's choice, 2026-11-24: one palette rather than a fallback); the buttons keep 48 px.
+- The whole palette always visible as **one grid**: **4 tones across × 14 families down**, left of the page in landscape; turned to **14 families across × 4 tones down** above the page in portrait, as the side grid rotated by −90°: the families left to right, the dark tones on top, the light ones at the bottom. The cells are 48 px, smaller when the window lacks room (each cell = the space / 14), never hiding a color. Color cells may go under the 48 px touch target there (the user's choice, 2026-11-24: one palette rather than a fallback); the buttons keep 48 px.
 
 ### Selection and motion
 
@@ -66,7 +66,7 @@ Users: children aged 5+ (choose a color and a size quickly, without reading).
 ### Size slider
 
 - **6 steps**: 4, 8, 16, 24, 40, 64 page units (default: 8, the MVP's thin; the MVP's thick, 24, is step 4).
-- A Bootstrap **`.form-range`** with steps (min 0, max 5, step 1), on a white rounded track, with a **preview dot at real size** next to it: the stroke diameter at the current page scale, in the current color (white with a grey outline for the eraser). A light **haptic tick** at each step.
+- A Bootstrap **`.form-range`** with steps (min 0, max 5, step 1), on a white rounded track, with a **preview dot at real size** next to it: the stroke diameter at the current page scale, in the current color (white with a grey outline for the eraser; the white color gets the same outline). A light **haptic tick** at each step.
 - Portrait: horizontal, below the page, between the palette pebble (phones) and the eraser. Landscape: vertical, in the right column (the range turned by CSS).
 - The **eraser uses the slider size** too (the preview shows it). Moving the slider keeps the current tool (pen or eraser); picking a color goes back to the pen.
 

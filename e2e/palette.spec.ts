@@ -138,6 +138,13 @@ test('tablet in portrait: the palette is turned (14 × 4) above the page', async
   const first = await box.locator('label').first().boundingBox();
   expect((boxRect?.width ?? 0) / (first?.width ?? 1)).toBeCloseTo(14, 0);
   expect((boxRect?.height ?? 0) / (first?.height ?? 1)).toBeCloseTo(4, 0);
+  // The side grid turned by -90°: families left to right, the dark tones on top.
+  const labels = await box
+    .locator('input')
+    .evaluateAll((inputs) => inputs.map((input) => input.getAttribute('aria-label')));
+  expect(labels[0]).toBe('Red, dark');
+  expect(labels[13]).toBe('Black');
+  expect(labels.at(-1)).toBe('White');
 });
 
 test('phone: no colors on the screen, only the palette pebble', async ({ page }) => {
@@ -173,4 +180,13 @@ test('a contact on a color next to the page never draws', async ({ page }) => {
     { points: [[box.x + box.width / 2, box.y + box.height / 2]], pointerType: 'touch' },
   ]);
   await expect(page.locator('#undo')).toBeDisabled();
+});
+
+test('white selected: the size preview gets an outline, like the eraser', async ({ page }) => {
+  const preview = page.locator('.size-preview');
+  const outline = () =>
+    preview.evaluate((element) => getComputedStyle(element, '::before').boxShadow);
+  expect(await outline()).toBe('none');
+  await pickColor(page, 'White');
+  await expect.poll(outline).toContain('1px');
 });

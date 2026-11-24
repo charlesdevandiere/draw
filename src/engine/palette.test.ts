@@ -47,12 +47,10 @@ describe('palette', () => {
     ]);
   });
 
-  it('orders the tablet palette by wavelength, black and white at the bottom', () => {
+  it('orders the tablet palette by wavelength, earth tones then black and white at the bottom', () => {
     expect(BOX_FAMILIES).toEqual([
       'red',
-      'brown',
       'orange',
-      'beige',
       'yellow',
       'light-green',
       'green',
@@ -62,9 +60,11 @@ describe('palette', () => {
       'indigo',
       'purple',
       'pink',
+      'beige',
+      'brown',
       'grey',
     ]);
-    // By the hue of each row's medium tone (the grey row aside).
+    // By the hue of each row's medium tone (the earth tones and grey aside, at the end).
     const hue = (hex: string): number => {
       const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255) as [
         number,
@@ -77,7 +77,7 @@ describe('palette', () => {
         max === r ? ((g - b) / delta) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
       return (h * 60 + 360) % 360;
     };
-    const hues = BOX_FAMILIES.slice(0, -1).map((family) => hue(colorValue(`${family}-medium`)));
+    const hues = BOX_FAMILIES.slice(0, -3).map((family) => hue(colorValue(`${family}-medium`)));
     expect([...hues].sort((a, b) => a - b)).toEqual(hues);
   });
 

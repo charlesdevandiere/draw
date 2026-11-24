@@ -121,12 +121,15 @@ export function paintBox(
   box.setAttribute('role', 'radiogroup');
   box.setAttribute('aria-label', t('tools.allColors'));
   const groups = split ? [WARM_FAMILIES, COOL_FAMILIES] : [BOX_FAMILIES];
+  // The grid turned above the page (tablets in portrait) is the side grid rotated by -90°:
+  // the families run left to right, the dark tones on top.
+  const tones = !split && across === 'families' ? [...TONES].reverse() : TONES;
   for (const families of groups) {
     const block = document.createElement('div');
     block.className = 'paint-box-block';
     const ids =
       across === 'families'
-        ? TONES.flatMap((tone) => families.map((family) => `${family}-${tone}` as ColorId))
+        ? tones.flatMap((tone) => families.map((family) => `${family}-${tone}` as ColorId))
         : families.flatMap((family) => TONES.map((tone) => `${family}-${tone}` as ColorId));
     block.append(...ids.map((id) => colorCell(t, id, name, onPick)));
     box.append(block);
@@ -253,6 +256,8 @@ export function initTools(
     }
     // With the eraser, the color that will come back stands out less.
     container.toggleAttribute('data-erasing', !drawing);
+    // White on the white slider track: the preview gets an outline, as for the eraser.
+    container.toggleAttribute('data-light-color', state.color === 'grey-light');
     dialogElement.toggleAttribute('data-erasing', !drawing);
     options.boxHost.toggleAttribute('data-erasing', !drawing);
     eraser.setAttribute('aria-pressed', String(!drawing));

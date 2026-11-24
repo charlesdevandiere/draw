@@ -35,13 +35,12 @@ export const COOL_FAMILIES = FAMILIES.slice(7) as readonly Family[];
 /**
  * The rows of the palette shown in full on tablets: by wavelength, from the hue of each
  * row's medium tone (red to purple; pink, out of the rainbow, after purple where the hue
- * circle puts it), black and white at the bottom. The dialog keeps the warm / cool blocks.
+ * circle puts it), then the earth tones (beige, brown) next to black and white at the
+ * bottom (a brown between red and orange surprised). The dialog keeps warm / cool blocks.
  */
 export const BOX_FAMILIES: readonly Family[] = [
   'red',
-  'brown',
   'orange',
-  'beige',
   'yellow',
   'light-green',
   'green',
@@ -51,6 +50,8 @@ export const BOX_FAMILIES: readonly Family[] = [
   'indigo',
   'purple',
   'pink',
+  'beige',
+  'brown',
   'grey',
 ];
 

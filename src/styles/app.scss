@@ -322,6 +322,10 @@ body {
     background: #fff;
     box-shadow: inset 0 0 0 1px #9e9e9e;
   }
+
+  [data-light-color] &::before {
+    box-shadow: inset 0 0 0 1px #9e9e9e;
+  }
 }
 
 // Drawing screen (spec/SPEC-draw-tools.md, boards 1 and 2 of the mockups). The layout

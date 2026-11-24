@@ -122,6 +122,20 @@ Plan: `tasks/draw-tools/plan.md`. Spec: `spec/SPEC-draw-tools.md`. End of every 
 - [x] `npx playwright test e2e/palette.spec.ts e2e/theme.spec.ts e2e/app-shell.spec.ts e2e/tools.spec.ts`
 - [x] `npm run check`, `npm run e2e`
 
+## Task 7: Device feedback, round 3 (2026-11-24)
+
+**Description:** Beige and brown rows next to black and white at the bottom of the tablet palette; the portrait palette is the side grid turned by -90° (families left to right, dark tones on top); white selected: the size preview gets the eraser's outline; mockups updated.
+
+**Acceptance criteria:**
+
+- [x] Unit: `BOX_FAMILIES` ends with pink, beige, brown, grey; the rainbow part sorted by hue.
+- [x] e2e: portrait grid starts with "Red, dark", "Black" ends the first row, "White" is last; picking white outlines the preview.
+
+**Verification:**
+
+- [x] `npx playwright test e2e/palette.spec.ts`
+- [x] `npm run check`, `npm run e2e`
+
 ## Checkpoint: Module complete
 
 - [x] `npm run check` and `npm run e2e` pass; spec success criteria 1–7 met (by eye on the e2e screenshots; on the devices: next box)
