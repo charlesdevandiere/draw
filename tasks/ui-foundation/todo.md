@@ -85,6 +85,7 @@ Tasks 1 and 2 built a layout fixed to the hardware (counter-rotated screens, upr
 
 - `src/app/haptic.ts` (new), `e2e/haptic.spec.ts` (new), `vite.config.ts` (coverage exclusion)
 - Done as: pure choice in `src/input/haptic.ts` (unit tests, the production build used by e2e cannot import modules), DOM switch in `src/app/haptic.ts`; already wired to the padlock opening (e2e with a stubbed `navigator.vibrate` and with the switch), task 6 moves it to the generic long press.
+- Superseded (2026-11-24, DF-12 in `docs/device-fixes.md`): the switch gave nothing on the iPad and was removed; the tick is `navigator.vibrate` only.
 
 **Estimated scope:** Small
 

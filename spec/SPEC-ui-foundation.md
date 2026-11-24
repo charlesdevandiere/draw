@@ -55,7 +55,7 @@ Users: children aged 5+ (child screens); the long press and haptics are also use
 
 - `haptic()` helper: a light tick, called on each step of a slider (module `draw-tools`) and when a long press completes.
 - **Android (Chrome)**: `navigator.vibrate(8)`.
-- **iOS / iPadOS**: no web vibration API. Try the iOS 18+ switch trick (a hidden `<input type="checkbox" switch>` toggled through its label inside the user gesture produces the system haptic). If it does not work on the reference devices, iOS gets no haptics: **best effort, never a blocking criterion**.
+- **iOS / iPadOS**: no web vibration API: no tick (an iOS 18+ switch trick was tried and removed, DF-12). It will come with Safari's support of `navigator.vibrate`, with no change in the app.
 - Never throws, never delays the action; does nothing where unsupported.
 
 ### Layout follows the window's shape
@@ -75,7 +75,7 @@ Decided 2026-11-22, after a device trial of a layout fixed to the hardware (see 
 
 1. Buttons, page and selection match the foundations board of the mockups: paper background, square white page, pebble buttons in the action colors, ink selection ring; all are Bootstrap `.btn` with `theme-*` colors.
 2. Every long press takes 1.5 s: a release at 1.4 s does nothing, a 1.5 s press triggers the action; the fill shows the progress (unit tests on `createHold`, an e2e on the padlock).
-3. On the Pixel 9a, a completed long press gives a light vibration. On the iPad, the switch trick is tried and the result is recorded in `docs/device-fixes.md` (works or not); either way nothing breaks.
+3. On the Pixel 9a, a completed long press gives a light vibration. On the iPad, nothing breaks (no vibration API, DF-12).
 4. In portrait and landscape, on the iPhone SE (or Pixel 9a) and the iPad 11: the tools run along the long sides, the page is square and keeps its drawing, nothing sits in the system edge margins (tablet top margin from 576 px, DF-02) (e2e with portrait and landscape viewports for both device classes).
 5. What must NOT change: drawing input (modes, palm handling, DF-01 to DF-10 in `docs/device-fixes.md`), stroke storage, replay, gallery data, existing e2e behaviors other than the visuals.
 

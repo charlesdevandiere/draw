@@ -103,8 +103,8 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 
 (DF-11 was a rotation fix, dropped on 2026-11-22 with the layout fixed to the device.)
 
-- **Seen** (2026-11-22): the haptic tick at the end of the padlock's long press vibrates on the Pixel 9a (`navigator.vibrate(8)`); nothing is felt on the iPad 11.
-- **Cause**: iPads have no Taptic Engine, and Safari has no vibration API. The iOS 18+ switch trick (`src/app/haptic.ts`) can only play the system haptic on a device that has one (iPhone), and probably only inside the user gesture, while the long press completes on a timer.
-- **Decision**: accepted, as the spec allows (haptics are best effort). The switch stays: harmless on the iPad, a chance on iPhones. Never make a feedback depend on the haptic alone: the long press also shows its fill.
+- **Seen** (2026-11-22 and 2026-11-23): the haptic tick (end of a long press, each slider step) vibrates on the Pixel 9a (`navigator.vibrate(8)`); nothing is felt on the iPad 11.
+- **Cause**: Safari has no vibration API, and iPads have no Taptic Engine. An iOS 18+ trick (toggling a hidden `<input type="checkbox" switch>`) was tried and gave nothing on the iPad.
+- **Decision** (2026-11-24, the user): no workaround. The trick is removed; the iPad gets the tick the day Safari supports `navigator.vibrate`, with no change here. Never make a feedback depend on the haptic alone (the long press shows its fill, the slider its preview).
 - **Code**: `src/input/haptic.ts`, `src/app/haptic.ts`.
-- **Guard**: e2e `haptic.spec.ts` (the switch is hidden and inert; the tick goes through `navigator.vibrate`, else the switch). The felt result is checked by hand on the devices.
+- **Guard**: unit `haptic.test.ts`; e2e `haptic.spec.ts` (a tick through a stubbed `navigator.vibrate`, nothing and no error without it). The felt result is checked by hand on the devices.

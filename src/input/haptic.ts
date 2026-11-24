@@ -1,24 +1,21 @@
 /**
  * Light haptic tick (spec/SPEC-ui-foundation.md, "Haptic feedback"): a slider step, a
- * completed long press. Pure: the platform means are passed in (src/app/haptic.ts).
+ * completed long press. Pure: the vibration API is passed in (src/app/haptic.ts).
  */
 
-/** Length of the tick on Android, in milliseconds. */
+/** Length of the tick, in milliseconds. */
 export const HAPTIC_TICK_MS = 8;
 
-export interface HapticMeans {
-  /** `navigator.vibrate` (Android Chrome); missing on iOS. */
-  vibrate?: (milliseconds: number) => unknown;
-  /** Toggles a hidden `<input type="checkbox" switch>` (iOS 18+ system haptic). */
-  tapSwitch?: () => void;
-}
-
-/** A tick through the vibration API, else the switch; best effort, never throws. */
-export function createHaptic(means: HapticMeans): () => void {
+/**
+ * A tick through `navigator.vibrate` where the browser has it (Android Chrome); nothing
+ * elsewhere (Safari has no vibration API). Best effort, never throws.
+ *
+ * DF-12: docs/device-fixes.md
+ */
+export function createHaptic(vibrate?: (milliseconds: number) => unknown): () => void {
   return () => {
     try {
-      if (means.vibrate) means.vibrate(HAPTIC_TICK_MS);
-      else means.tapSwitch?.();
+      vibrate?.(HAPTIC_TICK_MS);
     } catch {
       // Best effort: a missing tick must never break or delay the action.
     }
