@@ -33,11 +33,11 @@ Source spec: `spec/SPEC-settings.md` (module `settings` of `spec/capability-map.
 
 ### Phase 3: Layout
 
-- [ ] Task 5: One column on phones, three columns on wide windows (boards "Paramètres")
+- [x] Task 5: One column on phones, three columns on wide windows (boards "Paramètres")
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–7 met
+- [x] Spec success criteria 1–7 met
 - [ ] Device check on the iPad 11 and the Pixel 9a (share sheet, file picker, long press)
 - [ ] Fold into `spec/SPEC-mvp.md` (B2, B3), set `spec/SPEC-settings.md` to `Status: implemented`; capability map: redesign complete
 

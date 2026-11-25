@@ -80,7 +80,7 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 **Acceptance criteria:**
 
-- [ ] e2e (iPhone SE, iPad landscape): column count, every control ≥ 48 px high and on screen after scrolling; screenshots compared with the boards by eye.
+- [x] e2e (iPhone SE, iPad landscape): column count, every control ≥ 48 px high and on screen after scrolling; screenshots compared with the boards by eye.
 
 **Verification:** `npx playwright test e2e/app-shell.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -92,6 +92,6 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 ## Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–7 met
+- [x] Spec success criteria 1–7 met
 - [ ] Device check on the iPad 11 and the Pixel 9a
 - [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-settings.md` to `Status: implemented`

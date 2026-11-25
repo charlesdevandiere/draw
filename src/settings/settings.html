@@ -11,7 +11,9 @@
     <h1 class="settings-title" data-i18n="settings.title"></h1>
   </header>
 
-  <div id="settings-sections" class="d-flex flex-column gap-4">
+  <!-- In the spec order (phones: one column); wide windows place them in three columns
+       (settings.scss), so the focus order is the reading order on phones. -->
+  <div id="settings-sections" class="settings-sections">
     <section id="section-backup" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5 m-0" data-i18n="settings.backup"></h2>
@@ -89,7 +91,6 @@
         <output id="update-status"></output>
       </div>
     </section>
-
     <section id="section-language" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5 m-0" data-i18n="settings.language"></h2>
@@ -103,7 +104,6 @@
         </label>
       </div>
     </section>
-
     <section id="section-input" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5 m-0" data-i18n="settings.input"></h2>
@@ -133,7 +133,6 @@
         ></button>
       </div>
     </section>
-
     <section id="section-storage" class="card">
       <div class="card-body settings-persistence">
         <span id="storage-icon" class="icon icon-shield" aria-hidden="true"></span>
@@ -150,7 +149,6 @@
         </div>
       </div>
     </section>
-
     <a
       href="diagnostic.html"
       class="settings-diagnostic"

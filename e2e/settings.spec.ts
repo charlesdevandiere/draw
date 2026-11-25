@@ -170,3 +170,66 @@ test('a check for updates shows a badge', async ({ page }) => {
   });
   await expect(page.locator('#update-badge')).toHaveText('Up to date');
 });
+
+test('one column on a phone, three on a wide window, every control large enough', async ({
+  page,
+}) => {
+  const box = async (selector: string) => {
+    const found = await page.locator(selector).boundingBox();
+    if (!found) throw new Error(`${selector} not visible`);
+    return found;
+  };
+  const order = [
+    '#section-backup',
+    '#section-share',
+    '#section-trash',
+    '#section-app',
+    '#section-language',
+    '#section-input',
+    '#section-storage',
+  ];
+
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('en/settings.html');
+  await expect(page.locator('#backup-summary')).not.toBeEmpty();
+  // One column, in the spec order.
+  let previous = await box(order[0] as string);
+  for (const selector of order.slice(1)) {
+    const card = await box(selector);
+    expect(Math.abs(card.x - previous.x)).toBeLessThan(1);
+    expect(card.y).toBeGreaterThan(previous.y + previous.height);
+    previous = card;
+  }
+  for (const control of await page
+    .locator('main button:visible, main label.btn, main select, main input[type="number"]')
+    .all()) {
+    expect((await control.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(48);
+  }
+  await page.screenshot({ path: test.info().outputPath('settings-phone.png'), fullPage: true });
+
+  await page.setViewportSize({ width: 1180, height: 820 });
+  const backup = await box('#section-backup');
+  const update = await box('#section-app');
+  const trash = await box('#section-trash');
+  const share = await box('#section-share');
+  const language = await box('#section-language');
+  const input = await box('#section-input');
+  const storage = await box('#section-storage');
+  // Backup and update | trash | share, language, finger.
+  expect(Math.abs(update.x - backup.x)).toBeLessThan(1);
+  expect(update.y).toBeGreaterThan(backup.y + backup.height);
+  expect(trash.x).toBeGreaterThan(backup.x + backup.width);
+  expect(share.x).toBeGreaterThan(trash.x + trash.width);
+  expect(Math.abs(language.x - share.x)).toBeLessThan(1);
+  expect(Math.abs(input.x - share.x)).toBeLessThan(1);
+  expect(Math.abs(backup.y - trash.y)).toBeLessThan(1);
+  expect(Math.abs(backup.y - share.y)).toBeLessThan(1);
+  // Persistence under the three columns, across them.
+  for (const card of [update, trash, input]) {
+    expect(storage.y).toBeGreaterThan(card.y + card.height);
+  }
+  expect(storage.width).toBeGreaterThan(share.x + share.width - backup.x - 1);
+  // Clear of the blur band under the iPad status bar (DF-02).
+  expect((await box('.settings-header')).y).toBeGreaterThanOrEqual(64);
+  await page.screenshot({ path: test.info().outputPath('settings-tablet.png'), fullPage: true });
+});
