@@ -1,5 +1,5 @@
 /**
- * Parent page: export the drawings as magic PNGs, and import magic PNGs back. Only valid
+ * Settings page: export the drawings as magic PNGs, and import magic PNGs back. Only valid
  * magic PNGs with a known schema are accepted; drawings already there are not duplicated.
  */
 import { requireElement } from '../app/dom';
@@ -55,7 +55,7 @@ export function initTransferSection(options: TransferOptions): TransferSection {
   exportButton.addEventListener('click', async () => {
     exportButton.disabled = true;
     resetExport();
-    status.textContent = t('parent.transfer.preparing');
+    status.textContent = t('settings.transfer.preparing');
     try {
       const chosen = new Set(options.selected());
       const records = (await options.list()).filter(
@@ -72,16 +72,16 @@ export function initTransferSection(options: TransferOptions): TransferSection {
         files.push(new File([await encodeMagicPng(drawing)], name, { type: 'image/png' }));
       }
       if (files.length === 0) {
-        status.textContent = t('parent.drawings.none');
+        status.textContent = t('settings.drawings.none');
         return;
       }
       prepared = files;
-      status.textContent = t('parent.transfer.ready', { count: files.length });
-      shareButton.textContent = t('parent.transfer.share', { count: files.length });
+      status.textContent = t('settings.transfer.ready', { count: files.length });
+      shareButton.textContent = t('settings.transfer.share', { count: files.length });
       shareButton.hidden = false;
       shareButton.focus();
     } catch {
-      status.textContent = t('parent.transfer.exportFailed');
+      status.textContent = t('settings.transfer.exportFailed');
     } finally {
       exportButton.disabled = false;
     }
@@ -98,7 +98,7 @@ export function initTransferSection(options: TransferOptions): TransferSection {
       sharing = false;
     }
     if (outcome === 'cancelled') return;
-    status.textContent = t('parent.transfer.exported', { count: files.length });
+    status.textContent = t('settings.transfer.exported', { count: files.length });
     resetExport();
   });
 
@@ -108,7 +108,7 @@ export function initTransferSection(options: TransferOptions): TransferSection {
     if (files.length === 0) return;
     // One import at a time: a second one would count against a stale gallery.
     importInput.disabled = true;
-    status.textContent = t('parent.transfer.reading');
+    status.textContent = t('settings.transfer.reading');
     try {
       const decoded: Decoded[] = [];
       for (const file of files) {
@@ -124,13 +124,13 @@ export function initTransferSection(options: TransferOptions): TransferSection {
       for (const drawing of outcome.restored)
         if (!(await options.restore(drawing.id))) await options.save(drawing);
       for (const drawing of outcome.added) await options.save(drawing);
-      status.textContent = t('parent.transfer.imported', {
+      status.textContent = t('settings.transfer.imported', {
         added: outcome.added.length,
         already: outcome.alreadyThere,
         refused: outcome.refused,
       });
     } catch {
-      status.textContent = t('parent.transfer.importFailed');
+      status.textContent = t('settings.transfer.importFailed');
     } finally {
       importInput.disabled = false;
       // Even after a failure, some drawings may have been saved.

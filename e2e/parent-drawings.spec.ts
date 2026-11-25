@@ -23,11 +23,11 @@ async function makeDrawings(page: Page, count: number) {
     .toBe(count);
 }
 
-test('the parent page lists the drawings and deletes the selected ones after confirmation', async ({
+test('the settings page lists the drawings and deletes the selected ones after confirmation', async ({
   page,
 }) => {
   await makeDrawings(page, 3);
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   const items = page.locator('#drawings-list li');
   await expect(items).toHaveCount(3);
   await expect(page.locator('#drawings-count')).toHaveText('No drawing selected');
@@ -53,14 +53,15 @@ test('the parent page lists the drawings and deletes the selected ones after con
   await expect(items).toHaveCount(1);
   await expect.poll(async () => Object.keys(await savedStrokeCounts(page)).length).toBe(1);
 
-  await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
-  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page.getByRole('link', { name: 'Back to my drawings' }).click();
+  // Back leads straight to the gallery.
+  await expect(page.locator('#gallery-screen')).toBeVisible();
   await expect(page.locator('.gallery-card')).toHaveCount(1);
 });
 
 test('select all, then none', async ({ page }) => {
   await makeDrawings(page, 2);
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   await page.getByRole('button', { name: 'Select all' }).click();
   await expect(page.locator('#drawings-count')).toHaveText('2 drawings selected');
   await page.getByRole('button', { name: 'Select none' }).click();

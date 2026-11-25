@@ -24,9 +24,9 @@ npm run notices        # regenerate public/THIRD-PARTY-NOTICES.txt (the build fa
 
 Structure:
 
-- `index.html` (root: redirects to the browser's language folder); `en/`, `fr/` (one folder per language: `index.html` app, `parent.html` parent page, `diagnostic.html`; manifests in `public/en/`, `public/fr/`).
+- `index.html` (root: redirects to the browser's language folder); `en/`, `fr/` (one folder per language: `index.html` app, `settings.html` settings page (`parent.html`: a stub redirecting to it, one version), `diagnostic.html`; manifests in `public/en/`, `public/fr/`).
 - `src/engine/` (pure: types, page transform, stroke builder, renderer on a provided 2D context, history, palette, replay schedule); `src/input/` (pure: input modes, press-and-hold, diagnostic palm rejection); `src/store/` (stored schema and migrations, settings parsing, autosave queue, PNG iTXt chunk, magic PNG, import merge — pure; `db.ts` IndexedDB access — DOM); `src/i18n/` (catalogs `messages/*.json`, ICU subset formatter, `apply.ts` DOM).
-- `src/app/` (child app, DOM: `app.html` markup, `main.ts` wiring, drawing / gallery / replay screens, tools, mode button, padlock, rasterizer, magic image, share); `src/parent/` (parent page, DOM, Bootstrap JS dialog); `src/diagnostic/` (diagnostic page); `src/pwa/` (update helpers); `src/styles/` (Sass: `app.scss`, `parent.scss`, tokens).
+- `src/app/` (child app, DOM: `app.html` markup, `main.ts` wiring, drawing / gallery / viewer screens, tools, mode button, long press, rasterizer, magic image, share); `src/settings/` (settings page, DOM, Bootstrap JS dialog); `src/diagnostic/` (diagnostic page); `src/pwa/` (update helpers); `src/styles/` (Sass: `app.scss`, `settings.scss`, tokens).
 - Tests: `src/**/*.test.ts` (Vitest, node), `e2e/*.spec.ts` (Playwright; helpers for synthetic pointers, canvas pixels, IndexedDB).
 
 Shared markup lives in `.html` templates imported with `?raw`; language shells only carry `<html lang>`, manifest and title. The DOM is confined to the files excluded from coverage (list in `vite.config.ts`); everything else is pure and tested (90 % threshold).
@@ -78,7 +78,7 @@ PC (mouse / touch): not targeted for validation, but the code stays standard so 
 - **Magic PNG**: the file format for sharing and export / import is a normal PNG carrying the vector drawing in an `iTXt` chunk (keyword `carnet-magique`). Import accepts only valid magic PNGs.
 - **Overflow protection** (milestone 2): SVG coloring pages where each area is a closed path; on `pointerdown`, find the area (`isPointInPath`) and clip the stroke to it.
 - **Neutralize system gestures** (magnifier / long press, double-tap zoom, selection, context menu, pull-to-refresh) on iOS and Android: mandatory protections, list in `docs/diagnostic/conclusions.md`. Swipes from the top and bottom edges belong to the system and cannot be blocked: **no control near those edges**.
-- **PWA update**: check for a new version every time the app returns to the foreground (an iOS PWA resumes without navigating and otherwise stays on the old version), plus a manual way in the parent page.
+- **PWA update**: check for a new version every time the app returns to the foreground (an iOS PWA resumes without navigating and otherwise stays on the old version), plus a manual way in the settings page.
 - **Persistence**: `navigator.storage.persist()` (granted for the installed PWA on iPad and on Chrome Android; refused by Brave, Chrome is the Android target), silent autosave, manual export / import of the gallery as a safety net.
 - **Adaptive UI**: phone portrait ↔ tablet landscape.
 - iOS Safari is the most restrictive target: check iOS support for every web API used.

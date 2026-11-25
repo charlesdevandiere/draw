@@ -379,15 +379,30 @@ openGallery.addEventListener('click', () => {
 });
 backToDrawing.addEventListener('click', showDrawScreen);
 initLongPress(
-  requireElement('parent-lock', HTMLButtonElement),
+  requireElement('open-settings', HTMLButtonElement),
   () => {
     // DF-05: docs/device-fixes.md
     // Save before leaving the app page. Replace, not assign: a swipe back from the edge
-    // must not bring the parent page back (see replaceHistoryOnLinks).
-    void autosave.flush().finally(() => window.location.replace('parent.html'));
+    // must not bring the settings page back (see replaceHistoryOnLinks).
+    void autosave.flush().finally(() => window.location.replace('settings.html'));
   },
   { haptic },
 );
+
+// Back from the settings page (`./#gallery`): open on the gallery, and forget the hash so a
+// reload lands on the slate as usual.
+if (window.location.hash === '#gallery') {
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  void gallery
+    .refresh()
+    .catch(() => undefined)
+    .finally(() => {
+      // A stroke started on the slate while the gallery loaded would be cut short.
+      if (drawScreen.isDrawing()) return;
+      showScreen('gallery');
+      backToDrawing.focus();
+    });
+}
 
 // An installed app is resumed rather than reopened: look for a new version each time it
 // comes back to the foreground (failures, e.g. offline, are silent).
@@ -398,7 +413,7 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', () => void autosave.flush());
 // Restored from the bfcache (a history entry another browser path left behind): the
-// drawing on the slate may have been deleted in the parent page meanwhile, and a new stroke
+// drawing on the slate may have been trashed in the settings page meanwhile, and a new stroke
 // would save it again. Reload to start from the database.
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) window.location.reload();

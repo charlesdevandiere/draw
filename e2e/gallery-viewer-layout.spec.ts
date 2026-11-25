@@ -125,7 +125,7 @@ test('the gallery keeps its header and first tiles on screen in every shape', as
     await page.setViewportSize(size);
     const tablet = size.width >= 576 && size.height >= 576;
     const top = tablet ? TABLET_TOP_MARGIN : EDGE_MARGIN;
-    for (const selector of ['#back-to-drawing', '#parent-lock']) {
+    for (const selector of ['#back-to-drawing', '#open-settings']) {
       expectInside(await rect(page, selector), size, top);
     }
     const tiles = page.locator('.gallery-list > li');

@@ -30,14 +30,16 @@ test('at startup, the trash is purged after 30 days and stays out of the gallery
   await expect(page.locator('.gallery-card')).toHaveCount(1);
 });
 
-test('the parent page lists only drawings outside the trash, and purges too', async ({ page }) => {
+test('the settings page lists only drawings outside the trash, and purges too', async ({
+  page,
+}) => {
   const now = Date.now();
   await seedDatabase(page, [
     { id: 'kept', updatedAt: now - 3 * DAY, lineAt: 200 },
     { id: 'recent', updatedAt: now - 2 * DAY, lineAt: 500, trashedAt: now - DAY },
     { id: 'old', updatedAt: now - 40 * DAY, lineAt: 800, trashedAt: now - 31 * DAY },
   ]);
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   await expect(page.locator('#drawings-list li')).toHaveCount(1);
   await expect(page.locator('#drawings-list li')).not.toHaveText('No drawings yet.');
   await expect

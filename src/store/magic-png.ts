@@ -1,7 +1,7 @@
 /**
  * The magic PNG: a normal PNG of the drawing on its white page, carrying the vector
  * drawing in an iTXt chunk (keyword `carnet-magique`, zlib-compressed JSON of the stored
- * schema). Shared from the gallery; exported and imported back by the parent page.
+ * schema). Shared from the gallery; exported and imported back by the settings page.
  *
  * No DOM here (Blob and compression streams exist in Node too): the image itself is
  * rendered by app/magic-image.ts.

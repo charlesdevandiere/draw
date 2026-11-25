@@ -58,7 +58,7 @@ test('export the gallery, delete everything, import it back; a photo is refused'
   await expect.poll(async () => Object.keys(await savedStrokeCounts(page)).length).toBe(2);
   const before = await savedStrokeCounts(page);
 
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('2 pictures ready.');
   await page.getByRole('button', { name: 'Share 2 pictures' }).click();
@@ -94,8 +94,9 @@ test('export the gallery, delete everything, import it back; a photo is refused'
   );
 
   // Back in the app, the drawings are in the gallery, with thumbnails.
-  await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
-  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page.getByRole('link', { name: 'Back to my drawings' }).click();
+  // Back leads straight to the gallery.
+  await expect(page.locator('#gallery-screen')).toBeVisible();
   await expect(page.locator('.gallery-card img')).toHaveCount(2);
 });
 
@@ -117,7 +118,7 @@ test('export leaves the trash out; importing a trashed drawing restores it', asy
   ]);
 
   // Export both while they are in the gallery, to have the PNG of 'thrown'.
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
   await page.getByRole('button', { name: 'Share 2 pictures' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('2 drawings exported.');
@@ -153,7 +154,8 @@ test('export leaves the trash out; importing a trashed drawing restores it', asy
     'No drawing imported, 2 already there.',
   );
   await expect(page.locator('#drawings-list li')).toHaveCount(2);
-  await page.getByRole('link', { name: 'Back to the sketchbook' }).click();
-  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page.getByRole('link', { name: 'Back to my drawings' }).click();
+  // Back leads straight to the gallery.
+  await expect(page.locator('#gallery-screen')).toBeVisible();
   await expect(page.locator('.gallery-card')).toHaveCount(2);
 });

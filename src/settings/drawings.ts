@@ -1,5 +1,5 @@
 /**
- * Parent page: the list of drawings, multiple selection and deletion after confirmation
+ * Settings page: the list of drawings, multiple selection and deletion after confirmation
  * (Bootstrap dialog). The child app never deletes anything itself.
  */
 import Dialog from 'bootstrap/js/dist/dialog.js';
@@ -41,12 +41,12 @@ export function initDrawingsSection(options: DrawingsSectionOptions): DrawingsSe
   const listeners: (() => void)[] = [];
 
   function update(): void {
-    count.textContent = t('parent.drawings.selected', { count: chosen.size });
+    count.textContent = t('settings.drawings.selected', { count: chosen.size });
     deleteButton.disabled = chosen.size === 0;
     selectAll.textContent = t(
       chosen.size === ids.length && ids.length > 0
-        ? 'parent.drawings.selectNone'
-        : 'parent.drawings.selectAll',
+        ? 'settings.drawings.selectNone'
+        : 'settings.drawings.selectAll',
     );
     for (const listener of listeners) listener();
   }
@@ -75,7 +75,7 @@ export function initDrawingsSection(options: DrawingsSectionOptions): DrawingsSe
     } else {
       // No thumbnail (saved while hidden): keep the tile's shape under the checkbox.
       const placeholder = document.createElement('span');
-      placeholder.className = 'parent-drawings-placeholder';
+      placeholder.className = 'settings-drawings-placeholder';
       label.append(placeholder);
     }
     const date = document.createElement('span');
@@ -94,7 +94,7 @@ export function initDrawingsSection(options: DrawingsSectionOptions): DrawingsSe
     list.replaceChildren(...records.map(item));
     if (records.length === 0) {
       const empty = document.createElement('li');
-      empty.textContent = t('parent.drawings.none');
+      empty.textContent = t('settings.drawings.none');
       list.append(empty);
     }
     update();
@@ -111,7 +111,7 @@ export function initDrawingsSection(options: DrawingsSectionOptions): DrawingsSe
   });
 
   deleteButton.addEventListener('click', () => {
-    dialogText.textContent = t('parent.drawings.confirm', { count: chosen.size });
+    dialogText.textContent = t('settings.drawings.confirm', { count: chosen.size });
     void dialog.show(deleteButton);
   });
   requireElement('delete-cancel', HTMLButtonElement).addEventListener('click', () => {

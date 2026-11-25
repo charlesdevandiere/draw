@@ -8,8 +8,8 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 **Acceptance criteria:**
 
-- [ ] e2e: the long press opens `settings.html`; back shows the gallery; `parent.html` lands on `settings.html`; settings and diagnostic pages never stack up in the history.
-- [ ] Every existing parent e2e passes against `settings.html`.
+- [x] e2e: the long press opens `settings.html`; back shows the gallery; `parent.html` lands on `settings.html`; settings and diagnostic pages never stack up in the history.
+- [x] Every existing parent e2e passes against `settings.html`.
 
 **Verification:** `npx playwright test e2e/parent.spec.ts e2e/input-settings.spec.ts e2e/transfer.spec.ts`; `npm run check`, `npm run e2e`
 

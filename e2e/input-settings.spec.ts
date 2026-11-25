@@ -8,7 +8,7 @@ const INK = [0x21, 0x21, 0x21];
 test.use({ locale: 'en-US' });
 
 test('turning the palm filter off lets a wide contact draw in Finger mode', async ({ page }) => {
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   const filter = page.getByLabel('Ignore contacts as wide as a palm');
   await expect(filter).toBeChecked();
   await expect(page.getByLabel('Widest contact that still draws (px)')).toHaveValue('80');
@@ -27,7 +27,7 @@ test('turning the palm filter off lets a wide contact draw in Finger mode', asyn
 });
 
 test('settings are kept within bounds and can be reset', async ({ page }) => {
-  await page.goto('en/parent.html');
+  await page.goto('en/settings.html');
   const threshold = page.getByLabel('Widest contact that still draws (px)');
   await threshold.fill('9999');
   await threshold.blur();

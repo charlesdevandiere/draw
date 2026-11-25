@@ -1,8 +1,9 @@
 /**
- * Parent page (adult screen, Bootstrap): language, storage, application. Reached from the
- * gallery's padlock (press and hold). Texts come from the same catalogs as the app.
+ * Settings page (adult screen, Bootstrap, spec/SPEC-settings.md). Reached from the
+ * gallery's settings pebble (press and hold); back leads to the gallery. Texts come from
+ * the same catalogs as the app.
  */
-import '../styles/parent.scss';
+import '../styles/settings.scss';
 import { APP_VERSION } from '../app-version';
 import { replaceHistoryOnLinks, requireElement } from '../app/dom';
 import {
@@ -27,13 +28,13 @@ import { initDrawingsSection } from './drawings';
 import { initInputSettings } from './input-settings';
 import { initTransferSection } from './transfer';
 import { renderThumbnail } from '../app/raster';
-import parentHtml from './parent.html?raw';
+import settingsHtml from './settings.html?raw';
 
 const translator = createTranslator(documentLanguage());
 const { t } = translator;
 document.documentElement.lang = translator.language;
-document.title = `${t('parent.title')} — ${t('app.name')}`;
-document.body.innerHTML = parentHtml;
+document.title = `${t('settings.title')} — ${t('app.name')}`;
+document.body.innerHTML = settingsHtml;
 applyTranslations(document.body, t);
 replaceHistoryOnLinks(document.body);
 
@@ -83,14 +84,14 @@ const megabytes = (bytes: number): string =>
 
 async function refreshStorage(): Promise<void> {
   const persisted = (await navigator.storage?.persisted?.().catch(() => null)) ?? null;
-  persistedText.textContent = t('parent.storage.persisted', {
+  persistedText.textContent = t('settings.storage.persisted', {
     state: persisted === null ? 'unknown' : persisted ? 'yes' : 'no',
   });
   persistButton.hidden = persisted !== false;
   const estimate = await navigator.storage?.estimate?.().catch(() => null);
   usageText.textContent =
     estimate?.usage !== undefined && estimate.quota !== undefined
-      ? t('parent.storage.usage', {
+      ? t('settings.storage.usage', {
           used: megabytes(estimate.usage),
           quota: megabytes(estimate.quota),
         })
@@ -109,7 +110,7 @@ persistButton.addEventListener('click', () => {
 void refreshStorage();
 
 // Application: version and updates.
-requireElement('app-version', HTMLParagraphElement).textContent = t('parent.version', {
+requireElement('app-version', HTMLParagraphElement).textContent = t('settings.version', {
   version: APP_VERSION,
 });
 const updateStatus = requireElement('update-status', HTMLOutputElement);

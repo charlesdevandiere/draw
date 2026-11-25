@@ -19,7 +19,7 @@ Source spec: `spec/SPEC-settings.md` (module `settings` of `spec/capability-map.
 
 ### Phase 1: The page
 
-- [ ] Task 1: `settings.html` replaces `parent.html` (rename, stub, diagnostic link, back to the gallery, paper look)
+- [x] Task 1: `settings.html` replaces `parent.html` (rename, stub, diagnostic link, back to the gallery, paper look)
 - [ ] Task 2: Backup section: drawings list removed, export all, count and size line
 
 ### Checkpoint: Page

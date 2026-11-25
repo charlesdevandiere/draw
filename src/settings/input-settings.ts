@@ -1,5 +1,5 @@
 /**
- * Parent page: settings of the Finger input mode (palm width filter).
+ * Settings page: settings of the Finger input mode (palm width filter).
  * Saved at once; the app applies them the next time it starts.
  */
 import { requireElement } from '../app/dom';

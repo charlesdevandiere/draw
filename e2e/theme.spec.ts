@@ -121,9 +121,11 @@ test('the gallery and viewer buttons are pebbles in their role colors', async ({
   };
   await expectRoles([
     [page.locator('#back-to-drawing'), 'rgb(255, 213, 79)'],
-    [page.locator('#parent-lock'), DISABLED_BG],
+    [page.locator('#open-settings'), DISABLED_BG],
   ]);
-  // The new page is a blank dashed sheet with a green "+".
+  // The new page is a blank dashed sheet with a green "+". On a cold start the wall can
+  // take a few seconds (the save of the dot and the service worker install compete).
+  await expect(page.locator('#gallery-new-page')).toBeVisible({ timeout: 15_000 });
   await expect
     .poll(() => styleOf(page.locator('#gallery-new-page'), 'border-top-style'))
     .toBe('dashed');
@@ -132,7 +134,7 @@ test('the gallery and viewer buttons are pebbles in their role colors', async ({
     .toBe('rgb(67, 160, 71)');
   // The settings pebble (a long press) has its own icon color.
   await expect
-    .poll(() => styleOf(page.locator('#parent-lock .icon'), 'background-color'))
+    .poll(() => styleOf(page.locator('#open-settings .icon'), 'background-color'))
     .toBe('rgb(93, 84, 66)');
 
   await page.getByRole('button', { name: /Open the drawing/ }).click();

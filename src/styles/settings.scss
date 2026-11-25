@@ -1,10 +1,15 @@
-// Parent page: Bootstrap 6 (alpha) with the components an adult screen needs.
+// Settings page (spec/SPEC-settings.md): Bootstrap 6 (alpha) with the components an adult
+// screen needs, in the paper look of the app (white cards, action colors, pebbles).
 @use 'bootstrap/scss/config' with (
   $enable-shadows: false,
   $enable-gradients: false
 );
+@use 'tokens' as *;
 @use 'bootstrap/scss/colors';
-@use 'bootstrap/scss/theme';
+// The action colors join Bootstrap's default theme colors (the page also uses primary...).
+@use 'bootstrap/scss/theme' with (
+  $theme-colors: action-themes()
+);
 @use 'bootstrap/scss/root';
 @use 'bootstrap/scss/content';
 @use 'bootstrap/scss/layout';
@@ -14,7 +19,7 @@
 @use 'bootstrap/scss/dialog';
 @use 'bootstrap/scss/helpers';
 @use 'bootstrap/scss/utilities/api';
-@use 'tokens' as *;
+@use 'icons';
 
 :root {
   color-scheme: light;
@@ -33,7 +38,45 @@ body {
   }
 }
 
-.parent-drawings {
+// The back pebble, as in the app (a fixed size here: no tool rows to fit).
+.btn-pebble {
+  --btn-border-width: 0;
+  --btn-border-radius: #{$pebble-radius};
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: $tool-size;
+  height: $tool-size;
+  padding: 0;
+
+  &:hover {
+    --btn-hover-bg: var(--btn-bg);
+    --btn-hover-color: var(--btn-color);
+  }
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.settings-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+// White cards on the paper, rounded, with a light shadow (boards "Paramètres").
+.settings .card {
+  border: 0;
+  border-radius: 16px;
+  background: $page;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 8%);
+}
+
+.settings-drawings {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
@@ -58,7 +101,7 @@ body {
   }
 
   img,
-  .parent-drawings-placeholder {
+  .settings-drawings-placeholder {
     display: block;
     width: 100%;
     aspect-ratio: 1;

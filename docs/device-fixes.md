@@ -28,8 +28,8 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 
 - **Seen** (2026-11-21, iPad, iPadOS 26): the top of the screen is blurred under the status bar.
 - **Cause**: iPadOS 26 draws a blur under its status bar, taller than the safe area it reports.
-- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the parent page. Tablets are the device class of `spec/SPEC-ui-foundation.md` (both viewport sides ≥ 576 px, Bootstrap `sm`; 700 px before 2026-11-22), in either orientation.
-- **Code**: `$edge-margin-top-tablet` and the device class `$tablet` in `src/styles/_tokens.scss`, used by `src/styles/app.scss` (`--app-edge-top`) and `src/styles/parent.scss`.
+- **Fix**: tablets keep 64 px free at the top (plus the safe area), in the app and the settings page (the parent page until 2026-11-25). Tablets are the device class of `spec/SPEC-ui-foundation.md` (both viewport sides ≥ 576 px, Bootstrap `sm`; 700 px before 2026-11-22), in either orientation.
+- **Code**: `$edge-margin-top-tablet` and the device class `$tablet` in `src/styles/_tokens.scss`, used by `src/styles/app.scss` (`--app-edge-top`) and `src/styles/settings.scss`.
 - **Guard**: e2e `app-shell.spec.ts` › "the square page fills the drawing area and controls stay away from the edges" (`TABLET_TOP_MARGIN`).
 
 ## DF-03 Sharp icons
@@ -44,8 +44,8 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 
 - **Seen** (2026-11-21, Pixel 9a, installed from Chrome): "new version found, reloading…" then still the old version, forever.
 - **Cause**: vite-plugin-pwa 2 leaves a new service worker waiting for a `SKIP_WAITING` message that nothing sends. A waiting worker activates only once every page of the app is closed, and Chrome Android never really closes an installed app's page.
-- **Fix**: Workbox `skipWaiting: true` and `clientsClaim: true`. The pages reload on `controllerchange`; the app waits for the stroke in progress and the save, the parent page for an import, export or share in progress (`busy()`).
-- **Code**: `vite.config.ts` (workbox options), `src/parent/transfer.ts` (`busy()`), `src/parent/main.ts`.
+- **Fix**: Workbox `skipWaiting: true` and `clientsClaim: true`. The pages reload on `controllerchange`; the app waits for the stroke in progress and the save, the settings page for an import, export or share in progress (`busy()`).
+- **Code**: `vite.config.ts` (workbox options), `src/settings/transfer.ts` (`busy()`), `src/settings/main.ts`.
 - **Guard**: e2e `service-worker.spec.ts` › "the service worker activates a new version without waiting". The wait for `busy()` is not automated: step A3 "Update" of `docs/mvp-device-test.md`.
 
 ## DF-05 An edge swipe "back" never reaches the parent page
@@ -53,8 +53,8 @@ Known limitations, not fixed in code: the Metapen sometimes goes unrecognized wh
 - **Seen** (2026-11-21, iPad): swiping from the left edge while drawing went back in the history to the parent page, which a child must not reach.
 - **Cause**: links between the app, the parent page and the diagnostic page added history entries.
 - **Fix**: those links (marked `data-replace`) and the padlock replace the current history entry (`location.replace`) instead of adding one.
-- **Code**: `replaceHistoryOnLinks` in `src/app/dom.ts`; `src/app/main.ts` (padlock); `data-replace` in `src/parent/parent.html` and `src/diagnostic/diagnostic.html`.
-- **Guard**: e2e `parent.spec.ts` › "the parent and diagnostic pages never stack up in the history".
+- **Code**: `replaceHistoryOnLinks` in `src/app/dom.ts`; `src/app/main.ts` (settings pebble); `data-replace` in `src/settings/settings.html` and `src/diagnostic/diagnostic.html`.
+- **Guard**: e2e `settings.spec.ts` › "the settings and diagnostic pages never stack up in the history".
 
 ## DF-06 A stroke can start just outside the page
 

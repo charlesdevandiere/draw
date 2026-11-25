@@ -4,7 +4,7 @@ import { isLanguage, pickLanguage, type Language, type MessageKey, type Translat
 type Translate = Translator['t'];
 
 /**
- * Language chosen in the parent page for this browser (overrides the folder's). Kept in
+ * Language chosen in the settings page for this browser (overrides the folder's). Kept in
  * localStorage, not IndexedDB like the other settings: it must be read synchronously,
  * before the first text is shown.
  */
@@ -29,7 +29,7 @@ export function writeLanguageOverride(language: Language | null): void {
 }
 
 /**
- * Language of the page: the parent's choice, else `<html lang>` of its language folder,
+ * Language of the page: the settings' choice, else `<html lang>` of its language folder,
  * else the browser's. The page's `lang` attribute is updated to match.
  */
 export function documentLanguage(): Language {

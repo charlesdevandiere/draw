@@ -1,31 +1,38 @@
-<main class="container py-4 parent">
-  <header class="d-flex align-items-center gap-3 mb-4">
-    <a href="./" class="btn btn-outline theme-secondary" data-replace data-i18n="parent.back"></a>
-    <h1 class="h3 m-0" data-i18n="parent.title"></h1>
+<main class="container settings">
+  <header class="settings-header">
+    <a
+      href="./#gallery"
+      class="btn btn-solid btn-pebble theme-history"
+      data-replace
+      data-i18n-aria="settings.back"
+    >
+      <span class="icon icon-back" aria-hidden="true"></span>
+    </a>
+    <h1 class="settings-title" data-i18n="settings.title"></h1>
   </header>
 
   <!-- Phase B sections are added here in order: drawings, transfer, input. -->
-  <div id="parent-sections" class="d-flex flex-column gap-4">
+  <div id="settings-sections" class="d-flex flex-column gap-4">
     <section id="section-drawings" class="card">
       <div class="card-body d-flex flex-column gap-3">
-        <h2 class="h5" data-i18n="parent.drawings"></h2>
+        <h2 class="h5" data-i18n="settings.drawings"></h2>
         <div class="d-flex flex-wrap align-items-center gap-2">
           <button
             id="drawings-select-all"
             type="button"
             class="btn btn-outline theme-secondary"
-            data-i18n="parent.drawings.selectAll"
+            data-i18n="settings.drawings.selectAll"
           ></button>
           <button
             id="drawings-delete"
             type="button"
             class="btn btn-outline theme-danger"
-            data-i18n="parent.drawings.delete"
+            data-i18n="settings.drawings.delete"
             disabled
           ></button>
           <output id="drawings-count"></output>
         </div>
-        <ul id="drawings-list" class="parent-drawings"></ul>
+        <ul id="drawings-list" class="settings-drawings"></ul>
       </div>
     </section>
 
@@ -34,7 +41,7 @@
         <h2
           id="delete-dialog-title"
           class="dialog-title h5"
-          data-i18n="parent.drawings.confirmTitle"
+          data-i18n="settings.drawings.confirmTitle"
         ></h2>
       </div>
       <div class="dialog-body">
@@ -51,20 +58,20 @@
           id="delete-confirm"
           type="button"
           class="btn btn-solid theme-danger"
-          data-i18n="parent.drawings.delete"
+          data-i18n="settings.drawings.delete"
         ></button>
       </div>
     </dialog>
     <section id="section-transfer" class="card">
       <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="parent.transfer"></h2>
-        <p class="m-0 text-body-secondary" data-i18n="parent.transfer.help"></p>
+        <h2 class="h5" data-i18n="settings.transfer"></h2>
+        <p class="m-0 text-body-secondary" data-i18n="settings.transfer.help"></p>
         <div class="d-flex flex-wrap gap-2">
           <button
             id="export-drawings"
             type="button"
             class="btn btn-outline theme-primary"
-            data-i18n="parent.transfer.export"
+            data-i18n="settings.transfer.export"
           ></button>
           <button
             id="share-export"
@@ -73,7 +80,7 @@
             hidden
           ></button>
           <label class="btn btn-outline theme-primary">
-            <span data-i18n="parent.transfer.import"></span>
+            <span data-i18n="settings.transfer.import"></span>
             <input
               id="import-files"
               type="file"
@@ -89,14 +96,14 @@
 
     <section id="section-input" class="card">
       <div class="card-body d-flex flex-column gap-3">
-        <h2 class="h5" data-i18n="parent.input"></h2>
-        <p class="m-0 text-body-secondary" data-i18n="parent.input.help"></p>
+        <h2 class="h5" data-i18n="settings.input"></h2>
+        <p class="m-0 text-body-secondary" data-i18n="settings.input.help"></p>
         <label class="d-flex align-items-center gap-2">
           <input id="width-filter" type="checkbox" class="check check-lg" />
-          <span data-i18n="parent.input.widthFilter"></span>
+          <span data-i18n="settings.input.widthFilter"></span>
         </label>
         <label class="d-flex flex-column gap-1">
-          <span data-i18n="parent.input.widthThreshold"></span>
+          <span data-i18n="settings.input.widthThreshold"></span>
           <input
             id="width-threshold"
             type="number"
@@ -111,7 +118,7 @@
             id="input-defaults"
             type="button"
             class="btn btn-outline theme-secondary"
-            data-i18n="parent.input.defaults"
+            data-i18n="settings.input.defaults"
           ></button>
         </div>
       </div>
@@ -119,9 +126,9 @@
 
     <section id="section-language" class="card">
       <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="parent.language"></h2>
-        <select id="language-select" class="form-control" data-i18n-aria="parent.language">
-          <option value="" data-i18n="parent.language.auto"></option>
+        <h2 class="h5" data-i18n="settings.language"></h2>
+        <select id="language-select" class="form-control" data-i18n-aria="settings.language">
+          <option value="" data-i18n="settings.language.auto"></option>
           <option value="en" lang="en">English</option>
           <option value="fr" lang="fr">Français</option>
         </select>
@@ -130,7 +137,7 @@
 
     <section id="section-storage" class="card">
       <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="parent.storage"></h2>
+        <h2 class="h5" data-i18n="settings.storage"></h2>
         <p id="storage-persisted" class="m-0"></p>
         <p id="storage-usage" class="m-0"></p>
         <div>
@@ -139,7 +146,7 @@
             type="button"
             hidden
             class="btn btn-outline theme-primary"
-            data-i18n="parent.storage.persist"
+            data-i18n="settings.storage.persist"
           ></button>
         </div>
       </div>
@@ -147,7 +154,7 @@
 
     <section id="section-app" class="card">
       <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="parent.app"></h2>
+        <h2 class="h5" data-i18n="settings.app"></h2>
         <p id="app-version" class="m-0"></p>
         <div class="d-flex flex-wrap gap-2">
           <button
@@ -166,7 +173,7 @@
             href="diagnostic.html"
             class="btn btn-outline theme-secondary"
             data-replace
-            data-i18n="parent.diagnostic"
+            data-i18n="settings.diagnostic"
           ></a>
         </div>
         <output id="update-status"></output>
