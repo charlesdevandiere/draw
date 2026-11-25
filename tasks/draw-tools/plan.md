@@ -37,8 +37,8 @@ Source spec: `spec/SPEC-draw-tools.md` (module `draw-tools` of `spec/capability-
 ### Checkpoint: Module complete
 
 - [x] Spec success criteria 1–7 met
-- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations (plus the `trash` quick check)
-- [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-draw-tools.md` to `Status: implemented`
+- [x] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations (plus the `trash` quick check)
+- [x] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-draw-tools.md` to `Status: implemented`
 
 ## Risks and Mitigations
 

@@ -1,6 +1,6 @@
 # Spec Delta: Drawing tools — redesign module 3 of 5
 
-Status: approved (2026-11-23)
+Status: implemented (2026-11-25)
 
 Module `draw-tools` of the UI redesign (`spec/capability-map.md`). Inherits everything from `spec/SPEC-mvp.md` (stack, commands, structure, code style, testing strategy, boundaries) and builds on module `ui-foundation` (pebbles, action colors, haptic tick).
 

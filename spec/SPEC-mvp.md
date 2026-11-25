@@ -45,12 +45,11 @@ Sources: `docs/ideas/carnet-magique.md` (vision, scope, "Not Doing") and `docs/d
 
 **A2 — Slate tools**
 
-- **8 colors** as large swatches: black, red, orange, yellow, green, blue, purple, brown (exact values in the plan).
-- **2 widths**: thin and thick (around 8 and 24 page units, tuned on device).
-- **Eraser**, "pencil" style, fixed and wider (~48 units).
+- **56 colors** (module `draw-tools`, `spec/SPEC-draw-tools.md`): 14 families × 4 tones (light, bright, medium, dark), ids `<family>-<tone>`, values and orders in `src/engine/palette.ts`. The 8 MVP colors are all in it (medium tone, black = grey dark). Phones: no colors on screen, a palette pebble opens an "all colors" dialog (warm and neutral families, then cool ones); tablets: the whole palette as one grid by wavelength (4 × 14 left of the page in landscape, the same turned by −90° above it in portrait). The selected cell is drawn larger, rounded, with a light shadow.
+- **6 sizes**: 4, 8, 16, 24, 40, 64 page units, on a stepped `.form-range` slider with a preview dot at real size (1:1 with the page), a haptic tick per step. The **eraser** ("pencil" style) takes the slider size; the selected eraser pebble is drawn larger with the same shadow. Picking a color goes back to the pen; the slider keeps the tool.
 - **Undo / Redo**: undo removes the last finished stroke (eraser strokes included), redo puts it back. Any new stroke clears the redo stack. History covers the whole drawing, including after reopening it.
 - **New page**: the current drawing is already saved; a blank page opens. A drawing with no strokes is never stored in the gallery.
-- Current color and width always visible (active swatch highlighted).
+- Current color and size always visible (selected cell, slider preview dot).
 
 **A3 — Input modes**
 
@@ -75,7 +74,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 - **Portrait**: the page spans the full width, tools below. **Landscape**: the page spans the full height, tools on the sides. The layout follows the window's shape (`min-aspect-ratio: 1/1`), not the device type; a layout fixed to the hardware was tried and dropped (`spec/SPEC-ui-foundation.md`, Decision history).
 - **Device class**, for margins only: a tablet has both viewport sides ≥ 576 px (Bootstrap `sm`), in either orientation (DF-02).
-- **Theme** (module `ui-foundation`): paper background `#fff4d6`, square white page with a shadow, ink `#2b2b2b`. Action buttons are **pebbles**: Bootstrap `.btn.btn-solid.btn-pebble.theme-<role>`, rounded squares (29 %) at the tool size (56 px, shrinking by DF-01, never under 48 px), one color per role (`$action-colors` in `src/styles/_tokens.scss`), dark icons; disabled pebbles beige with a grey icon. Selection: a paper gap then an ink ring. Color swatches and width buttons stay round until module `draw-tools`.
+- **Theme** (module `ui-foundation`): paper background `#fff4d6`, square white page with a shadow, ink `#2b2b2b`. Action buttons are **pebbles**: Bootstrap `.btn.btn-solid.btn-pebble.theme-<role>`, rounded squares (29 %) at the tool size (56 px, shrinking by DF-01, never under 48 px), one color per role (`$action-colors` in `src/styles/_tokens.scss`), dark icons; disabled pebbles beige with a grey icon. The drawing screen layout (palette, slider, tool groups per orientation and device class) is described in `spec/SPEC-draw-tools.md`.
 - **No control** within a margin near the top and bottom edges (≥ 32 px plus `safe-area-inset`).
 - **Gesture protections** always on (list in `docs/diagnostic/conclusions.md`).
 - No visible text: pictograms from Bootstrap Icons (only the icons used, imported in Sass as CSS masks, `src/styles/_icons.scss`), targets ≥ 48 px, translated `aria-label`s.
@@ -310,7 +309,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
 
 1. `npm run check` passes; a push to `master` publishes the app at `https://charlesdevandiere.github.io/draw/`.
 2. `/draw/` opens `/draw/fr/` on a French browser and `/draw/en/` otherwise; installed from there, the app is named in that language, and its pictogram labels are translated.
-3. On the 3 devices, installed PWA: draw with the 8 colors, both widths and the eraser; dot an "i"; undo and redo 10 times in a row without error.
+3. On the 3 devices, installed PWA: draw with several colors and sizes and the eraser; dot an "i"; undo and redo 10 times in a row without error.
 4. The stroke follows the pen / finger with no perceptible lag and no angular segments; no zoom, scroll, selection or system menu during 5 min of scribbling.
 5. **Pen mode** (iPad + Metapen): writing with the palm resting, **including before the first stroke**, leaves no palm mark.
 6. **Finger mode** (iPad by finger): clearly fewer palm strokes than the diagnostic's "single touch" option, especially when lifting the finger.
