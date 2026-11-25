@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { pagePoint } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
-import { savedStrokeCounts, seedDatabase } from './helpers/storage';
+import { clearDrawings, savedStrokeCounts, seedDatabase } from './helpers/storage';
 
 test.use({ locale: 'en-US' });
 
@@ -59,18 +59,19 @@ test('export the gallery, delete everything, import it back; a photo is refused'
   const before = await savedStrokeCounts(page);
 
   await page.goto('en/settings.html');
-  await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
+  await page.getByRole('button', { name: 'Export the drawings' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('2 pictures ready.');
   await page.getByRole('button', { name: 'Share 2 pictures' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('2 drawings exported.');
   const exported = await capturedFiles(page);
   expect(exported).toHaveLength(2);
 
-  // Delete everything.
-  await page.getByRole('button', { name: 'Select all' }).click();
-  await page.getByRole('button', { name: 'Delete', exact: true }).click();
-  await page.locator('#delete-confirm').click();
-  await expect(page.locator('#drawings-list li')).toHaveText(['No drawings yet.']);
+  await expect(page.locator('#backup-summary')).toHaveText(/^2 drawings, 0\.1 MB\.$/);
+
+  // Delete everything (straight in the database: no final delete in the settings).
+  await clearDrawings(page);
+  await page.reload();
+  await expect(page.locator('#backup-summary')).toHaveText('No drawings yet.');
 
   // A plain picture made in the browser: not a sketchbook drawing.
   const photo = await page.evaluate(async () => {
@@ -119,7 +120,7 @@ test('export leaves the trash out; importing a trashed drawing restores it', asy
 
   // Export both while they are in the gallery, to have the PNG of 'thrown'.
   await page.goto('en/settings.html');
-  await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
+  await page.getByRole('button', { name: 'Export the drawings' }).click();
   await page.getByRole('button', { name: 'Share 2 pictures' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('2 drawings exported.');
   const both = await capturedFiles(page);
@@ -145,7 +146,7 @@ test('export leaves the trash out; importing a trashed drawing restores it', asy
 
   // Export now leaves it out.
   await page.reload();
-  await page.getByRole('button', { name: 'Export (selection, or all)' }).click();
+  await page.getByRole('button', { name: 'Export the drawings' }).click();
   await expect(page.locator('#transfer-status')).toHaveText('1 picture ready.');
 
   // Importing its PNG brings it back, counted as already there.
@@ -153,7 +154,7 @@ test('export leaves the trash out; importing a trashed drawing restores it', asy
   await expect(page.locator('#transfer-status')).toHaveText(
     'No drawing imported, 2 already there.',
   );
-  await expect(page.locator('#drawings-list li')).toHaveCount(2);
+  await expect(page.locator('#backup-summary')).toHaveText(/^2 drawings, /);
   await page.getByRole('link', { name: 'Back to my drawings' }).click();
   // Back leads straight to the gallery.
   await expect(page.locator('#gallery-screen')).toBeVisible();

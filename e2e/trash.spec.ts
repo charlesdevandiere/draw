@@ -30,7 +30,7 @@ test('at startup, the trash is purged after 30 days and stays out of the gallery
   await expect(page.locator('.gallery-card')).toHaveCount(1);
 });
 
-test('the settings page lists only drawings outside the trash, and purges too', async ({
+test('the settings page counts only drawings outside the trash, and purges too', async ({
   page,
 }) => {
   const now = Date.now();
@@ -40,8 +40,8 @@ test('the settings page lists only drawings outside the trash, and purges too', 
     { id: 'old', updatedAt: now - 40 * DAY, lineAt: 800, trashedAt: now - 31 * DAY },
   ]);
   await page.goto('en/settings.html');
-  await expect(page.locator('#drawings-list li')).toHaveCount(1);
-  await expect(page.locator('#drawings-list li')).not.toHaveText('No drawings yet.');
+  // Only the drawing outside the trash counts in the backup.
+  await expect(page.locator('#backup-summary')).toHaveText(/^1 drawing, /);
   await expect
     .poll(async () => Object.keys(await savedStrokeCounts(page)).sort())
     .toEqual(['kept', 'recent']);

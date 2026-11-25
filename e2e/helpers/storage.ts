@@ -31,6 +31,27 @@ export async function savedStrokeCounts(page: Page): Promise<Record<string, numb
   );
 }
 
+/** Deletes every stored drawing (the settings page has no final delete any more). */
+export async function clearDrawings(page: Page): Promise<void> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('draw');
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const db = open.result;
+          const transaction = db.transaction('drawings', 'readwrite');
+          transaction.objectStore('drawings').clear();
+          transaction.oncomplete = () => {
+            db.close();
+            resolve();
+          };
+          transaction.onerror = () => reject(transaction.error);
+        };
+      }),
+  );
+}
+
 /** Ids of the drawings in the trash (records with `trashedAt`). */
 export async function trashedIds(page: Page): Promise<string[]> {
   return page.evaluate(

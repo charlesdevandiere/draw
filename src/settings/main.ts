@@ -15,7 +15,6 @@ import {
 import { createTranslator, isLanguage } from '../i18n/i18n';
 import { checkForUpdate, resetAppCache } from '../pwa/app-update';
 import {
-  deleteDrawing,
   listDrawings,
   listTrash,
   purgeTrash,
@@ -24,7 +23,7 @@ import {
   saveDrawing,
   writeSetting,
 } from '../store/db';
-import { initDrawingsSection } from './drawings';
+import { backupSummary, drawingBytes } from './format';
 import { initInputSettings } from './input-settings';
 import { initTransferSection } from './transfer';
 import { renderThumbnail } from '../app/raster';
@@ -38,16 +37,24 @@ document.body.innerHTML = settingsHtml;
 applyTranslations(document.body, t);
 replaceHistoryOnLinks(document.body);
 
-// Drawings: list and deletion.
-const drawings = initDrawingsSection({
-  t,
-  language: translator.language,
-  list: listDrawings,
-  remove: deleteDrawing,
-});
-drawings.refresh().catch(() => undefined);
+// Backup: how many drawings, how much room (outside the trash).
+const backupSummaryText = requireElement('backup-summary', HTMLSpanElement);
+/** Only the latest refresh writes the line (an earlier, slower one would show a stale count). */
+let backupRefreshes = 0;
+async function refreshBackup(): Promise<void> {
+  const refresh = ++backupRefreshes;
+  const records = await listDrawings();
+  if (refresh !== backupRefreshes) return;
+  const bytes = records.reduce(
+    (sum, { drawing, thumbnail }) => sum + drawingBytes(drawing, thumbnail?.size ?? 0),
+    0,
+  );
+  backupSummaryText.textContent = backupSummary(translator, records.length, bytes);
+}
 // Drawings trashed 30 days ago or more go for good (spec/SPEC-trash.md); retried next time.
-purgeTrash(Date.now()).catch(() => undefined);
+purgeTrash(Date.now())
+  .catch(() => undefined)
+  .finally(() => void refreshBackup().catch(() => undefined));
 
 // Export and import of magic PNGs.
 const transfer = initTransferSection({
@@ -55,12 +62,11 @@ const transfer = initTransferSection({
   list: listDrawings,
   trashedIds: async () => (await listTrash()).map(({ drawing }) => drawing.id),
   restore: restoreFromTrash,
-  selected: () => drawings.selected(),
-  // Thumbnail rendered now, so the list here and the gallery show it (null if it fails:
-  // the gallery then renders one).
+  // Thumbnail rendered now, so the gallery shows it (null if it fails: the gallery then
+  // renders one).
   save: async (drawing) =>
     saveDrawing(drawing, await renderThumbnail(drawing.strokes).catch(() => null)),
-  onImported: () => void drawings.refresh().catch(() => undefined),
+  onImported: () => void refreshBackup().catch(() => undefined),
 });
 
 // Finger mode settings.

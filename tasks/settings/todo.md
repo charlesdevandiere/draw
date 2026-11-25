@@ -25,8 +25,8 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 **Acceptance criteria:**
 
-- [ ] Unit: size formatter; catalogs' plural forms (0, 1, n) in en and fr.
-- [ ] e2e: the line counts the drawings; export / import round trip without selection; trashed drawings left out of the export and restored by import (existing tests adapted).
+- [x] Unit: size formatter; catalogs' plural forms (0, 1, n) in en and fr.
+- [x] e2e: the line counts the drawings; export / import round trip without selection; trashed drawings left out of the export and restored by import (existing tests adapted).
 
 **Verification:** `npx vitest run src/settings`; `npx playwright test e2e/transfer.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -38,7 +38,7 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 ## Checkpoint: Page
 
-- [ ] `npm run check` and `npm run e2e` pass
+- [x] `npm run check` and `npm run e2e` pass
 
 ## Task 3: Trash section
 

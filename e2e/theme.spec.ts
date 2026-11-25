@@ -86,7 +86,8 @@ test('a selection is drawn larger with a shadow, never the old orange border', a
   await expect(eraser).toHaveAttribute('aria-pressed', 'true');
   // Drawn larger with a light shadow, like the selected color.
   await expect.poll(() => styleOf(eraser, 'scale')).toBe('1.15');
-  expect(await styleOf(eraser, 'box-shadow')).toBe(SELECTION_SHADOW);
+  // The shadow grows in 0.15 s too: wait for its end value.
+  await expect.poll(() => styleOf(eraser, 'box-shadow')).toBe(SELECTION_SHADOW);
 
   // A color cell: drawn larger and rounded (the palette on tablets, the dialog on phones).
   await pickColor(page, 'Red');
@@ -95,7 +96,7 @@ test('a selection is drawn larger with a shadow, never the old orange border', a
     'Red',
   );
   await expect.poll(() => styleOf(red, 'scale')).toBe('1.3');
-  expect(await styleOf(red, 'border-top-left-radius')).toBe('8px');
+  await expect.poll(() => styleOf(red, 'border-top-left-radius')).toBe('8px');
 
   for (const button of await page.locator('#draw-screen button').all()) {
     await expect.poll(() => styleOf(button, 'border-top-color')).not.toBe(ORANGE);

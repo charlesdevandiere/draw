@@ -16,7 +16,6 @@
 @use 'bootstrap/scss/forms';
 @use 'bootstrap/scss/buttons';
 @use 'bootstrap/scss/card';
-@use 'bootstrap/scss/dialog';
 @use 'bootstrap/scss/helpers';
 @use 'bootstrap/scss/utilities/api';
 @use 'icons';
@@ -76,37 +75,30 @@ body {
   box-shadow: 0 1px 4px rgb(0 0 0 / 8%);
 }
 
-.settings-drawings {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+// Card titles (boards: 17 px, semi-bold).
+.settings .card h2 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    position: relative;
-    font-size: 0.875rem;
+// Card actions: full width, at least 52 px high, an icon before the text (boards).
+.settings-action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  border-radius: 14px;
+  font-weight: 600;
+
+  &:hover {
+    --btn-hover-bg: var(--btn-bg);
+    --btn-hover-color: var(--btn-color);
   }
 
-  input[type='checkbox'] {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 24px;
-    height: 24px;
-  }
-
-  img,
-  .settings-drawings-placeholder {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+  .icon {
+    width: 20px;
+    height: 20px;
   }
 }

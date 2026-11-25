@@ -11,89 +11,42 @@
     <h1 class="settings-title" data-i18n="settings.title"></h1>
   </header>
 
-  <!-- Phase B sections are added here in order: drawings, transfer, input. -->
   <div id="settings-sections" class="d-flex flex-column gap-4">
-    <section id="section-drawings" class="card">
+    <section id="section-backup" class="card">
       <div class="card-body d-flex flex-column gap-3">
-        <h2 class="h5" data-i18n="settings.drawings"></h2>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-          <button
-            id="drawings-select-all"
-            type="button"
-            class="btn btn-outline theme-secondary"
-            data-i18n="settings.drawings.selectAll"
-          ></button>
-          <button
-            id="drawings-delete"
-            type="button"
-            class="btn btn-outline theme-danger"
-            data-i18n="settings.drawings.delete"
-            disabled
-          ></button>
-          <output id="drawings-count"></output>
-        </div>
-        <ul id="drawings-list" class="settings-drawings"></ul>
-      </div>
-    </section>
-
-    <dialog id="delete-dialog" class="dialog dialog-instant" aria-labelledby="delete-dialog-title">
-      <div class="dialog-header">
-        <h2
-          id="delete-dialog-title"
-          class="dialog-title h5"
-          data-i18n="settings.drawings.confirmTitle"
-        ></h2>
-      </div>
-      <div class="dialog-body">
-        <p id="delete-dialog-text" class="m-0"></p>
-      </div>
-      <div class="dialog-footer">
+        <h2 class="h5 m-0" data-i18n="settings.backup"></h2>
+        <p class="m-0 text-body-secondary">
+          <span id="backup-summary"></span>
+          <span data-i18n="settings.transfer.help"></span>
+        </p>
         <button
-          id="delete-cancel"
+          id="export-drawings"
           type="button"
-          class="btn btn-outline theme-secondary"
-          data-i18n="common.cancel"
-        ></button>
+          class="btn btn-solid theme-gallery settings-action"
+        >
+          <span class="icon icon-export" aria-hidden="true"></span>
+          <span data-i18n="settings.transfer.export"></span>
+        </button>
         <button
-          id="delete-confirm"
+          id="share-export"
           type="button"
-          class="btn btn-solid theme-danger"
-          data-i18n="settings.drawings.delete"
+          class="btn btn-solid theme-gallery settings-action"
+          hidden
         ></button>
-      </div>
-    </dialog>
-    <section id="section-transfer" class="card">
-      <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="settings.transfer"></h2>
-        <p class="m-0 text-body-secondary" data-i18n="settings.transfer.help"></p>
-        <div class="d-flex flex-wrap gap-2">
-          <button
-            id="export-drawings"
-            type="button"
-            class="btn btn-outline theme-primary"
-            data-i18n="settings.transfer.export"
-          ></button>
-          <button
-            id="share-export"
-            type="button"
-            class="btn btn-solid theme-primary"
-            hidden
-          ></button>
-          <label class="btn btn-outline theme-primary">
-            <span data-i18n="settings.transfer.import"></span>
-            <input
-              id="import-files"
-              type="file"
-              accept="image/png"
-              multiple
-              class="visually-hidden"
-            />
-          </label>
-        </div>
+        <label class="btn btn-solid theme-hold settings-action">
+          <span class="icon icon-import" aria-hidden="true"></span>
+          <span data-i18n="settings.transfer.import"></span>
+          <input
+            id="import-files"
+            type="file"
+            accept="image/png"
+            multiple
+            class="visually-hidden"
+          />
+        </label>
         <output id="transfer-status"></output>
       </div>
     </section>
-
     <section id="section-input" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5" data-i18n="settings.input"></h2>

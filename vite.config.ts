@@ -69,7 +69,6 @@ export default defineConfig({
         'src/app/viewer-screen.ts',
         'src/app/long-press.ts',
         'src/app/haptic.ts',
-        'src/settings/drawings.ts',
         'src/settings/transfer.ts',
         'src/settings/input-settings.ts',
         'src/app/magic-image.ts',

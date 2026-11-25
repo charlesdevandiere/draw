@@ -20,8 +20,6 @@ export interface TransferOptions {
   trashedIds: () => Promise<string[]>;
   /** Takes a drawing out of the trash; false when it is no longer stored (purged meanwhile). */
   restore: (id: string) => Promise<boolean>;
-  /** Ids chosen in the drawings list; empty means "all". */
-  selected: () => string[];
   save: (drawing: Drawing) => Promise<void>;
   /** The gallery changed (import). */
   onImported: () => void;
@@ -57,10 +55,7 @@ export function initTransferSection(options: TransferOptions): TransferSection {
     resetExport();
     status.textContent = t('settings.transfer.preparing');
     try {
-      const chosen = new Set(options.selected());
-      const records = (await options.list()).filter(
-        ({ drawing }) => chosen.size === 0 || chosen.has(drawing.id),
-      );
+      const records = await options.list();
       const files: File[] = [];
       const names = new Set<string>();
       for (const { drawing } of records) {
@@ -72,7 +67,7 @@ export function initTransferSection(options: TransferOptions): TransferSection {
         files.push(new File([await encodeMagicPng(drawing)], name, { type: 'image/png' }));
       }
       if (files.length === 0) {
-        status.textContent = t('settings.drawings.none');
+        status.textContent = t('settings.backup.none');
         return;
       }
       prepared = files;
