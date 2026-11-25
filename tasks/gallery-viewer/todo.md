@@ -8,8 +8,8 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 **Acceptance criteria:**
 
-- [ ] Unit: elapsed stops while paused and resumes from the same point; restart → 0 and playing; progress clamped 0–1; ended at duration; play when ended restarts.
-- [ ] Unit: `tileLook` stable for an id, within bounds, never 0°, several ids spread over several tilts and tapes.
+- [x] Unit: elapsed stops while paused and resumes from the same point; restart → 0 and playing; progress clamped 0–1; ended at duration; play when ended restarts.
+- [x] Unit: `tileLook` stable for an id, within bounds, never 0°, several ids spread over several tilts and tapes.
 
 **Verification:** `npx vitest run src/engine/replay-clock.test.ts src/engine/wall.test.ts`; `npm run check`
 

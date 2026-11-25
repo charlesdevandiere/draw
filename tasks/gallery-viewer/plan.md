@@ -19,7 +19,7 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 
 ### Phase 1: Pure rules
 
-- [ ] Task 1: Replay clock and wall tile rule (pure, unit-tested)
+- [x] Task 1: Replay clock and wall tile rule (pure, unit-tested)
 
 ### Phase 2: The viewer
 
