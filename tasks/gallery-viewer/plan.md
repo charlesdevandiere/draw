@@ -24,11 +24,11 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 ### Phase 2: The viewer
 
 - [x] Task 2: Viewer screen: replay with progress, play / pause / restart, tap to pause, back, continue, share; gallery tap opens it, card pebbles removed
-- [ ] Task 3: Move to the trash from the viewer (long press), blank slate when the slate's drawing is trashed
+- [x] Task 3: Move to the trash from the viewer (long press), blank slate when the slate's drawing is trashed
 
 ### Checkpoint: Viewer
 
-- [ ] `npm run check` and `npm run e2e` pass; every former gallery action reachable from the viewer
+- [x] `npm run check` and `npm run e2e` pass; every former gallery action reachable from the viewer
 
 ### Phase 3: The wall and the layouts
 

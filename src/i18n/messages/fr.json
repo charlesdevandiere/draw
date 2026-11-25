@@ -105,6 +105,7 @@
   "viewer.drawing": "Ce dessin",
   "viewer.back": "Retour à mes dessins",
   "viewer.share": "Partager ce dessin",
+  "viewer.trash": "Mettre à la corbeille (maintenir 1,5 seconde)",
   "viewer.page": "Toucher pour mettre en pause ou relancer",
   "viewer.progress": "Avancée du replay",
   "viewer.replay": "Revoir le dessin",

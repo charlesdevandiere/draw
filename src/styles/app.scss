@@ -743,6 +743,11 @@ body {
   }
 }
 
+// Moving a drawing to the trash fills with a light red (board "Visionneuse").
+.long-press.trash-hold {
+  --long-press-fill: #{$trash-fill};
+}
+
 .gallery-grid {
   flex: 1;
   min-height: 0;

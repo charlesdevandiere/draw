@@ -43,8 +43,8 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 **Acceptance criteria:**
 
-- [ ] e2e: a short press does nothing; a 1.5 s press removes it from the gallery and puts it in `listTrash`; a tick (stubbed `navigator.vibrate`).
-- [ ] e2e: trashing the slate's drawing leaves a blank slate; reloading does not bring it back.
+- [x] e2e: a short press does nothing; a 1.5 s press removes it from the gallery and puts it in `listTrash`; a tick (stubbed `navigator.vibrate`).
+- [x] e2e: trashing the slate's drawing leaves a blank slate; reloading does not bring it back.
 
 **Verification:** `npx playwright test e2e/trash.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -56,7 +56,7 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 ## Checkpoint: Viewer
 
-- [ ] `npm run check` and `npm run e2e` pass
+- [x] `npm run check` and `npm run e2e` pass
 
 ## Task 4: Gallery wall
 

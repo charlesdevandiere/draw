@@ -12,6 +12,7 @@ import {
   deleteDrawing,
   listDrawings,
   loadDrawing,
+  moveToTrash,
   purgeTrash,
   readSetting,
   saveDrawing,
@@ -296,6 +297,35 @@ viewerShare.addEventListener('click', () => {
       viewerShare.disabled = false;
     });
 });
+
+// Move to the trash (long press): the drawing leaves the wall for 30 days. If it is the
+// one on the slate, its last save lands first (it stays trashed: the save rule of
+// spec/SPEC-trash.md) and the slate turns to a blank page. The viewer stays inert while
+// it writes: "continue" would put the drawing being trashed back on the slate.
+const viewerScreen = requireElement('viewer-screen', HTMLElement);
+initLongPress(
+  requireElement('viewer-trash', HTMLButtonElement),
+  () => {
+    const drawing = viewer.drawing();
+    if (!drawing) return;
+    viewer.close();
+    viewerScreen.inert = true;
+    const onSlate = drawing.id === current.id;
+    void (onSlate ? autosave.flush() : Promise.resolve())
+      .then(() => moveToTrash(drawing.id, Date.now()))
+      .then(async () => {
+        if (onSlate && current.id === drawing.id) await startNewPage();
+      })
+      .catch(() => undefined)
+      .then(() => gallery.refresh())
+      .catch(() => undefined)
+      .finally(() => {
+        viewerScreen.inert = false;
+        showGallery();
+      });
+  },
+  { haptic },
+);
 
 const gallery = initGallery({
   grid: requireElement('gallery-grid', HTMLElement),

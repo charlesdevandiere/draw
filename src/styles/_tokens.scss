@@ -25,6 +25,8 @@ $action-colors: (
 // Long-press actions (settings, trash) at rest, and disabled pebbles.
 $hold-bg: #ebe0c4;
 $hold-icon: #5d5442;
+// Fill of the long press that moves a drawing to the trash (red, light tone).
+$trash-fill: #ef9a9a;
 $disabled-bg: #ebe0c4;
 $disabled-icon: #a39882;
 // Radius of a pebble: 16 px at 56 px, scaling with the size.

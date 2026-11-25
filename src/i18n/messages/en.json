@@ -105,6 +105,7 @@
   "viewer.drawing": "This drawing",
   "viewer.back": "Back to my drawings",
   "viewer.share": "Share this drawing",
+  "viewer.trash": "Move to the trash (press and hold 1.5 seconds)",
   "viewer.page": "Touch to pause or play",
   "viewer.progress": "Replay progress",
   "viewer.replay": "Watch it again",

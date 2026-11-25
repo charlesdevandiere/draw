@@ -31,6 +31,32 @@ export async function savedStrokeCounts(page: Page): Promise<Record<string, numb
   );
 }
 
+/** Ids of the drawings in the trash (records with `trashedAt`). */
+export async function trashedIds(page: Page): Promise<string[]> {
+  return page.evaluate(
+    () =>
+      new Promise<string[]>((resolve, reject) => {
+        const open = indexedDB.open('draw');
+        open.onupgradeneeded = () => open.transaction?.abort();
+        open.onerror = () => resolve([]);
+        open.onsuccess = () => {
+          const db = open.result;
+          const all = db.transaction('drawings').objectStore('drawings').getAll();
+          all.onerror = () => reject(all.error);
+          all.onsuccess = () => {
+            db.close();
+            resolve(
+              (all.result as { id: string; trashedAt?: number }[])
+                .filter((record) => typeof record.trashedAt === 'number')
+                .map((record) => record.id)
+                .sort(),
+            );
+          };
+        };
+      }),
+  );
+}
+
 /** Total strokes saved, across all drawings. */
 export async function savedStrokes(page: Page): Promise<number> {
   return Object.values(await savedStrokeCounts(page)).reduce((sum, count) => sum + count, 0);

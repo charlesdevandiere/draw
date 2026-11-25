@@ -1,12 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { isBlank, pagePoint, pixelAt } from './helpers/canvas';
-import { savedStrokeCounts, seedDatabase } from './helpers/storage';
+import { savedStrokeCounts, seedDatabase, trashedIds } from './helpers/storage';
 import { colorRadio } from './helpers/tools';
 
 /**
  * Trash (spec/SPEC-trash.md): trashed drawings stay 30 days, out of the gallery, then are
- * purged at startup. No button yet (modules gallery-viewer and settings): the database
- * is seeded directly.
+ * purged at startup. The viewer moves a drawing there with a long press
+ * (spec/SPEC-gallery-viewer.md); other tests seed the database directly.
  */
 test.use({ locale: 'en-US' });
 
@@ -77,4 +77,101 @@ test('the same last drawing outside the trash is reopened (control)', async ({ p
       isBlank(await pixelAt(page.locator('#drawing-layer'), await pagePoint(page, 0.5, 0.5))),
     )
     .toBe(false);
+});
+
+async function press(page: Page, selector: string) {
+  await page.locator(selector).dispatchEvent('pointerdown', {
+    pointerId: 1,
+    pointerType: 'touch',
+    isPrimary: true,
+    buttons: 1,
+  });
+}
+
+async function release(page: Page, selector: string) {
+  await page.locator(selector).dispatchEvent('pointerup', {
+    pointerId: 1,
+    pointerType: 'touch',
+    isPrimary: true,
+    buttons: 0,
+  });
+}
+
+async function openInViewer(page: Page, index: number) {
+  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page
+    .locator('.gallery-card')
+    .nth(index)
+    .getByRole('button', { name: /Open the drawing/ })
+    .click();
+  await expect(page.locator('#viewer-screen')).toBeVisible();
+}
+
+test('the viewer moves a drawing to the trash after a 1.5 s press, not before', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'vibrate', {
+      configurable: true,
+      value: (pattern: number) => {
+        const calls = JSON.parse(sessionStorage.getItem('haptics') ?? '[]') as unknown[];
+        sessionStorage.setItem('haptics', JSON.stringify([...calls, pattern]));
+        return true;
+      },
+    });
+  });
+  const now = Date.now();
+  await seedDatabase(page, [
+    { id: 'older', updatedAt: now - 2 * DAY, lineAt: 200 },
+    { id: 'newer', updatedAt: now - DAY, lineAt: 500 },
+  ]);
+  await page.goto('en/');
+  await openInViewer(page, 0);
+
+  // A tap and a short press do nothing.
+  const trash = page.getByRole('button', { name: /Move to the trash/ });
+  await expect(trash).toHaveClass(/\blong-press\b/);
+  await trash.click();
+  await press(page, '#viewer-trash');
+  await page.waitForTimeout(700);
+  await release(page, '#viewer-trash');
+  await page.waitForTimeout(1200);
+  await expect(page.locator('#viewer-screen')).toBeVisible();
+  expect(await trashedIds(page)).toEqual([]);
+
+  // Held: it fills with light red, then the drawing goes to the trash and the wall shows.
+  await press(page, '#viewer-trash');
+  await expect
+    .poll(() => trash.evaluate((element) => getComputedStyle(element).backgroundImage))
+    .toContain('rgb(239, 154, 154)');
+  await expect(page.locator('#gallery-screen')).toBeVisible({ timeout: 4000 });
+  expect(await trashedIds(page)).toEqual(['newer']);
+  await expect(page.locator('.gallery-card')).toHaveCount(1);
+  expect(
+    await page.evaluate(() => JSON.parse(sessionStorage.getItem('haptics') ?? '[]') as unknown[]),
+  ).toEqual([8]);
+});
+
+test('trashing the drawing on the slate leaves a blank slate, also after a reload', async ({
+  page,
+}) => {
+  await page.goto('en/');
+  const box = await page.locator('#page').boundingBox();
+  if (!box) throw new Error('Page not visible');
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await openInViewer(page, 0);
+  await press(page, '#viewer-trash');
+  await expect(page.locator('#gallery-screen')).toBeVisible({ timeout: 4000 });
+  await expect(page.locator('.gallery-card')).toHaveCount(0);
+  expect(await trashedIds(page)).toHaveLength(1);
+
+  await page.getByRole('button', { name: 'Back to drawing' }).click();
+  const center = await pagePoint(page, 0.5, 0.5);
+  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), center))).toBe(true);
+  await page.reload();
+  await expect(page.locator('#draw-screen')).toBeVisible();
+  // Leave the startup restore time to (wrongly) bring it back.
+  await page.waitForTimeout(500);
+  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), center))).toBe(true);
+  expect(await trashedIds(page)).toHaveLength(1);
 });
