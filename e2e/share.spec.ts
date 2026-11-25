@@ -27,6 +27,7 @@ test('sharing a drawing gives a PNG that carries the vector drawing', async ({ p
     ]);
   }
   await page.getByRole('button', { name: 'Mes dessins' }).click();
+  await page.getByRole('button', { name: /Ouvrir le dessin/ }).click();
 
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Partager ce dessin' }).click();

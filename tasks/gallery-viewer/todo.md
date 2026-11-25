@@ -25,9 +25,9 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 **Acceptance criteria:**
 
-- [ ] e2e: tile → viewer, replay plays (pixels appear, bar grows); pause freezes the bar; play resumes; restart starts from an empty page; tap on the page pauses; play at the end replays.
-- [ ] e2e: continue puts the drawing on the slate (a new stroke adds to it); share yields a magic PNG (share e2e moved); back returns to the gallery.
-- [ ] Resize while paused repaints the same point (pixel check).
+- [x] e2e: tile → viewer, replay plays (pixels appear, bar grows); pause freezes the bar; play resumes; restart starts from an empty page; tap on the page pauses; play at the end replays.
+- [x] e2e: continue puts the drawing on the slate (a new stroke adds to it); share yields a magic PNG (share e2e moved); back returns to the gallery.
+- [x] Resize while paused repaints the same point (pixel check).
 
 **Verification:** `npx playwright test e2e/replay.spec.ts e2e/share.spec.ts e2e/gallery.spec.ts`; `npm run check`, `npm run e2e`
 

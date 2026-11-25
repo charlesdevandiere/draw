@@ -107,35 +107,39 @@ test('the page has square corners', async ({ page }) => {
   await expect.poll(() => styleOf(page.locator('#page'), 'border-top-left-radius')).toBe('0px');
 });
 
-test('the gallery and replay buttons are pebbles in their role colors', async ({ page }) => {
+test('the gallery and viewer buttons are pebbles in their role colors', async ({ page }) => {
   const box = await page.locator('#page').boundingBox();
   if (!box) throw new Error('Page not visible');
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await page.locator('#open-gallery').click();
 
-  const roles: [Locator, string][] = [
+  const expectRoles = async (roles: [Locator, string][]) => {
+    for (const [button, color] of roles) {
+      await expect(button).toHaveClass(/\bbtn-pebble\b/);
+      await expect.poll(() => styleOf(button, 'background-color')).toBe(color);
+    }
+  };
+  await expectRoles([
     [page.locator('#back-to-drawing'), 'rgb(255, 213, 79)'],
     [page.locator('#gallery-new-page'), 'rgb(165, 214, 167)'],
     [page.locator('#parent-lock'), DISABLED_BG],
-    [page.getByRole('button', { name: 'Share this drawing' }), 'rgb(129, 212, 250)'],
-    [page.getByRole('button', { name: 'Watch this drawing again' }), 'rgb(165, 214, 167)'],
-  ];
-  for (const [button, color] of roles) {
-    await expect(button).toHaveClass(/\bbtn-pebble\b/);
-    await expect.poll(() => styleOf(button, 'background-color')).toBe(color);
-  }
+  ]);
   // The padlock (a long press) has its own icon color.
   await expect
     .poll(() => styleOf(page.locator('#parent-lock .icon'), 'background-color'))
     .toBe('rgb(93, 84, 66)');
 
-  await page.getByRole('button', { name: 'Watch this drawing again' }).click();
-  const again = page.getByRole('button', { name: 'Play again' });
-  await expect(again).toBeVisible({ timeout: 20_000 });
-  await expect(again).toHaveClass(/\bbtn-pebble\b/);
-  // Restarting the replay takes the mode color (spec table: "input mode, restart replay").
-  await expect.poll(() => styleOf(again, 'background-color')).toBe('rgb(206, 147, 216)');
+  await page.getByRole('button', { name: /Open the drawing/ }).click();
+  await expectRoles([
+    [page.locator('#viewer-back'), 'rgb(255, 213, 79)'],
+    [page.locator('#viewer-share'), 'rgb(129, 212, 250)'],
+    [page.locator('#viewer-play'), 'rgb(165, 214, 167)'],
+    // Restarting the replay takes the mode color (spec table: "input mode, restart replay").
+    [page.locator('#viewer-restart'), 'rgb(206, 147, 216)'],
+    [page.locator('#viewer-continue'), 'rgb(255, 171, 145)'],
+  ]);
   // No hover shade: a tap leaves :hover stuck on touch screens.
-  await again.hover();
-  await expect.poll(() => styleOf(again, 'background-color')).toBe('rgb(206, 147, 216)');
+  const restart = page.locator('#viewer-restart');
+  await restart.hover();
+  await expect.poll(() => styleOf(restart, 'background-color')).toBe('rgb(206, 147, 216)');
 });

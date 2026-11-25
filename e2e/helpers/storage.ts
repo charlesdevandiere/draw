@@ -76,6 +76,18 @@ export interface SeededDrawing {
   lineAt: number;
   /** Epoch ms, or absent: outside the trash. */
   trashedAt?: number;
+  /** Drawing time of the line, left to right, in 50 points (default: 100 ms, 2 points). */
+  durationMs?: number;
+}
+
+/** Points `[x, y, t]` of a seeded line. */
+function seededLine(drawing: SeededDrawing): number[] {
+  if (drawing.durationMs === undefined) return [100, drawing.lineAt, 0, 900, drawing.lineAt, 100];
+  const points: number[] = [];
+  for (let i = 0; i < 50; i += 1) {
+    points.push(100 + (800 * i) / 49, drawing.lineAt, Math.round((drawing.durationMs * i) / 49));
+  }
+  return points;
 }
 
 /**
@@ -100,7 +112,7 @@ export async function seedDatabase(
         open.onsuccess = () => {
           const db = open.result;
           const transaction = db.transaction(['drawings', 'settings'], 'readwrite');
-          for (const drawing of drawings) {
+          for (const { drawing, points } of drawings) {
             transaction.objectStore('drawings').put({
               schema: 1,
               id: drawing.id,
@@ -111,7 +123,7 @@ export async function seedDatabase(
                   tool: 'pen',
                   color: '#202020',
                   width: 8,
-                  points: [100, drawing.lineAt, 0, 900, drawing.lineAt, 100],
+                  points,
                 },
               ],
               thumbnail: null,
@@ -128,6 +140,6 @@ export async function seedDatabase(
           transaction.onerror = () => reject(transaction.error);
         };
       }),
-    { drawings, settings },
+    { drawings: drawings.map((drawing) => ({ drawing, points: seededLine(drawing) })), settings },
   );
 }

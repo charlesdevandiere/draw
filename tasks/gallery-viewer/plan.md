@@ -23,7 +23,7 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 
 ### Phase 2: The viewer
 
-- [ ] Task 2: Viewer screen: replay with progress, play / pause / restart, tap to pause, back, continue, share; gallery tap opens it, card pebbles removed
+- [x] Task 2: Viewer screen: replay with progress, play / pause / restart, tap to pause, back, continue, share; gallery tap opens it, card pebbles removed
 - [ ] Task 3: Move to the trash from the viewer (long press), blank slate when the slate's drawing is trashed
 
 ### Checkpoint: Viewer

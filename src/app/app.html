@@ -92,21 +92,67 @@
   <div id="gallery-grid" class="gallery-grid"></div>
 </section>
 
-<section id="replay-screen" class="screen replay-screen" hidden>
-  <div class="page-area">
-    <div id="replay-page" class="page">
-      <canvas id="replay-layer" role="button" tabindex="0" data-i18n-aria="replay.stop"></canvas>
+<section id="viewer-screen" class="screen viewer-screen" hidden>
+  <div class="viewer-top" role="toolbar" data-i18n-aria="viewer.drawing">
+    <button
+      id="viewer-back"
+      class="btn btn-solid btn-pebble theme-history"
+      type="button"
+      data-i18n-aria="viewer.back"
+    >
+      <span class="icon icon-back" aria-hidden="true"></span>
+    </button>
+    <div class="viewer-file">
+      <button
+        id="viewer-share"
+        class="btn btn-solid btn-pebble theme-gallery"
+        type="button"
+        data-i18n-aria="viewer.share"
+      >
+        <span class="icon icon-share" aria-hidden="true"></span>
+      </button>
     </div>
   </div>
-  <div class="replay-actions">
+  <div class="viewer-stage">
+    <div id="viewer-page" class="page">
+      <canvas id="viewer-layer" role="button" tabindex="0" data-i18n-aria="viewer.page"></canvas>
+    </div>
+    <div
+      id="viewer-progress"
+      class="progress viewer-progress"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      data-i18n-aria="viewer.progress"
+    >
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+  <div class="viewer-controls" role="toolbar" data-i18n-aria="viewer.replay">
     <button
-      id="replay-again"
+      id="viewer-restart"
       class="btn btn-solid btn-pebble theme-mode"
       type="button"
-      data-i18n-aria="replay.again"
-      hidden
+      data-i18n-aria="viewer.restart"
     >
-      <span class="icon icon-play" aria-hidden="true"></span>
+      <span class="icon icon-restart" aria-hidden="true"></span>
+    </button>
+    <button
+      id="viewer-play"
+      class="btn btn-solid btn-pebble theme-create viewer-play"
+      type="button"
+      data-i18n-aria="viewer.pause"
+    >
+      <span class="icon icon-pause" aria-hidden="true"></span>
+    </button>
+    <button
+      id="viewer-continue"
+      class="btn btn-solid btn-pebble theme-continue"
+      type="button"
+      data-i18n-aria="viewer.continue"
+    >
+      <span class="icon icon-continue" aria-hidden="true"></span>
     </button>
   </div>
 </section>

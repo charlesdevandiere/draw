@@ -35,11 +35,16 @@ test('the gallery lists every drawing, newest first, and reopens one to continue
   await expect(cards.locator('img')).toHaveCount(3);
   await page.screenshot({ path: test.info().outputPath('gallery.png') });
 
-  // The oldest one is last: reopen it, it shows its own line only.
+  // No play or share pebble on the cards: they live in the viewer.
+  await expect(cards.getByRole('button')).toHaveCount(3);
+
+  // The oldest one is last: open it in the viewer, continue it, it shows its own line only.
   await cards
     .last()
     .getByRole('button', { name: /Open the drawing/ })
     .click();
+  await expect(page.locator('#viewer-screen')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue this drawing' }).click();
   await expect(page.locator('#draw-screen')).toBeVisible();
   await expect.poll(() => blankAt(page, 0.2)).toBe(false);
   expect(await blankAt(page, 0.5)).toBe(true);

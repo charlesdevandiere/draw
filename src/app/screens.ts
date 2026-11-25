@@ -1,11 +1,11 @@
 /** The app shows one static screen at a time; switching toggles `hidden`. */
 
-export type ScreenName = 'draw' | 'gallery' | 'replay';
+export type ScreenName = 'draw' | 'gallery' | 'viewer';
 
 const SCREEN_IDS: Record<ScreenName, string> = {
   draw: 'draw-screen',
   gallery: 'gallery-screen',
-  replay: 'replay-screen',
+  viewer: 'viewer-screen',
 };
 
 export function showScreen(name: ScreenName): void {

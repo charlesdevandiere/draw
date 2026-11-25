@@ -15,6 +15,7 @@
 @use 'bootstrap/scss/content';
 @use 'bootstrap/scss/buttons';
 @use 'bootstrap/scss/forms/form-range';
+@use 'bootstrap/scss/progress';
 @use 'bootstrap/scss/dialog';
 @use 'bootstrap/scss/helpers';
 @use 'icons';
@@ -579,20 +580,127 @@ body {
   }
 }
 
-// Replay screen: the page as large as possible, the "play again" button below.
-.replay-screen {
+// Viewer (spec/SPEC-gallery-viewer.md, boards "Visionneuse"): the page as large as the
+// controls leave, its progress bar under it. Portrait: back | share, trash on top, then
+// the page, then restart, play / pause, continue. Landscape: three columns spread across.
+// No browser gesture on the screen: a touch on the page pauses (touch-action as above).
+.viewer-screen {
+  --viewer-play: 72px;
+  --viewer-bar: 6px;
+  --viewer-gap: 16px;
+  touch-action: none;
   display: grid;
+  container: screen / size;
   grid-template:
-    'page' minmax(0, 1fr)
-    'actions' var(--app-tool-size)
+    'top' auto
+    'stage' auto
+    'controls' auto
     / minmax(0, 1fr);
+  align-content: center;
+  justify-items: center;
+  gap: var(--viewer-gap);
+
+  @media #{$tablet} {
+    --viewer-play: 88px;
+  }
+
+  // Container units resolve against the screen from its children only.
+  > * {
+    --viewer-side: min(
+      100cqw,
+      100cqh - var(--app-tool-size) - var(--viewer-play) - var(--viewer-bar) - 10px - 2 *
+        var(--viewer-gap)
+    );
+  }
+}
+
+.viewer-top {
+  grid-area: top;
+  display: flex;
+  justify-content: space-between;
+  width: var(--viewer-side);
+}
+
+.viewer-file {
+  display: flex;
   gap: var(--app-tool-gap);
 }
 
-.replay-actions {
-  grid-area: actions;
+.viewer-stage {
+  grid-area: stage;
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .page {
+    width: var(--viewer-side);
+  }
+}
+
+.viewer-progress {
+  --progress-height: var(--viewer-bar);
+  --progress-bg: #{$disabled-bg};
+  --progress-bar-bg: #{$ink};
+  --progress-bar-transition: none;
+  --progress-border-radius: 3px;
+  --progress-box-shadow: none;
+  width: var(--viewer-side);
+}
+
+.viewer-controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 24px;
+}
+
+.btn-pebble.viewer-play {
+  width: var(--viewer-play);
+  height: var(--viewer-play);
+
+  .icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .viewer-screen {
+    grid-template: 'top stage controls' minmax(0, 1fr) / auto auto auto;
+    justify-content: space-between;
+    align-items: center;
+
+    > * {
+      --viewer-side: min(
+        100cqh - var(--viewer-bar) - 10px,
+        100cqw - 2 * max(var(--viewer-play), var(--app-tool-size)) - 2 * var(--viewer-gap)
+      );
+    }
+  }
+
+  // Back on top, share and trash at the bottom of the left column.
+  .viewer-top {
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    width: max(var(--viewer-play), var(--app-tool-size));
+  }
+
+  .viewer-file {
+    flex-direction: column;
+  }
+
+  // Play / pause first, then restart and continue.
+  .viewer-controls {
+    flex-direction: column;
+    gap: 20px;
+    width: max(var(--viewer-play), var(--app-tool-size));
+  }
+
+  .viewer-play {
+    order: -1;
+  }
 }
 
 // Gallery screen.
@@ -675,9 +783,4 @@ body {
     height: 100%;
     pointer-events: none;
   }
-}
-
-.gallery-actions {
-  display: flex;
-  gap: var(--app-tool-gap);
 }

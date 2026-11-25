@@ -48,7 +48,7 @@ import { initGallery } from './gallery-screen';
 import { renderThumbnail } from './raster';
 import { initHaptic } from './haptic';
 import { initLongPress } from './long-press';
-import { initReplayScreen } from './replay-screen';
+import { initViewer } from './viewer-screen';
 import { shareFile } from './share';
 import { encodeMagicPng } from './magic-image';
 import { drawingFileName } from '../store/file-name';
@@ -58,8 +58,8 @@ const translator = createTranslator(documentLanguage());
 document.body.innerHTML = appHtml;
 applyTranslations(document.body, translator.t);
 
-// Every touch surface needs them: the drawing page and the replay page.
-for (const id of ['page', 'replay-page']) {
+// Every touch surface needs them: the drawing page and the viewer's page.
+for (const id of ['page', 'viewer-page']) {
   const surface = document.getElementById(id);
   if (surface) protectGestures(surface);
 }
@@ -208,65 +208,94 @@ function showDrawScreen(): void {
   openGallery.focus();
 }
 
-const replay = initReplayScreen({
-  canvas: requireElement('replay-layer', HTMLCanvasElement),
-  playAgain: requireElement('replay-again', HTMLButtonElement),
-  onStop: () => {
-    showScreen('gallery');
-    backToDrawing.focus();
-  },
-});
+const viewerShare = requireElement('viewer-share', HTMLButtonElement);
+const viewerPlay = requireElement('viewer-play', HTMLButtonElement);
 
-/** A gallery card's play button: the drawing redraws itself on a full-screen page. */
-function playButton(drawing: Drawing): HTMLButtonElement {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'btn btn-solid btn-pebble theme-create';
-  button.setAttribute('aria-label', translator.t('gallery.play'));
-  button.innerHTML = '<span class="icon icon-play" aria-hidden="true"></span>';
-  button.addEventListener('click', () => {
-    showScreen('replay');
-    replay.play(drawing);
-  });
-  return button;
+/** Back from the viewer to the wall. */
+function showGallery(): void {
+  viewer.close();
+  showScreen('gallery');
+  backToDrawing.focus();
 }
 
-/** A gallery card's share button: the drawing as a magic PNG. */
-function shareButton(drawing: Drawing): HTMLButtonElement {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'btn btn-solid btn-pebble theme-gallery';
-  button.setAttribute('aria-label', translator.t('gallery.share'));
-  button.innerHTML = '<span class="icon icon-share" aria-hidden="true"></span>';
-  // The share sheet needs a recent user gesture (iOS Safari): start encoding as soon as the
-  // finger lands, so the PNG is ready (or nearly) when the click arrives.
-  let file: Promise<File> | null = null;
-  const prepare = (): Promise<File> =>
-    (file ??= encodeMagicPng(drawing).then(
+const viewer = initViewer({
+  canvas: requireElement('viewer-layer', HTMLCanvasElement),
+  progress: requireElement('viewer-progress', HTMLElement),
+  playButton: viewerPlay,
+  restartButton: requireElement('viewer-restart', HTMLButtonElement),
+  t: translator.t,
+  onBack: showGallery,
+});
+requireElement('viewer-back', HTMLButtonElement).addEventListener('click', showGallery);
+
+/** Puts a drawing from the gallery on the slate, to go on with it. */
+function continueDrawing(drawing: Drawing): void {
+  if (drawing.id === current.id || drawScreen.isDrawing()) {
+    showDrawScreen();
+    return;
+  }
+  // The card may be older than what is being saved: write first, then read it back.
+  // The draw screen is shown only once the switch is done: a stroke started earlier
+  // would be dropped by the switch, or land on the drawing being left.
+  autosave
+    .flush()
+    .then(() => loadDrawing(drawing.id))
+    .then(async (record) => {
+      const saved = switchDrawing(record?.drawing ?? drawing);
+      showDrawScreen();
+      await saved;
+      await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
+    })
+    .catch(() => {
+      showDrawScreen();
+    });
+}
+
+requireElement('viewer-continue', HTMLButtonElement).addEventListener('click', () => {
+  const drawing = viewer.drawing();
+  viewer.close();
+  if (drawing) continueDrawing(drawing);
+});
+
+// Share: the drawing as a magic PNG. The share sheet needs a recent user gesture (iOS
+// Safari): start encoding as soon as the finger lands, so the PNG is ready (or nearly)
+// when the click arrives.
+// Keyed by the drawing itself, not its id: a drawing continued since has new strokes.
+let sharedFile: { drawing: Drawing; file: Promise<File> } | null = null;
+function prepareShare(): Promise<File> | null {
+  const drawing = viewer.drawing();
+  if (!drawing) return null;
+  if (sharedFile?.drawing !== drawing) {
+    const file = encodeMagicPng(drawing).then(
       (blob) =>
         new File(
           [blob],
           drawingFileName(translator.t('file.prefix'), new Date(drawing.updatedAt)),
           { type: 'image/png' },
         ),
-    ));
-  const forget = (): void => {
-    file = null;
-  };
-  button.addEventListener('pointerdown', () => {
-    prepare().catch(forget);
-  });
-  button.addEventListener('click', () => {
-    button.disabled = true;
-    prepare()
-      .then(shareFile)
-      .catch(forget)
-      .finally(() => {
-        button.disabled = false;
-      });
-  });
-  return button;
+    );
+    sharedFile = { drawing, file };
+    // A failed encoding is tried again on the next press.
+    file.catch(() => {
+      if (sharedFile?.file === file) sharedFile = null;
+    });
+  }
+  return sharedFile.file;
 }
+viewerShare.addEventListener('pointerdown', () => {
+  prepareShare()?.catch(() => undefined);
+});
+viewerShare.addEventListener('click', () => {
+  const file = prepareShare();
+  if (!file) return;
+  viewerShare.disabled = true;
+  file
+    .then(shareFile)
+    .catch(() => undefined)
+    .finally(() => {
+      viewerShare.disabled = false;
+    });
+});
 
 const gallery = initGallery({
   grid: requireElement('gallery-grid', HTMLElement),
@@ -283,27 +312,10 @@ const gallery = initGallery({
     }
     return records;
   },
-  actions: (drawing) => [playButton(drawing), shareButton(drawing)],
   onOpen: (drawing) => {
-    if (drawing.id === current.id || drawScreen.isDrawing()) {
-      showDrawScreen();
-      return;
-    }
-    // The card may be older than what is being saved: write first, then read it back.
-    // The draw screen is shown only once the switch is done: a stroke started earlier
-    // would be dropped by the switch, or land on the drawing being left.
-    autosave
-      .flush()
-      .then(() => loadDrawing(drawing.id))
-      .then(async (record) => {
-        const saved = switchDrawing(record?.drawing ?? drawing);
-        showDrawScreen();
-        await saved;
-        await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
-      })
-      .catch(() => {
-        showDrawScreen();
-      });
+    showScreen('viewer');
+    viewer.open(drawing);
+    viewerPlay.focus();
   },
 });
 

@@ -1,6 +1,6 @@
 /**
  * DOM side of the gallery: a grid of thumbnails, newest first. Tapping a thumbnail
- * reopens the drawing. Each card can carry extra actions (share, replay) added later.
+ * opens the drawing in the viewer.
  */
 import type { Drawing } from '../engine/types';
 import type { Translator } from '../i18n/i18n';
@@ -12,8 +12,6 @@ export interface GalleryOptions {
   language: string;
   list: () => Promise<DrawingRecord[]>;
   onOpen: (drawing: Drawing) => void;
-  /** Builds extra buttons for a card (share, replay). */
-  actions?: (drawing: Drawing) => HTMLElement[];
 }
 
 export interface Gallery {
@@ -52,14 +50,6 @@ export function initGallery(options: GalleryOptions): Gallery {
     }
     open.addEventListener('click', () => options.onOpen(drawing));
     item.append(open);
-
-    const extra = options.actions?.(drawing) ?? [];
-    if (extra.length > 0) {
-      const bar = document.createElement('div');
-      bar.className = 'gallery-actions';
-      bar.append(...extra);
-      item.append(bar);
-    }
     return item;
   }
 
