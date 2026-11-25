@@ -47,6 +47,17 @@
         <output id="transfer-status"></output>
       </div>
     </section>
+    <section id="section-share" class="card">
+      <div class="card-body d-flex flex-column gap-3">
+        <h2 class="h5 m-0" data-i18n="settings.share"></h2>
+        <p class="m-0 text-body-secondary" data-i18n="settings.share.help"></p>
+        <button id="share-app" type="button" class="btn btn-solid theme-create settings-action">
+          <span class="icon icon-share" aria-hidden="true"></span>
+          <span data-i18n="settings.share.button"></span>
+        </button>
+        <output id="share-status"></output>
+      </div>
+    </section>
     <section id="section-trash" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5 m-0" data-i18n="settings.trash"></h2>
@@ -58,90 +69,93 @@
         </button>
       </div>
     </section>
+    <section id="section-app" class="card">
+      <div class="card-body d-flex flex-column gap-3">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <h2 class="h5 m-0" data-i18n="settings.app"></h2>
+          <span id="update-badge" class="badge settings-badge" hidden></span>
+        </div>
+        <p id="app-version" class="m-0 text-body-secondary"></p>
+        <button id="check-update" type="button" class="btn btn-solid theme-hold settings-action">
+          <span class="icon icon-restart" aria-hidden="true"></span>
+          <span data-i18n="update.check"></span>
+        </button>
+        <button
+          id="reset-cache"
+          type="button"
+          class="btn settings-link"
+          data-i18n="update.resetCache"
+        ></button>
+        <output id="update-status"></output>
+      </div>
+    </section>
+
+    <section id="section-language" class="card">
+      <div class="card-body d-flex flex-column gap-3">
+        <h2 class="h5 m-0" data-i18n="settings.language"></h2>
+        <label class="d-flex flex-column gap-2">
+          <span class="text-body-secondary" data-i18n="settings.language.label"></span>
+          <select id="language-select" class="form-control settings-field">
+            <option value="" data-i18n="settings.language.auto"></option>
+            <option value="en" lang="en">English</option>
+            <option value="fr" lang="fr">Français</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
     <section id="section-input" class="card">
       <div class="card-body d-flex flex-column gap-3">
-        <h2 class="h5" data-i18n="settings.input"></h2>
+        <h2 class="h5 m-0" data-i18n="settings.input"></h2>
         <p class="m-0 text-body-secondary" data-i18n="settings.input.help"></p>
-        <label class="d-flex align-items-center gap-2">
-          <input id="width-filter" type="checkbox" class="check check-lg" />
+        <label class="settings-switch">
           <span data-i18n="settings.input.widthFilter"></span>
+          <span class="switch switch-lg">
+            <input id="width-filter" type="checkbox" role="switch" />
+          </span>
         </label>
-        <label class="d-flex flex-column gap-1">
-          <span data-i18n="settings.input.widthThreshold"></span>
+        <label class="d-flex flex-column gap-2">
+          <span class="text-body-secondary" data-i18n="settings.input.widthThreshold"></span>
           <input
             id="width-threshold"
             type="number"
             min="20"
             max="400"
             step="1"
-            class="form-control"
+            class="form-control settings-field"
           />
         </label>
-        <div>
-          <button
-            id="input-defaults"
-            type="button"
-            class="btn btn-outline theme-secondary"
-            data-i18n="settings.input.defaults"
-          ></button>
-        </div>
-      </div>
-    </section>
-
-    <section id="section-language" class="card">
-      <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="settings.language"></h2>
-        <select id="language-select" class="form-control" data-i18n-aria="settings.language">
-          <option value="" data-i18n="settings.language.auto"></option>
-          <option value="en" lang="en">English</option>
-          <option value="fr" lang="fr">Français</option>
-        </select>
+        <button
+          id="input-defaults"
+          type="button"
+          class="btn settings-link"
+          data-i18n="settings.input.defaults"
+        ></button>
       </div>
     </section>
 
     <section id="section-storage" class="card">
-      <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="settings.storage"></h2>
-        <p id="storage-persisted" class="m-0"></p>
-        <p id="storage-usage" class="m-0"></p>
-        <div>
+      <div class="card-body settings-persistence">
+        <span id="storage-icon" class="icon icon-shield" aria-hidden="true"></span>
+        <div class="d-flex flex-column gap-1">
+          <p id="storage-persisted" class="m-0"></p>
+          <p id="storage-detail" class="m-0 small text-body-secondary"></p>
           <button
             id="storage-persist"
             type="button"
             hidden
-            class="btn btn-outline theme-primary"
+            class="btn btn-solid theme-hold settings-action"
             data-i18n="settings.storage.persist"
           ></button>
         </div>
       </div>
     </section>
 
-    <section id="section-app" class="card">
-      <div class="card-body d-flex flex-column gap-2">
-        <h2 class="h5" data-i18n="settings.app"></h2>
-        <p id="app-version" class="m-0"></p>
-        <div class="d-flex flex-wrap gap-2">
-          <button
-            id="check-update"
-            type="button"
-            class="btn btn-outline theme-primary"
-            data-i18n="update.check"
-          ></button>
-          <button
-            id="reset-cache"
-            type="button"
-            class="btn btn-outline theme-danger"
-            data-i18n="update.resetCache"
-          ></button>
-          <a
-            href="diagnostic.html"
-            class="btn btn-outline theme-secondary"
-            data-replace
-            data-i18n="settings.diagnostic"
-          ></a>
-        </div>
-        <output id="update-status"></output>
-      </div>
-    </section>
+    <a
+      href="diagnostic.html"
+      class="settings-diagnostic"
+      data-replace
+      data-i18n="settings.diagnostic"
+    ></a>
   </div>
 </main>

@@ -66,8 +66,18 @@ test('a 1.5-second press opens the settings page, which leads back', async ({ pa
   await page.waitForURL(/\/en\/settings\.html$/, { timeout: 4000 });
   expect(Date.now() - pressed).toBeGreaterThanOrEqual(1400);
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
-  await expect(page.locator('#app-version')).toHaveText(/^Version /);
-  await expect(page.locator('#storage-persisted')).toContainText('Drawings protected');
+  // Short SHA ("dev" locally) and the build date.
+  await expect(page.locator('#app-version')).toHaveText(/^Version \w+ of \w+ \d{1,2}, \d{4}\.$/);
+  // Protected or not, the line says so; "Ask again" only when not.
+  await expect(page.locator('#storage-persisted')).toHaveText(
+    /^Drawings (protected from automatic cleanup|may be cleaned up by the browser)$/,
+  );
+  const protectedNow =
+    (await page.locator('#storage-persisted').textContent())?.startsWith('Drawings protected') ??
+    false;
+  await expect(page.getByRole('button', { name: 'Ask again' })).toBeVisible({
+    visible: !protectedNow,
+  });
   await page.screenshot({ path: test.info().outputPath('settings.png'), fullPage: true });
   // Back leads to the gallery, and the hash goes: a reload lands on the slate.
   await page.getByRole('link', { name: 'Back to my drawings' }).click();
@@ -107,4 +117,56 @@ test('the language chosen in the settings page applies to the app', async ({ pag
   await page.goto('en/settings.html');
   await page.locator('#language-select').selectOption('');
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+});
+
+test('sharing the app sends its link, or copies it without a share sheet', async ({ page }) => {
+  await page.addInitScript(() => {
+    const calls: unknown[] = [];
+    (window as unknown as { shared: unknown[] }).shared = calls;
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async (data: unknown) => {
+        calls.push(data);
+      },
+    });
+  });
+  await page.goto('en/settings.html');
+  await page.getByRole('button', { name: 'Share the app link' }).click();
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { shared: unknown[] }).shared))
+    .toEqual([{ title: 'Magic Sketchbook', url: expect.stringMatching(/\/draw\/$/) }]);
+});
+
+test('without a share sheet, the app link goes to the clipboard', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    const copied: string[] = [];
+    (window as unknown as { copied: string[] }).copied = copied;
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: async (text: string) => {
+          copied.push(text);
+        },
+      },
+    });
+  });
+  await page.goto('en/settings.html');
+  await page.getByRole('button', { name: 'Share the app link' }).click();
+  await expect(page.locator('#share-status')).toHaveText(/^Link copied: http.*\/draw\/$/);
+  expect(
+    await page.evaluate(() => (window as unknown as { copied: string[] }).copied),
+  ).toHaveLength(1);
+});
+
+test('a check for updates shows a badge', async ({ page }) => {
+  await page.goto('en/settings.html');
+  await expect(page.locator('#update-badge')).toBeHidden();
+  // The service worker registers after the page loads: without it, no badge.
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.getByRole('button', { name: 'Check for updates' }).click();
+  await expect(page.locator('#update-status')).toHaveText(/^Already up to date/, {
+    timeout: 10_000,
+  });
+  await expect(page.locator('#update-badge')).toHaveText('Up to date');
 });

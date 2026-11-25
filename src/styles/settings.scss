@@ -15,6 +15,7 @@
 @use 'bootstrap/scss/layout';
 @use 'bootstrap/scss/forms';
 @use 'bootstrap/scss/buttons';
+@use 'bootstrap/scss/badge';
 @use 'bootstrap/scss/card';
 @use 'bootstrap/scss/helpers';
 @use 'bootstrap/scss/utilities/api';
@@ -173,4 +174,75 @@ body {
   &[data-holding] {
     scale: 1.03;
   }
+}
+
+// Minor actions look like links (boards: "Clear cache and reload", "Default values").
+.settings-link {
+  // Bootstrap's state rules (:disabled, :hover) set colors too: plain properties here.
+  border: 0;
+  background: transparent;
+  color: #0277bd;
+  --btn-color: #0277bd;
+  --btn-hover-color: #01579b;
+  --btn-active-color: #01579b;
+  --btn-bg: transparent;
+  --btn-hover-bg: transparent;
+  --btn-active-bg: transparent;
+  --btn-border-width: 0;
+  min-height: 48px;
+}
+
+// Form fields at the touch size, with the beige border of the boards.
+.settings-field {
+  min-height: 48px;
+  border-radius: 12px;
+  border-color: #d6c9a8;
+}
+
+// "Up to date" (green) or "Updating…" (beige), shown once a check ran.
+.settings-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 400;
+  font-size: 0.8125rem;
+  background: #e8f5e9;
+  color: #1b5e20;
+
+  &[data-state='updating'] {
+    background: $hold-bg;
+    color: $hold-icon;
+  }
+}
+
+// A switch on the right of its label, the whole row a touch target.
+.settings-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+}
+
+// Persistence: a shield, green when the browser protects the drawings.
+.settings-persistence {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+
+  .icon {
+    width: 28px;
+    height: 28px;
+    color: #a39882;
+  }
+
+  [data-protected] & .icon {
+    color: #2e7d32;
+  }
+}
+
+.settings-diagnostic {
+  align-self: center;
+  padding: 12px;
+  color: #0277bd;
 }

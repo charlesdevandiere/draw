@@ -4,7 +4,7 @@
  * the same catalogs as the app.
  */
 import '../styles/settings.scss';
-import { APP_VERSION } from '../app-version';
+import { APP_BUILD_DATE, APP_VERSION } from '../app-version';
 import { replaceHistoryOnLinks, requireElement } from '../app/dom';
 import {
   applyTranslations,
@@ -102,27 +102,57 @@ languageSelect.addEventListener('change', () => {
   window.location.reload();
 });
 
-// Storage: persistence and space used.
+// Share the sketchbook: the app's link (the root redirects to the visitor's language).
+const shareButton = requireElement('share-app', HTMLButtonElement);
+const shareStatus = requireElement('share-status', HTMLOutputElement);
+async function shareAppLink(url: string): Promise<void> {
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: t('app.name'), url });
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      // Refused (no user activation, unsupported data): copy instead.
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    shareStatus.textContent = t('settings.share.copied', { url });
+  } catch {
+    shareStatus.textContent = t('settings.share.manual', { url });
+  }
+}
+shareButton.addEventListener('click', () => {
+  shareStatus.textContent = '';
+  // One share at a time: a second tap while the sheet is open would be refused
+  // (InvalidStateError) and fall back to the clipboard behind the sheet.
+  shareButton.disabled = true;
+  void shareAppLink(new URL('../', window.location.href).href).finally(() => {
+    shareButton.disabled = false;
+  });
+});
+
+// Persistence: are the drawings protected from the browser's automatic cleanup?
 const persistedText = requireElement('storage-persisted', HTMLParagraphElement);
-const usageText = requireElement('storage-usage', HTMLParagraphElement);
+const persistedDetail = requireElement('storage-detail', HTMLParagraphElement);
+const storageCard = requireElement('section-storage', HTMLElement);
 const persistButton = requireElement('storage-persist', HTMLButtonElement);
-const megabytes = (bytes: number): string =>
-  t('diag.env.megabytes', { value: (bytes / 1_048_576).toFixed(1) });
 
 async function refreshStorage(): Promise<void> {
   const persisted = (await navigator.storage?.persisted?.().catch(() => null)) ?? null;
-  persistedText.textContent = t('settings.storage.persisted', {
-    state: persisted === null ? 'unknown' : persisted ? 'yes' : 'no',
-  });
+  persistedText.textContent = t(
+    persisted === null
+      ? 'settings.storage.unknown'
+      : persisted
+        ? 'settings.storage.protected'
+        : 'settings.storage.unprotected',
+  );
+  persistedDetail.textContent =
+    persisted === null
+      ? ''
+      : t(persisted ? 'settings.storage.protectedDetail' : 'settings.storage.unprotectedDetail');
+  storageCard.toggleAttribute('data-protected', persisted === true);
   persistButton.hidden = persisted !== false;
-  const estimate = await navigator.storage?.estimate?.().catch(() => null);
-  usageText.textContent =
-    estimate?.usage !== undefined && estimate.quota !== undefined
-      ? t('settings.storage.usage', {
-          used: megabytes(estimate.usage),
-          quota: megabytes(estimate.quota),
-        })
-      : '';
 }
 
 persistButton.addEventListener('click', () => {
@@ -136,10 +166,26 @@ persistButton.addEventListener('click', () => {
 });
 void refreshStorage();
 
-// Application: version and updates.
-requireElement('app-version', HTMLParagraphElement).textContent = t('settings.version', {
-  version: APP_VERSION,
-});
+// Update: version and build date, a badge once checked.
+requireElement('app-version', HTMLParagraphElement).textContent = APP_BUILD_DATE
+  ? t('settings.versionDate', {
+      version: APP_VERSION,
+      date: new Intl.DateTimeFormat(translator.language, { dateStyle: 'long' }).format(
+        new Date(APP_BUILD_DATE),
+      ),
+    })
+  : t('settings.version', { version: APP_VERSION });
+const updateBadge = requireElement('update-badge', HTMLSpanElement);
+function showBadge(state: 'up-to-date' | 'updating' | null): void {
+  updateBadge.hidden = state === null;
+  updateBadge.dataset['state'] = state ?? '';
+  updateBadge.textContent =
+    state === 'up-to-date'
+      ? t('settings.update.upToDate')
+      : state === 'updating'
+        ? t('settings.update.updating')
+        : '';
+}
 const updateStatus = requireElement('update-status', HTMLOutputElement);
 const checkButton = requireElement('check-update', HTMLButtonElement);
 const resetButton = requireElement('reset-cache', HTMLButtonElement);
@@ -152,8 +198,11 @@ const UPDATE_MESSAGES = {
 checkButton.addEventListener('click', async () => {
   checkButton.disabled = true;
   updateStatus.textContent = t('update.checking');
+  showBadge(null);
   try {
-    updateStatus.textContent = UPDATE_MESSAGES[await checkForUpdate()];
+    const outcome = await checkForUpdate();
+    updateStatus.textContent = UPDATE_MESSAGES[outcome];
+    showBadge(outcome === 'no-service-worker' ? null : outcome);
   } catch {
     updateStatus.textContent = t('update.checkFailed');
   } finally {

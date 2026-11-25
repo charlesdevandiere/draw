@@ -63,8 +63,8 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 **Acceptance criteria:**
 
-- [ ] e2e: share calls `navigator.share` with the app URL; without it the link goes to the clipboard and a message shows.
-- [ ] e2e: version line shows the SHA and a date; the badge appears after a check; finger settings and language still persist (existing tests).
+- [x] e2e: share calls `navigator.share` with the app URL; without it the link goes to the clipboard and a message shows.
+- [x] e2e: version line shows the SHA and a date; the badge appears after a check; finger settings and language still persist (existing tests).
 
 **Verification:** `npx playwright test e2e/parent.spec.ts e2e/input-settings.spec.ts`; `npm run check`, `npm run e2e`
 

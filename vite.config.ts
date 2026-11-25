@@ -3,6 +3,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   base: '/draw/',
+  // The settings page shows when this build was made (spec/SPEC-settings.md).
+  define: {
+    'import.meta.env.VITE_BUILD_DATE': JSON.stringify(new Date().toISOString()),
+  },
   css: {
     preprocessorOptions: {
       // Lets Sass resolve `bootstrap/scss/...` partials from node_modules.
