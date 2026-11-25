@@ -209,6 +209,7 @@ function showDrawScreen(): void {
   openGallery.focus();
 }
 
+const viewerScreen = requireElement('viewer-screen', HTMLElement);
 const viewerShare = requireElement('viewer-share', HTMLButtonElement);
 const viewerPlay = requireElement('viewer-play', HTMLButtonElement);
 
@@ -230,15 +231,15 @@ const viewer = initViewer({
 requireElement('viewer-back', HTMLButtonElement).addEventListener('click', showGallery);
 
 /** Puts a drawing from the gallery on the slate, to go on with it. */
-function continueDrawing(drawing: Drawing): void {
+function continueDrawing(drawing: Drawing): Promise<void> {
   if (drawing.id === current.id || drawScreen.isDrawing()) {
     showDrawScreen();
-    return;
+    return Promise.resolve();
   }
   // The card may be older than what is being saved: write first, then read it back.
   // The draw screen is shown only once the switch is done: a stroke started earlier
   // would be dropped by the switch, or land on the drawing being left.
-  autosave
+  return autosave
     .flush()
     .then(() => loadDrawing(drawing.id))
     .then(async (record) => {
@@ -255,7 +256,13 @@ function continueDrawing(drawing: Drawing): void {
 requireElement('viewer-continue', HTMLButtonElement).addEventListener('click', () => {
   const drawing = viewer.drawing();
   viewer.close();
-  if (drawing) continueDrawing(drawing);
+  if (!drawing) return;
+  // Inert while the drawing is put on the slate: back would be overridden by the draw
+  // screen, and a trash press ending meanwhile would leave a trashed drawing on the slate.
+  viewerScreen.inert = true;
+  void continueDrawing(drawing).finally(() => {
+    viewerScreen.inert = false;
+  });
 });
 
 // Share: the drawing as a magic PNG. The share sheet needs a recent user gesture (iOS
@@ -287,11 +294,15 @@ viewerShare.addEventListener('pointerdown', () => {
   prepareShare()?.catch(() => undefined);
 });
 viewerShare.addEventListener('click', () => {
+  const drawing = viewer.drawing();
   const file = prepareShare();
   if (!file) return;
   viewerShare.disabled = true;
   file
-    .then(shareFile)
+    // Left the viewer (or opened another drawing) while it encoded: no share sheet.
+    .then((ready) =>
+      !viewerScreen.hidden && viewer.drawing() === drawing ? shareFile(ready) : undefined,
+    )
     .catch(() => undefined)
     .finally(() => {
       viewerShare.disabled = false;
@@ -302,7 +313,6 @@ viewerShare.addEventListener('click', () => {
 // one on the slate, its last save lands first (it stays trashed: the save rule of
 // spec/SPEC-trash.md) and the slate turns to a blank page. The viewer stays inert while
 // it writes: "continue" would put the drawing being trashed back on the slate.
-const viewerScreen = requireElement('viewer-screen', HTMLElement);
 initLongPress(
   requireElement('viewer-trash', HTMLButtonElement),
   () => {

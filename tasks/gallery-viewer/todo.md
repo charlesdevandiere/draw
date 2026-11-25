@@ -81,7 +81,7 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 **Acceptance criteria:**
 
-- [ ] e2e (iPhone SE, Pixel, iPad, both orientations): every control visible, ≥ 48 px, out of the edge margins; the page is the largest square left; screenshots compared with the boards by eye.
+- [x] e2e (iPhone SE, Pixel, iPad, both orientations): every control visible, ≥ 48 px, out of the edge margins; the page is the largest square left; screenshots compared with the boards by eye.
 
 **Verification:** `npx playwright test e2e/app-shell.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -93,6 +93,6 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 ## Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–8 met
+- [x] Spec success criteria 1–8 met
 - [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations
 - [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-gallery-viewer.md` to `Status: implemented`

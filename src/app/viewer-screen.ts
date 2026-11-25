@@ -47,6 +47,8 @@ export function initViewer(options: ViewerOptions): Viewer {
   /** Replay time last painted: going back (restart) clears the page first. */
   let paintedUntil = 0;
   let shownPercent = -1;
+  /** Play state last shown on the button: it changes rarely, frames come 60 times a second. */
+  let shownPlaying: boolean | null = null;
 
   function clearCanvas(): void {
     const size = canvas.getBoundingClientRect().width;
@@ -96,6 +98,8 @@ export function initViewer(options: ViewerOptions): Viewer {
       progress.setAttribute('aria-valuenow', String(percent));
     }
     const playing = clock.playing && !clock.ended(now);
+    if (playing === shownPlaying) return;
+    shownPlaying = playing;
     playButton.setAttribute('aria-label', t(playing ? 'viewer.pause' : 'viewer.play'));
     playIcon?.classList.toggle('icon-pause', playing);
     playIcon?.classList.toggle('icon-play', !playing);
@@ -134,6 +138,7 @@ export function initViewer(options: ViewerOptions): Viewer {
     plan = planReplay(next.strokes);
     clock = createReplayClock(plan.duration);
     shownPercent = -1;
+    shownPlaying = null;
     clearCanvas();
     const now = performance.now();
     clock.play(now);

@@ -33,11 +33,11 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 ### Phase 3: The wall and the layouts
 
 - [x] Task 4: Gallery wall: "+" sheet, tilted taped tiles, gear settings pebble, responsive grid
-- [ ] Task 5: Viewer and gallery layouts in the four window shapes (boards "Visionneuse", "Galerie")
+- [x] Task 5: Viewer and gallery layouts in the four window shapes (boards "Visionneuse", "Galerie")
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–8 met
+- [x] Spec success criteria 1–8 met
 - [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations
 - [ ] Fold into `spec/SPEC-mvp.md` (A6, B1), set `spec/SPEC-gallery-viewer.md` to `Status: implemented`
 
