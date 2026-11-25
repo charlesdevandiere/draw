@@ -20,3 +20,34 @@ export function backupSummary(translator: Translator, count: number, bytes: numb
   }).format(Math.max(0.1, Math.round((bytes / MEGABYTE) * 10) / 10));
   return translator.t('settings.backup.summary', { count, size });
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Local midnight of the day of `time`. */
+function startOfDay(time: number): number {
+  const date = new Date(time);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+/**
+ * "yesterday", "6 days ago": calendar days (local time) since the move to the trash, never
+ * in the future. Thrown away last night, it says "yesterday" in the morning.
+ */
+export function trashedAgo(language: string, trashedAt: number, now: number): string {
+  // Rounded: a day across a daylight saving change lasts 23 or 25 hours.
+  const days = Math.max(0, Math.round((startOfDay(now) - startOfDay(trashedAt)) / DAY_MS));
+  return new Intl.RelativeTimeFormat(language, { numeric: 'auto' }).format(-days, 'day');
+}
+
+/** "Deleted yesterday", "Deleted 6 days ago". */
+export function trashedWhen(translator: Translator, trashedAt: number, now: number): string {
+  return translator.t('settings.trash.when', {
+    when: trashedAgo(translator.language, trashedAt, now),
+  });
+}
+
+/** "3 drawings: they are deleted for good 30 days after being thrown away." */
+export function trashSummary(translator: Translator, count: number): string {
+  return translator.t('settings.trash.summary', { count });
+}

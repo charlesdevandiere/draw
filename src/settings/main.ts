@@ -19,6 +19,7 @@ import {
   listTrash,
   purgeTrash,
   readSetting,
+  emptyTrash,
   restoreFromTrash,
   saveDrawing,
   writeSetting,
@@ -26,6 +27,8 @@ import {
 import { backupSummary, drawingBytes } from './format';
 import { initInputSettings } from './input-settings';
 import { initTransferSection } from './transfer';
+import { initTrashSection } from './trash';
+import { initHaptic } from '../app/haptic';
 import { renderThumbnail } from '../app/raster';
 import settingsHtml from './settings.html?raw';
 
@@ -51,10 +54,24 @@ async function refreshBackup(): Promise<void> {
   );
   backupSummaryText.textContent = backupSummary(translator, records.length, bytes);
 }
+// Trash: restore, or empty for good with a long press.
+const trash = initTrashSection({
+  translator,
+  list: listTrash,
+  thumbnail: (record) => renderThumbnail(record.drawing.strokes),
+  restore: restoreFromTrash,
+  empty: emptyTrash,
+  haptic: initHaptic(),
+  onChanged: () => void refreshBackup().catch(() => undefined),
+});
+
 // Drawings trashed 30 days ago or more go for good (spec/SPEC-trash.md); retried next time.
 purgeTrash(Date.now())
   .catch(() => undefined)
-  .finally(() => void refreshBackup().catch(() => undefined));
+  .finally(() => {
+    void refreshBackup().catch(() => undefined);
+    void trash.refresh().catch(() => undefined);
+  });
 
 // Export and import of magic PNGs.
 const transfer = initTransferSection({
@@ -66,7 +83,11 @@ const transfer = initTransferSection({
   // renders one).
   save: async (drawing) =>
     saveDrawing(drawing, await renderThumbnail(drawing.strokes).catch(() => null)),
-  onImported: () => void refreshBackup().catch(() => undefined),
+  onImported: () => {
+    void refreshBackup().catch(() => undefined);
+    // An import may bring a drawing back from the trash.
+    void trash.refresh().catch(() => undefined);
+  },
 });
 
 // Finger mode settings.

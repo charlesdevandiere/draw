@@ -70,6 +70,7 @@ export default defineConfig({
         'src/app/long-press.ts',
         'src/app/haptic.ts',
         'src/settings/transfer.ts',
+        'src/settings/trash.ts',
         'src/settings/input-settings.ts',
         'src/app/magic-image.ts',
         'src/app-version.ts',

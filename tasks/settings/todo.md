@@ -42,12 +42,12 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 
 ## Task 3: Trash section
 
-**Description:** "Trash" card: summary line (empty / n drawings, deleted for good 30 days after), one row per trashed drawing (thumbnail 64 px, "Thrown away yesterday / n days ago", Restore), "Empty the trash" red button with a 1.5 s long press (horizontal fill), hidden when empty. Backup line refreshed after a restore.
+**Description:** "Trash" card: summary line (empty / n drawings, deleted for good 30 days after), one row per trashed drawing (thumbnail 64 px, "Deleted yesterday / n days ago", Restore), "Empty the trash" red button with a 1.5 s long press (horizontal fill), hidden when empty. Backup line refreshed after a restore.
 
 **Acceptance criteria:**
 
-- [ ] Unit: relative text from `trashedAt` and now (today, yesterday, n days), en and fr.
-- [ ] e2e: seeded trash shows newest first with dates; Restore brings a drawing back to the gallery; a short press on Empty does nothing, 1.5 s empties and hides it.
+- [x] Unit: relative text from `trashedAt` and now (today, yesterday, n days), en and fr.
+- [x] e2e: seeded trash shows newest first with dates; Restore brings a drawing back to the gallery; a short press on Empty does nothing, 1.5 s empties and hides it.
 
 **Verification:** `npx vitest run src/settings`; `npx playwright test e2e/trash.spec.ts`; `npm run check`, `npm run e2e`
 

@@ -177,3 +177,67 @@ test('trashing the drawing on the slate leaves a blank slate, also after a reloa
   expect(isBlank(await pixelAt(page.locator('#drawing-layer'), center))).toBe(true);
   expect(await trashedIds(page)).toHaveLength(1);
 });
+
+test('the settings list the trash newest first; restore brings a drawing back', async ({
+  page,
+}) => {
+  const now = Date.now();
+  await seedDatabase(page, [
+    { id: 'kept', updatedAt: now - 30 * DAY, lineAt: 200 },
+    { id: 'six', updatedAt: now - 10 * DAY, lineAt: 400, trashedAt: now - 6 * DAY - 60_000 },
+    { id: 'one', updatedAt: now - 3 * DAY, lineAt: 500, trashedAt: now - DAY - 60_000 },
+    { id: 'old', updatedAt: now - 40 * DAY, lineAt: 800, trashedAt: now - 24 * DAY - 60_000 },
+  ]);
+  await page.goto('en/settings.html');
+  await expect(page.locator('#trash-summary')).toHaveText(
+    '3 drawings: they are deleted for good 30 days after being thrown away.',
+  );
+  await expect(page.locator('.trash-when')).toHaveText([
+    'Deleted yesterday',
+    'Deleted 6 days ago',
+    'Deleted 24 days ago',
+  ]);
+  await expect(page.locator('.trash-thumbnail img')).toHaveCount(3);
+  await expect(page.locator('#backup-summary')).toHaveText(/^1 drawing, /);
+
+  await page.getByRole('button', { name: 'Restore the drawing deleted 6 days ago' }).click();
+  await expect(page.locator('.trash-when')).toHaveText([
+    'Deleted yesterday',
+    'Deleted 24 days ago',
+  ]);
+  await expect(page.locator('#backup-summary')).toHaveText(/^2 drawings, /);
+  expect(await trashedIds(page)).toEqual(['old', 'one']);
+
+  await page.getByRole('link', { name: 'Back to my drawings' }).click();
+  await expect(page.locator('#gallery-screen')).toBeVisible();
+  await expect(page.locator('.gallery-card')).toHaveCount(2, { timeout: 15_000 });
+});
+
+test('emptying the trash takes a 1.5 s press, then the button goes', async ({ page }) => {
+  const now = Date.now();
+  await seedDatabase(page, [
+    { id: 'kept', updatedAt: now - 3 * DAY, lineAt: 200 },
+    { id: 'thrown', updatedAt: now - 2 * DAY, lineAt: 500, trashedAt: now - DAY },
+  ]);
+  await page.goto('en/settings.html');
+  const empty = page.getByRole('button', { name: /Empty the trash/ });
+  await expect(empty).toBeVisible();
+
+  // A tap and a short press do nothing.
+  await empty.click();
+  await press(page, '#empty-trash');
+  await page.waitForTimeout(700);
+  await release(page, '#empty-trash');
+  await page.waitForTimeout(1200);
+  expect(await trashedIds(page)).toEqual(['thrown']);
+
+  // Held: it fills, then the trash is emptied for good.
+  await press(page, '#empty-trash');
+  await expect(empty).toHaveAttribute('data-holding', '');
+  await expect(page.locator('#trash-summary')).toHaveText('The trash is empty.', {
+    timeout: 4000,
+  });
+  await expect(empty).toBeHidden();
+  expect(await trashedIds(page)).toEqual([]);
+  expect(Object.keys(await savedStrokeCounts(page))).toEqual(['kept']);
+});

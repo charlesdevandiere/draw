@@ -102,3 +102,75 @@ body {
     height: 20px;
   }
 }
+
+// Trash rows: thumbnail, when, Restore.
+.trash-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.trash-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trash-thumbnail {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  background: $page;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.trash-when {
+  flex: 1;
+  color: #6b6252;
+}
+
+.trash-restore {
+  flex: none;
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+// Emptying the trash: red text, a 1.5 s press fills it from left to right
+// (src/app/long-press.ts sets `--progress` and `data-holding`).
+.empty-trash {
+  --btn-color: #b71c1c;
+  --btn-hover-color: #b71c1c;
+  --btn-active-color: #b71c1c;
+  --btn-bg: #fdecea;
+  --btn-hover-bg: #fdecea;
+  --btn-active-bg: #fdecea;
+  touch-action: manipulation;
+  // A 1.5 s press on text: no selection, magnifier or callout (iOS), which would cancel it.
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: scale 0.2s ease-out;
+  background-image: linear-gradient(
+    to right,
+    #{$trash-fill} calc(var(--progress, 0) * 100%),
+    transparent calc(var(--progress, 0) * 100%)
+  );
+
+  &[data-holding] {
+    scale: 1.03;
+  }
+}

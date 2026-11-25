@@ -47,6 +47,17 @@
         <output id="transfer-status"></output>
       </div>
     </section>
+    <section id="section-trash" class="card">
+      <div class="card-body d-flex flex-column gap-3">
+        <h2 class="h5 m-0" data-i18n="settings.trash"></h2>
+        <p id="trash-summary" class="m-0 text-body-secondary"></p>
+        <ul id="trash-list" class="trash-list"></ul>
+        <button id="empty-trash" type="button" class="btn settings-action empty-trash" hidden>
+          <span class="icon icon-trash" aria-hidden="true"></span>
+          <span data-i18n="settings.trash.empty"></span>
+        </button>
+      </div>
+    </section>
     <section id="section-input" class="card">
       <div class="card-body d-flex flex-column gap-3">
         <h2 class="h5" data-i18n="settings.input"></h2>

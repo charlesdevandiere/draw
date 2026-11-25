@@ -28,7 +28,7 @@ Source spec: `spec/SPEC-settings.md` (module `settings` of `spec/capability-map.
 
 ### Phase 2: New sections
 
-- [ ] Task 3: Trash section: rows with relative dates, restore, empty by long press
+- [x] Task 3: Trash section: rows with relative dates, restore, empty by long press
 - [ ] Task 4: Share the app link, update badge with version and build date, persistence line, finger switch
 
 ### Phase 3: Layout
