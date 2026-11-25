@@ -121,10 +121,16 @@ test('the gallery and viewer buttons are pebbles in their role colors', async ({
   };
   await expectRoles([
     [page.locator('#back-to-drawing'), 'rgb(255, 213, 79)'],
-    [page.locator('#gallery-new-page'), 'rgb(165, 214, 167)'],
     [page.locator('#parent-lock'), DISABLED_BG],
   ]);
-  // The padlock (a long press) has its own icon color.
+  // The new page is a blank dashed sheet with a green "+".
+  await expect
+    .poll(() => styleOf(page.locator('#gallery-new-page'), 'border-top-style'))
+    .toBe('dashed');
+  await expect
+    .poll(() => styleOf(page.locator('#gallery-new-page .icon'), 'background-color'))
+    .toBe('rgb(67, 160, 71)');
+  // The settings pebble (a long press) has its own icon color.
   await expect
     .poll(() => styleOf(page.locator('#parent-lock .icon'), 'background-color'))
     .toBe('rgb(93, 84, 66)');

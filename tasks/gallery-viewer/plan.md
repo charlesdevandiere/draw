@@ -32,7 +32,7 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 
 ### Phase 3: The wall and the layouts
 
-- [ ] Task 4: Gallery wall: "+" sheet, tilted taped tiles, gear settings pebble, responsive grid
+- [x] Task 4: Gallery wall: "+" sheet, tilted taped tiles, gear settings pebble, responsive grid
 - [ ] Task 5: Viewer and gallery layouts in the four window shapes (boards "Visionneuse", "Galerie")
 
 ### Checkpoint: Module complete

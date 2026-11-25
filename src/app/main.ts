@@ -342,6 +342,10 @@ const gallery = initGallery({
     }
     return records;
   },
+  onNew: () => {
+    startNewPage().catch(() => undefined);
+    showDrawScreen();
+  },
   onOpen: (drawing) => {
     showScreen('viewer');
     viewer.open(drawing);
@@ -374,10 +378,6 @@ initLongPress(
   },
   { haptic },
 );
-requireElement('gallery-new-page', HTMLButtonElement).addEventListener('click', () => {
-  startNewPage().catch(() => undefined);
-  showDrawScreen();
-});
 
 // An installed app is resumed rather than reopened: look for a new version each time it
 // comes back to the foreground (failures, e.g. offline, are silent).

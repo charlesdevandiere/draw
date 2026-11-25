@@ -64,8 +64,8 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 
 **Acceptance criteria:**
 
-- [ ] e2e: "+" first, then the drawings newest first; each tile rotated and taped; "+" opens a blank slate; the gear long press still opens the parent page.
-- [ ] e2e: empty gallery shows only "+"; tiles stay out of the edge margins.
+- [x] e2e: "+" first, then the drawings newest first; each tile rotated and taped; "+" opens a blank slate; the gear long press still opens the parent page.
+- [x] e2e: empty gallery shows only "+"; tiles stay out of the edge margins.
 
 **Verification:** `npx playwright test e2e/gallery.spec.ts e2e/parent.spec.ts`; `npm run check`, `npm run e2e`
 

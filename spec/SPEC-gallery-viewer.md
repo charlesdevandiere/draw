@@ -25,7 +25,7 @@ Users: children aged 5+ (find a drawing, watch it redraw itself, go on with it, 
 ### Gallery: the wall
 
 - **Header**: back to the slate (left, `theme-history`, unchanged) and the **settings** pebble (right, `theme-hold`, gear icon `bi-gear`, long press 1.5 s, unchanged behavior: it opens the parent page, renamed settings page by module `settings`). The new page pebble leaves the header.
-- **First tile**: a blank sheet with a dashed beige border (`#c9b98f`, 3 px) and a green "+" (`bi-plus-lg`, `create` color), slightly tilted (1°): a new page, as the old header button.
+- **First tile**: a blank sheet with a dashed beige border (`#c9b98f`, 3 px) and a green "+" (`bi-plus-lg`, `#43a047` as the mockup: the light `create` green would not show on the paper), slightly tilted (1°): a new page, as the old header button.
 - **Drawing tiles**: white square thumbnails with the paper shadow, each **tilted** between −2.5° and +2.5° and carrying a **strip of tape** on top (one of the six action colors, 85 % opacity, tilted the other way). Tilt and tape are derived from the drawing id (pure function, stable across reloads and new drawings), never stored.
 - Order unchanged: newest first (by `updatedAt`), trashed drawings left out.
 - **Grid**: as many columns as fit, tiles of a fixed size per device class (phone 150 px, tablet 180 px), columns spread across the width (`space-evenly` on phones, `space-between` on tablets), generous row gap so the tilts and tapes never overlap; the wall scrolls vertically, the header stays. Nothing in the edge margins (DF-02).
