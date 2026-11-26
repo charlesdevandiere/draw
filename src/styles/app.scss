@@ -393,6 +393,11 @@ body {
   touch-action: none;
 }
 
+// Template layers are locked: contacts go through them to the drawing surface.
+.page .template-layer {
+  pointer-events: none;
+}
+
 .tools {
   display: flex;
   align-items: center;

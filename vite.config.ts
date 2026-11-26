@@ -77,6 +77,8 @@ export default defineConfig({
         'src/settings/trash.ts',
         'src/settings/input-settings.ts',
         'src/app/magic-image.ts',
+        'src/app/template-image.ts',
+        'src/app/layer-canvas.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

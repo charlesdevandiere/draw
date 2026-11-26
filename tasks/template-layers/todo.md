@@ -65,9 +65,9 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] e2e (seeded drawing with a coloring page): outlines show; a thick black stroke across an outline leaves it black; a white stroke does not hide it; the eraser never removes it.
-- [ ] e2e: undo / redo through a seeded step after strokes; reload keeps the layer.
-- [ ] Drawings without templates unchanged (existing e2e pass).
+- [x] e2e (seeded drawing with a coloring page): outlines show; a thick black stroke across an outline leaves it black; a white stroke does not hide it; the eraser never removes it.
+- [x] e2e: undo / redo through a seeded step after strokes; reload keeps the layer.
+- [x] Drawings without templates unchanged (existing e2e pass).
 
 **Verification:** `npx playwright test e2e/template-layers.spec.ts`; `npm run check`, `npm run e2e`
 

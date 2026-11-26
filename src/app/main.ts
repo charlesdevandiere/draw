@@ -147,6 +147,7 @@ function refreshHistoryButtons(): void {
 function setHistory(next: History): void {
   history = next;
   drawScreen.setStrokes(history.strokes);
+  drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();
   autosave.changed(currentDrawing());
 }
@@ -161,6 +162,7 @@ function switchDrawing(drawing: Drawing): Promise<void> {
   current = { id: drawing.id, createdAt: drawing.createdAt };
   history = createHistory(drawing.strokes, drawing.templates);
   drawScreen.setStrokes(history.strokes);
+  drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();
   return saved;
 }
@@ -175,6 +177,8 @@ async function startNewPage(): Promise<void> {
 
 const drawScreen = initDrawScreen({
   canvas,
+  background: requireElement('background-layer', HTMLCanvasElement),
+  overlay: requireElement('overlay-layer', HTMLCanvasElement),
   hitArea: requireElement('draw-screen', HTMLElement),
   onStroke: (stroke) => {
     history = commitStroke(history, stroke);
@@ -491,6 +495,7 @@ async function restore(): Promise<void> {
   current = { id: record.drawing.id, createdAt: record.drawing.createdAt };
   history = createHistory(record.drawing.strokes, record.drawing.templates);
   drawScreen.setStrokes(history.strokes);
+  drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();
 }
 

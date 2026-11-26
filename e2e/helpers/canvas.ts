@@ -28,3 +28,34 @@ export async function pagePoint(
 export async function pixelAt(canvas: Locator, point: Point): Promise<number[]> {
   return canvasPixel(canvas, point);
 }
+
+/**
+ * The pixel the child sees at a viewport point of the page: every canvas of the page
+ * (template layers and drawing) composited in document order, over the white page.
+ */
+export async function pagePixel(page: Page, [x, y]: Point, square = '#page'): Promise<number[]> {
+  return page.evaluate(
+    async ({ x, y, square }) => {
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const host = document.querySelector(square);
+      if (!host) throw new Error(`${square} missing`);
+      const out = document.createElement('canvas');
+      out.width = 1;
+      out.height = 1;
+      const context = out.getContext('2d', { willReadFrequently: true });
+      if (!context) throw new Error('No 2D context');
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, 1, 1);
+      for (const canvas of host.querySelectorAll('canvas')) {
+        const box = canvas.getBoundingClientRect();
+        if (box.width === 0) continue;
+        const scale = canvas.width / box.width;
+        const sx = Math.floor((x - box.left) * scale);
+        const sy = Math.floor((y - box.top) * scale);
+        context.drawImage(canvas, sx, sy, 1, 1, 0, 0, 1, 1);
+      }
+      return [...context.getImageData(0, 0, 1, 1).data];
+    },
+    { x, y, square },
+  );
+}

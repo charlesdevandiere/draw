@@ -19,7 +19,15 @@ import {
   strokeReach,
   type StrokeBuilder,
 } from '../engine/stroke-builder';
-import { PAGE_SIZE, drawingDuration, type Stroke, type StrokeStyle } from '../engine/types';
+import { currentLayers } from '../engine/layers';
+import {
+  PAGE_SIZE,
+  drawingDuration,
+  type Stroke,
+  type StrokeStyle,
+  type TemplateStep,
+} from '../engine/types';
+import { createLayerCanvas, type LayerCanvas } from './layer-canvas';
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
@@ -55,12 +63,25 @@ export interface DrawScreenOptions {
   accepts?: PointerFilter;
   /** A stroke was finished and added to the drawing. */
   onStroke?: (stroke: Stroke) => void;
+  /** Canvases of the template layers, under and above the drawing canvas. */
+  background?: HTMLCanvasElement;
+  overlay?: HTMLCanvasElement;
+  /** Overlay outline width kept constant (CSS pixels), or null to scale it. */
+  fixedOutline?: () => number | null;
 }
 
 export interface DrawScreen {
   /** Replaces the drawing shown (strokes in progress are dropped). */
   setStrokes(strokes: readonly Stroke[]): void;
   strokes(): readonly Stroke[];
+  /** Replaces the template steps; the layers they leave are shown. */
+  setTemplates(templates: readonly TemplateStep[]): void;
+  /** Drawing time now (ms, the clock of the stroke points), for a template step. */
+  drawingTime(): number;
+  /** Repaints the template layers (a setting changed). */
+  refreshLayers(): void;
+  /** Resolves once the template layers are painted. */
+  layersReady(): Promise<void>;
   /** True while a contact is drawing. */
   isDrawing(): boolean;
 }
@@ -82,6 +103,13 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
   const context = contextOrNull;
 
   let strokes: Stroke[] = [];
+  let templates: readonly TemplateStep[] = [];
+  const background = options.background && createLayerCanvas(options.background);
+  const overlay =
+    options.overlay && createLayerCanvas(options.overlay, { fixedOutline: options.fixedOutline });
+  const layerCanvases = [background, overlay].filter(
+    (layer): layer is LayerCanvas => layer !== undefined,
+  );
   const active = new Map<number, ActiveStroke>();
   /** Contacts that started on the canvas, drawing or not: the filter must see them end. */
   const contacts = new Set<number>();
@@ -102,7 +130,14 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
       canvas.height = backing;
     }
     pixelsPerUnit = pageToBacking(backing);
+    for (const layer of layerCanvases) layer.resize(backing);
     repaint();
+  }
+
+  function showLayers(): void {
+    const layers = currentLayers(templates);
+    background?.set(layers.background);
+    overlay?.set(layers.overlay);
   }
 
   function paintFrame(): void {
@@ -129,9 +164,14 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     return { x, y, t: (clock ?? createClock(event.timeStamp))(event.timeStamp) };
   }
 
+  /** Drawing time a new clock starts at: after the last point or template step. */
+  function resumeAt(): number {
+    const end = Math.max(drawingDuration(strokes), ...templates.map((step) => step.t));
+    return strokes.length > 0 || templates.length > 0 ? end + RESUME_PAUSE_MS : 0;
+  }
+
   function createClock(timeStamp: number) {
-    const resumeAt = strokes.length > 0 ? drawingDuration(strokes) + RESUME_PAUSE_MS : 0;
-    clock = createDrawingClock(resumeAt, timeStamp);
+    clock = createDrawingClock(resumeAt(), timeStamp);
     return clock;
   }
 
@@ -234,6 +274,19 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
       repaint();
     },
     strokes: () => strokes,
+    setTemplates(next) {
+      templates = next;
+      showLayers();
+    },
+    drawingTime() {
+      // Without a running clock, no clock is started: time spent in a panel that ends up
+      // changing nothing must not open a gap before the next stroke.
+      return clock ? clock(performance.now()) : resumeAt();
+    },
+    refreshLayers() {
+      for (const layer of layerCanvases) layer.resize(canvas.width);
+    },
+    layersReady: () => Promise.all(layerCanvases.map((layer) => layer.ready())).then(() => {}),
     isDrawing: () => active.size > 0,
   };
 }
