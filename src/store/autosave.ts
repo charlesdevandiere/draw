@@ -1,10 +1,15 @@
 /**
  * Silent autosave: changes are batched (one save per `delayMs` at most), saves never
  * overlap, and `flush` writes what is pending right away (app going to the background,
- * new page). A drawing left without strokes is removed instead of saved: empty drawings
- * never reach the gallery.
+ * new page). A drawing left without strokes or templates is removed instead of saved: empty
+ * drawings never reach the gallery.
  */
 import type { Drawing } from '../engine/types';
+
+/** Nothing drawn and no template ever placed. */
+function isEmpty(drawing: Drawing): boolean {
+  return drawing.strokes.length === 0 && drawing.templates.length === 0;
+}
 
 export interface AutosaveTarget {
   save(drawing: Drawing): Promise<void>;
@@ -41,7 +46,7 @@ export function createAutosave(
     queue.clear();
     for (const drawing of drawings) {
       chain = chain
-        .then(() => (drawing.strokes.length > 0 ? target.save(drawing) : target.remove(drawing.id)))
+        .then(() => (isEmpty(drawing) ? target.remove(drawing.id) : target.save(drawing)))
         .then(
           () => {
             if (latest.get(drawing.id) === drawing) latest.delete(drawing.id);

@@ -99,7 +99,6 @@ const tools = initTools(
 
 /** The drawing on the slate: its identity, and its strokes in `history`. */
 let current: { id: string; createdAt: number } = { id: newId(), createdAt: Date.now() };
-let templates: Drawing['templates'] = [];
 let history: History = createHistory();
 
 const autosave = createAutosave({
@@ -117,11 +116,12 @@ const autosave = createAutosave({
 });
 
 function currentDrawing(): Drawing {
-  const count = history.strokes.length;
-  // Undo can drop strokes a template step was placed after; a step's `at` beyond the
-  // strokes would make the saved drawing unreadable (parseDrawing refuses it).
-  const steps = templates.map((step) => (step.at > count ? { ...step, at: count } : step));
-  return { ...current, updatedAt: Date.now(), strokes: [...history.strokes], templates: steps };
+  return {
+    ...current,
+    updatedAt: Date.now(),
+    strokes: [...history.strokes],
+    templates: [...history.templates],
+  };
 }
 const undoButton = requireElement('undo', HTMLButtonElement);
 const redoButton = requireElement('redo', HTMLButtonElement);
@@ -159,8 +159,7 @@ function setHistory(next: History): void {
 function switchDrawing(drawing: Drawing): Promise<void> {
   const saved = autosave.flush();
   current = { id: drawing.id, createdAt: drawing.createdAt };
-  templates = drawing.templates;
-  history = createHistory(drawing.strokes);
+  history = createHistory(drawing.strokes, drawing.templates);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();
   return saved;
@@ -490,8 +489,7 @@ async function restore(): Promise<void> {
   const touched = current.id !== slate || canUndo(history) || canRedo(history);
   if (!record || touched || drawScreen.isDrawing()) return;
   current = { id: record.drawing.id, createdAt: record.drawing.createdAt };
-  templates = record.drawing.templates;
-  history = createHistory(record.drawing.strokes);
+  history = createHistory(record.drawing.strokes, record.drawing.templates);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();
 }

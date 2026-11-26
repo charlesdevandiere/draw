@@ -57,6 +57,20 @@ describe('autosave', () => {
     expect(t.save).not.toHaveBeenCalled();
   });
 
+  it('keeps a drawing with a template but no stroke yet', async () => {
+    const t = target();
+    const autosave = createAutosave(t);
+    const layer = { slot: 'overlay' as const, template: 'x', version: 1, params: {}, svg: '' };
+    const templated: Drawing = {
+      ...drawing([]),
+      templates: [{ slot: 'overlay', layer, at: 0, t: 0 }],
+    };
+    autosave.changed(templated);
+    await autosave.flush();
+    expect(t.save).toHaveBeenCalledWith(templated);
+    expect(t.remove).not.toHaveBeenCalled();
+  });
+
   it('never runs two saves at once', async () => {
     let release: () => void = () => undefined;
     const order: string[] = [];

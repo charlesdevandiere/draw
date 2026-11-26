@@ -26,9 +26,9 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] Unit: undo after "stroke, step" takes the step; after "step, stroke" the stroke; redo restores in order; a new stroke or step clears redo; `canUndo` counts both.
-- [ ] Unit: `layerAt` / `layersAtTime` with add, replace, remove, on both slots.
-- [ ] Existing history tests unchanged and passing.
+- [x] Unit: undo after "stroke, step" takes the step; after "step, stroke" the stroke; redo restores in order; a new stroke or step clears redo; `canUndo` counts both.
+- [x] Unit: `layerAt` / `layersAtTime` with add, replace, remove, on both slots.
+- [x] Existing history tests unchanged and passing.
 
 **Verification:** `npx vitest run src/engine`; `npm run check`, `npm run e2e`
 
@@ -40,7 +40,7 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 ## Checkpoint: Data
 
-- [ ] `npm run check` passes; schema 1 drawings still parse; nothing visible changes
+- [x] `npm run check` passes; schema 1 drawings still parse; nothing visible changes
 
 ## Task 3: Catalog, test coloring pages, authoring rules
 

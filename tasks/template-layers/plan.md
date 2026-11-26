@@ -22,11 +22,11 @@ A drawing gets up to two locked template layers (background under the strokes, o
 ### Phase 1: Data (pure)
 
 - [x] Task 1: Types, schema 2 (migration, limits, SVG checker), magic PNG round trip
-- [ ] Task 2: History over strokes and template steps; layer of a slot at a stroke count and at a time
+- [x] Task 2: History over strokes and template steps; layer of a slot at a stroke count and at a time
 
 ### Checkpoint: Data
 
-- [ ] `npm run check` passes; schema 1 drawings still parse; nothing visible changes
+- [x] `npm run check` passes; schema 1 drawings still parse; nothing visible changes
 
 ### Phase 2: On the slate
 
