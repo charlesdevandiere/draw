@@ -25,7 +25,7 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 **Acceptance criteria:**
 
-- [ ] Unit: line positions in page units for a phone and a tablet `unitsPerCm`; thick / thin pattern of Seyès; deterministic; passes the template checker and the size limit.
+- [x] Unit: line positions in page units for a phone and a tablet `unitsPerCm`; thick / thin pattern of Seyès; deterministic; passes the template checker and the size limit.
 
 **Verification:** `npx vitest run src/templates/writing.test.ts`; `npm run check`
 
