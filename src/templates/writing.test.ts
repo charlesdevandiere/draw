@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import capitals from './glyphs/capitals.json';
+import cursive from './glyphs/cursive.json';
+import digits from './glyphs/digits.json';
 import { checkTemplateSvg } from './svg-check';
-import { NOMINAL_PX_PER_CM, linesSvg, unitsPerCmFor } from './writing';
+import {
+  LETTER_SETS,
+  NOMINAL_PX_PER_CM,
+  letterGrid,
+  lettersSvg,
+  linesSvg,
+  unitsPerCmFor,
+} from './writing';
 
 /** Page units per cm on a phone (page 360 CSS px wide) and a tablet (700 px). */
 const PHONE = unitsPerCmFor(360);
@@ -75,5 +85,123 @@ describe('linesSvg', () => {
         expect(checkTemplateSvg(svg, 64 * 1024)).toBeNull();
       }
     }
+  });
+});
+
+describe('letterGrid', () => {
+  it('capitals: 2 cm high, rows 1 cm apart, whole copies inside the margins', () => {
+    for (const unitsPerCm of [PHONE, TABLET]) {
+      const layout = letterGrid('capitals', 'J', unitsPerCm);
+      if (!layout) throw new Error('no layout');
+      expect(layout.height).toBeCloseTo(2 * unitsPerCm, 0);
+      const margin = 0.5 * unitsPerCm;
+      const [first = 0, second] = layout.baselines;
+      const last = layout.baselines.at(-1) ?? 0;
+      const left = layout.xs[0] ?? 0;
+      const right = (layout.xs.at(-1) ?? 0) + layout.width;
+      expect(first - layout.height).toBeGreaterThanOrEqual(margin - 0.1);
+      expect(last).toBeLessThanOrEqual(1000 - margin + 0.1);
+      expect(left).toBeGreaterThanOrEqual(margin - 0.1);
+      expect(right).toBeLessThanOrEqual(1000 - margin + 0.1);
+      if (second !== undefined) expect(second - first).toBeCloseTo(3 * unitsPerCm, 0);
+    }
+  });
+
+  it('fewer rows and copies on a phone than on a tablet', () => {
+    const phone = letterGrid('capitals', 'J', PHONE);
+    const tablet = letterGrid('capitals', 'J', TABLET);
+    expect(phone?.baselines).toHaveLength(2);
+    expect(tablet?.baselines.length).toBeGreaterThanOrEqual(4);
+    expect(tablet?.xs.length).toBeGreaterThan(phone?.xs.length ?? 0);
+    expect(phone?.xs.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('a wide letter gets fewer copies than a narrow one, never cut', () => {
+    const wide = letterGrid('capitals', 'W', PHONE);
+    const narrow = letterGrid('capitals', 'I', PHONE);
+    expect(wide?.xs.length).toBeLessThan(narrow?.xs.length ?? 0);
+    expect(wide?.xs.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('cursive: a 4 mm x-height, baselines on every other thick Seyès line', () => {
+    for (const unitsPerCm of [PHONE, TABLET]) {
+      const layout = letterGrid('cursive', 'm', unitsPerCm);
+      if (!layout) throw new Error('no layout');
+      const interval = 0.4 * unitsPerCm;
+      expect(layout.height).toBeCloseTo(interval, 0);
+      for (const [index, y] of layout.baselines.entries()) {
+        expect(y / interval).toBeCloseTo(4 + 8 * index, 1);
+        expect(y + 2 * interval).toBeLessThanOrEqual(1000);
+      }
+      expect(layout.baselines.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('digits are laid out like capitals; unknown characters have no layout', () => {
+    expect(letterGrid('digits', '8', TABLET)?.height).toBeCloseTo(2 * TABLET, 0);
+    expect(letterGrid('capitals', 'a', TABLET)).toBeNull();
+    expect(letterGrid('digits', 'toString', TABLET)).toBeNull();
+    expect(letterGrid('capitals', 'A', 0)).toBeNull();
+  });
+
+  it('keeps the ink of every glyph, outline included, a margin away from the edges', () => {
+    const fonts = { capitals, cursive, digits };
+    for (const set of ['capitals', 'cursive', 'digits'] as const) {
+      const pad = set === 'cursive' ? 0.04 * cursive.xHeight : 0;
+      for (const char of LETTER_SETS[set]) {
+        const glyph = (fonts[set].glyphs as Record<string, { d: string }>)[char];
+        const numbers = (glyph?.d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+        const xs = numbers.filter((_, index) => index % 2 === 0);
+        const ys = numbers.filter((_, index) => index % 2 === 1);
+        for (const unitsPerCm of [PHONE, TABLET]) {
+          const layout = letterGrid(set, char, unitsPerCm);
+          if (!layout) throw new Error('no layout');
+          const margin = 0.5 * unitsPerCm - 0.2;
+          const { scale } = layout;
+          const left = (layout.xs[0] ?? 0) + (Math.min(...xs) - pad) * scale;
+          const right = (layout.xs.at(-1) ?? 0) + (Math.max(...xs) + pad) * scale;
+          const top = (layout.baselines[0] ?? 0) + (Math.min(...ys) - pad) * scale;
+          const bottom = (layout.baselines.at(-1) ?? 0) + (Math.max(...ys) + pad) * scale;
+          expect(left, `${set} ${char}`).toBeGreaterThanOrEqual(margin);
+          expect(right, `${set} ${char}`).toBeLessThanOrEqual(1000 - margin);
+          expect(top, `${set} ${char}`).toBeGreaterThanOrEqual(margin);
+          expect(bottom, `${set} ${char}`).toBeLessThanOrEqual(1000 - margin);
+        }
+      }
+    }
+  });
+
+  it('every character of every set has a layout', () => {
+    for (const set of ['capitals', 'cursive', 'digits'] as const) {
+      expect(LETTER_SETS[set].length).toBe(set === 'digits' ? 10 : 26);
+      for (const char of LETTER_SETS[set]) expect(letterGrid(set, char, PHONE)).not.toBeNull();
+    }
+  });
+});
+
+describe('lettersSvg', () => {
+  it('defines the glyph once and repeats it', () => {
+    const layout = letterGrid('capitals', 'J', TABLET);
+    const svg = lettersSvg('capitals', 'J', TABLET);
+    expect(svg.match(/<path id="g"/g)).toHaveLength(1);
+    expect(svg.match(/<use /g)).toHaveLength(
+      (layout?.baselines.length ?? 0) * (layout?.xs.length ?? 0),
+    );
+  });
+
+  it('is deterministic, valid and small for every character', () => {
+    for (const set of ['capitals', 'cursive', 'digits'] as const) {
+      for (const char of LETTER_SETS[set]) {
+        for (const unitsPerCm of [PHONE, TABLET]) {
+          const svg = lettersSvg(set, char, unitsPerCm);
+          expect(lettersSvg(set, char, unitsPerCm)).toBe(svg);
+          expect(checkTemplateSvg(svg, 64 * 1024)).toBeNull();
+        }
+      }
+    }
+  });
+
+  it('an unknown character gives an empty page', () => {
+    expect(lettersSvg('capitals', '?', TABLET)).not.toContain('<use');
   });
 });

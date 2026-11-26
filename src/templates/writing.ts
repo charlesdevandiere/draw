@@ -5,6 +5,9 @@
  * only scaled afterwards, never generated again.
  */
 import { PAGE_SIZE } from '../engine/types';
+import capitals from './glyphs/capitals.json';
+import cursive from './glyphs/cursive.json';
+import digits from './glyphs/digits.json';
 
 /**
  * CSS pixels in a real centimeter, nearly the same on handheld devices (52–63 on the
@@ -75,4 +78,171 @@ export function linesSvg(kind: LinesKind, unitsPerCm: number): string {
     return `${SVG_OPEN}${strokePath(grid, GRID_COLOR, step / 25)}</svg>`;
   }
   return `${SVG_OPEN}${seyesPaths(0.2 * unitsPerCm)}</svg>`;
+}
+
+export type LetterSet = 'capitals' | 'cursive' | 'digits';
+
+interface GlyphData {
+  unitsPerEm: number;
+  capHeight: number;
+  xHeight: number;
+  glyphs: Readonly<Record<string, { d: string; advance: number } | undefined>>;
+}
+
+const GLYPHS: Readonly<Record<LetterSet, GlyphData>> = { capitals, cursive, digits };
+
+/** The characters of each set, in the order of the panel. */
+export const LETTER_SETS: Readonly<Record<LetterSet, readonly string[]>> = {
+  capitals: Object.keys(capitals.glyphs),
+  cursive: Object.keys(cursive.glyphs),
+  digits: Object.keys(digits.glyphs),
+};
+
+/** Light grey of the letters to trace. */
+const LETTER_COLOR = '#c4c4c4';
+/** Height of capitals and digits (cm). */
+const CAP_HEIGHT_CM = 2;
+/** Interval of the enlarged Seyès ruling of cursive (cm): the x-height. */
+const CURSIVE_INTERVAL_CM = 0.4;
+/** Space between two letters, and kept free along the page edges (cm). */
+const SPACE_CM = 0.5;
+/** Space between two rows of capitals or digits (cm). */
+const ROW_GAP_CM = 1;
+
+/** Where the copies of one character go on the page (page units). */
+export interface LetterLayout {
+  /** Page units per font unit. */
+  scale: number;
+  /** Width of one copy (its advance). */
+  width: number;
+  /** Baseline of each row. */
+  baselines: number[];
+  /** Left edge of each copy in a row. */
+  xs: number[];
+  /** Height of the letters above the baseline (capitals and digits: the cap line). */
+  height: number;
+}
+
+/** Ink box of a glyph outline (font units, y down). */
+interface InkBox {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
+/**
+ * Bounds of the points of an outline. The path data holds only absolute M, L, Q and Z
+ * commands (scripts/glyphs.mjs): its numbers are x y pairs, and the control points of a
+ * quadratic curve enclose it, so this box contains all the ink.
+ */
+function inkBox(d: string): InkBox {
+  const numbers = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+  const xs = numbers.filter((_, index) => index % 2 === 0);
+  const ys = numbers.filter((_, index) => index % 2 === 1);
+  return {
+    minX: Math.min(0, ...xs),
+    maxX: Math.max(0, ...xs),
+    minY: Math.min(0, ...ys),
+    maxY: Math.max(0, ...ys),
+  };
+}
+
+/**
+ * `count` items of `size` with `gap` between them, centered on the page: their starts.
+ * `before` and `after` are how far the ink of the first and last items overhangs them: the
+ * ink, not the boxes, is centered.
+ */
+function centered(count: number, size: number, gap: number, before = 0, after = 0): number[] {
+  const total = count * size + Math.max(0, count - 1) * gap;
+  const start = (PAGE_SIZE - total + before - after) / 2;
+  return Array.from({ length: count }, (_, i) => round(start + i * (size + gap)));
+}
+
+/** How many items of `size` with `gap` between them fit in `room`. */
+function fitting(room: number, size: number, gap: number): number {
+  return Math.max(0, Math.floor((room + gap) / (size + gap)));
+}
+
+/** Half the width of the outline thickening cursive letters (font units). */
+const CURSIVE_HALF_STROKE = 0.04 * cursive.xHeight;
+
+/**
+ * Lays out one character repeated along rows, as many whole copies as fit: capitals and
+ * digits 2 cm high, rows 1 cm apart; cursive with a 4 mm x-height, its baselines on every
+ * other thick line of the Seyès ruling. Null for a character outside the set.
+ */
+export function letterGrid(set: LetterSet, char: string, unitsPerCm: number): LetterLayout | null {
+  const data = GLYPHS[set];
+  const glyph = Object.hasOwn(data.glyphs, char) ? data.glyphs[char] : undefined;
+  if (!glyph || !(unitsPerCm > 0) || !Number.isFinite(unitsPerCm)) return null;
+  const space = SPACE_CM * unitsPerCm;
+  const room = PAGE_SIZE - 2 * space;
+  // The ink may overhang the advance box (cursive f, j; a capital Q's tail; the thickening
+  // outline of cursive): margins are kept from the ink.
+  const pad = set === 'cursive' ? CURSIVE_HALF_STROKE : 0;
+  const ink = inkBox(glyph.d);
+  let scale: number;
+  let height: number;
+  let baselines: number[];
+  if (set === 'cursive') {
+    const interval = CURSIVE_INTERVAL_CM * unitsPerCm;
+    scale = interval / data.xHeight;
+    height = interval;
+    // Thick lines every 4 intervals; a row needs 3 intervals above (ascenders) and 2 below,
+    // its descender kept a margin away from the bottom edge.
+    const below = Math.max(2 * interval, (ink.maxY + pad) * scale + space);
+    baselines = [];
+    for (let y = 4 * interval; y + below <= PAGE_SIZE; y += 8 * interval) {
+      baselines.push(round(y));
+    }
+  } else {
+    height = CAP_HEIGHT_CM * unitsPerCm;
+    scale = height / data.capHeight;
+    const gap = ROW_GAP_CM * unitsPerCm;
+    const above = Math.max(0, -ink.minY - data.capHeight) * scale;
+    const below = Math.max(0, ink.maxY) * scale;
+    baselines = centered(fitting(room - above - below, height, gap), height, gap, above, below).map(
+      (top) => round(top + height),
+    );
+  }
+  const width = glyph.advance * scale;
+  const left = Math.max(0, pad - ink.minX) * scale;
+  const right = Math.max(0, ink.maxX + pad - glyph.advance) * scale;
+  return {
+    scale,
+    width: round(width),
+    baselines,
+    xs: centered(fitting(room - left - right, width, space), width, space, left, right),
+    height: round(height),
+  };
+}
+
+/** One character repeated to fill the page, light grey, on its guide lines. */
+export function lettersSvg(set: LetterSet, char: string, unitsPerCm: number): string {
+  const layout = letterGrid(set, char, unitsPerCm);
+  const glyph = GLYPHS[set].glyphs[char];
+  if (!layout || !glyph) return `${SVG_OPEN}</svg>`;
+  const guides =
+    set === 'cursive'
+      ? seyesPaths(CURSIVE_INTERVAL_CM * unitsPerCm)
+      : strokePath(
+          horizontal(layout.baselines.flatMap((y) => [round(y - layout.height), y])),
+          GRID_COLOR,
+          unitsPerCm / 25,
+        );
+  const scale = Math.round(layout.scale * 1e5) / 1e5;
+  // The cursive font is drawn with a fine pen: an outline of the same grey makes it a line
+  // a child can follow (in font units: it is scaled with the glyph).
+  const thicken =
+    set === 'cursive'
+      ? ` stroke="${LETTER_COLOR}" stroke-width="${round(2 * CURSIVE_HALF_STROKE)}" stroke-linejoin="round"`
+      : '';
+  const copies = layout.baselines
+    .flatMap((y) => layout.xs.map((x) => `<use href="#g" x="${x}" y="${y}"/>`))
+    .join('');
+  return (
+    `${SVG_OPEN}${guides}<defs><path id="g" d="${glyph.d}" transform="scale(${scale})"/></defs>` +
+    `<g fill="${LETTER_COLOR}"${thicken}>${copies}</g></svg>`
+  );
 }

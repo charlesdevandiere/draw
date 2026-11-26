@@ -19,11 +19,11 @@ Background templates generated when added, at a constant physical size: small sq
 
 - [x] Task 1: Glyph extraction script, glyph data, notices
 - [x] Task 2: Lines: small squares and Seyès
-- [ ] Task 3: Letters: layout and SVG for capitals, cursive, digits
+- [x] Task 3: Letters: layout and SVG for capitals, cursive, digits
 
 ### Checkpoint: Generators
 
-- [ ] `npm run check` passes; generated SVGs pass the template checker; sample SVGs looked at by eye (written to `test-results/`)
+- [x] `npm run check` passes; generated SVGs pass the template checker; sample SVGs looked at by eye (written to `test-results/`)
 
 ### Phase 2: In the app
 

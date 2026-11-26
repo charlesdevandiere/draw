@@ -41,8 +41,8 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 **Acceptance criteria:**
 
-- [ ] Unit: copies per row and rows for a phone and a tablet `unitsPerCm`; every copy inside the margins; "J", "m", "8" and a wide letter ("W") laid out; deterministic; checker and size limit pass.
-- [ ] Sample SVGs written by a test to `test-results/` and looked at.
+- [x] Unit: copies per row and rows for a phone and a tablet `unitsPerCm`; every copy inside the margins; "J", "m", "8" and a wide letter ("W") laid out; deterministic; checker and size limit pass.
+- [x] Sample SVGs written by a test to `test-results/` and looked at.
 
 **Verification:** `npx vitest run src/templates/writing.test.ts`; `npm run check`
 
@@ -54,7 +54,7 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 ## Checkpoint: Generators
 
-- [ ] `npm run check` passes; samples look right
+- [x] `npm run check` passes; samples look right
 
 ## Task 4: In the panel
 
