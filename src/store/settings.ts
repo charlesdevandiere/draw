@@ -22,7 +22,22 @@ export const SETTING_KEYS = {
   tools: 'tools',
   lastDrawingId: 'lastDrawingId',
   fingerSettings: 'fingerSettings',
+  outlineWidth: 'outlineWidth',
 } as const;
+
+/**
+ * Width of the coloring pages' outlines (spec/SPEC-template-layers.md): scaled with the page
+ * like the rest of the picture, or the same number of CSS pixels on every screen. A test
+ * setting, to compare both on the devices; the losing mode goes afterwards.
+ */
+export type OutlineWidth = 'scaled' | 'fixed';
+
+/** Outline width of the fixed mode, in CSS pixels. */
+export const FIXED_OUTLINE_PX = 3;
+
+export function parseOutlineWidth(value: unknown): OutlineWidth {
+  return value === 'fixed' ? 'fixed' : 'scaled';
+}
 
 export const DEFAULT_INPUT_MODE: InputModeState = { mode: 'finger', chosenByHand: false };
 

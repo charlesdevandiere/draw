@@ -145,6 +145,15 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - **Persistence** line (protected or not, ask again) and a link to the diagnostic page.
 - One column on phones, three on wide windows; the back pebble returns to the gallery (`./#gallery`).
 
+### Phase C — templates (milestone 2, `spec/capability-map-milestone-2.md`)
+
+**C1 — Template layers** (module `template-layers`, `spec/SPEC-template-layers.md`)
+
+- A drawing has at most two locked template layers: **background** (under the strokes) and **overlay** (above them). Each is an SVG (`viewBox="0 0 1000 1000"`) stored with the drawing, in IndexedDB and the magic PNG (schema 2: `templates`, a list of steps `{ slot, layer | null, at, t }`), checked on parse (allowed elements only, no reference outside, size limits) and only ever rendered as an image.
+- Adding, replacing and removing a template are history steps (undo / redo with the strokes); the replay shows each one at its time; thumbnails and exported pictures show every layer. The eraser never touches a template.
+- The **templates pebble** (teal, with the actions) opens a panel: a blank tile, then the coloring pages (`src/templates/catalog.ts`; authoring rules for new pages in `docs/templates.md`).
+- **Coloring pages**: black outlines on a transparent square, optional color hints (`class="hint"` dots). Outline width: scaled with the page, or 3 CSS px on every screen through the **test** switch of the settings' finger card (`outlineWidth`), to decide on the devices.
+
 ## Tech Stack
 
 - **Node 24**, npm, **Vite 8** + **TypeScript 6** (`strict`), no UI framework.

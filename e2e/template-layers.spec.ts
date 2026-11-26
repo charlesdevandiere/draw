@@ -272,3 +272,69 @@ test('thumbnails and exported pictures carry the coloring page; import brings it
   await page.getByRole('button', { name: 'Continue this drawing' }).click();
   await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/house');
 });
+
+/** Thickness (CSS px) of the overlay's ground line, measured down the middle of the page. */
+async function groundThickness(page: Page): Promise<number> {
+  return overlay(page).evaluate(async (element) => {
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('No 2D context');
+    const x = Math.floor(canvas.width / 2);
+    const column = context.getImageData(x, 0, 1, canvas.height).data;
+    let alpha = 0;
+    for (let y = 0; y < canvas.height; y += 1) alpha += (column[y * 4 + 3] ?? 0) / 255;
+    return alpha / (canvas.width / canvas.getBoundingClientRect().width);
+  });
+}
+
+for (const mode of ['scaled', 'fixed'] as const) {
+  test(`outline width, ${mode} mode`, async ({ page }) => {
+    // Only the ground line: down the middle of the page, nothing else is crossed.
+    const ground =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none" ' +
+      'stroke="#000" stroke-width="6"><path d="M0 800 L1000 800"/></svg>';
+    await seedDatabase(
+      page,
+      [
+        {
+          id: 'ground',
+          updatedAt: Date.now(),
+          lineAt: 150,
+          templates: [{ ...houseStep, layer: { ...houseStep.layer, svg: ground } }],
+        },
+      ],
+      { lastDrawingId: 'ground', outlineWidth: mode },
+    );
+    const widths: { page: number; line: number }[] = [];
+    for (const size of [
+      { width: 375, height: 667 },
+      { width: 1180, height: 820 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.goto('en/');
+      await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/house');
+      const box = await page.locator('#page').boundingBox();
+      if (!box) throw new Error('Page not visible');
+      widths.push({ page: box.width, line: await groundThickness(page) });
+    }
+    const [small, large] = widths as [(typeof widths)[0], (typeof widths)[0]];
+    if (mode === 'scaled') {
+      // 6 page units: proportional to the page.
+      expect(small.line).toBeCloseTo((6 * small.page) / 1000, 0);
+      expect(Math.abs(large.line / small.line / (large.page / small.page) - 1)).toBeLessThan(0.15);
+    } else {
+      expect(Math.abs(small.line - 3)).toBeLessThanOrEqual(1);
+      expect(Math.abs(large.line - 3)).toBeLessThanOrEqual(1);
+    }
+  });
+}
+
+test('the outline test switch is in the settings', async ({ page }) => {
+  await page.goto('en/settings.html');
+  const outlineSwitch = page.getByRole('switch', { name: /Coloring outlines/ });
+  await expect(outlineSwitch).not.toBeChecked();
+  await outlineSwitch.check();
+  await page.reload();
+  await expect(page.getByRole('switch', { name: /Coloring outlines/ })).toBeChecked();
+});

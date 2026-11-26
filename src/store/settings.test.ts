@@ -7,6 +7,7 @@ import {
   parseFingerSettings,
   parseDrawingId,
   parseInputModeState,
+  parseOutlineWidth,
   parseToolState,
 } from './settings';
 
@@ -95,5 +96,15 @@ describe('finger settings', () => {
     expect(clampFingerSettings({ widthThreshold: 9999 })).toEqual({ widthThreshold: 400 });
     expect(clampFingerSettings({ widthThreshold: Number.NaN })).toEqual(DEFAULT_FINGER_SETTINGS);
     expect(clampFingerSettings({ widthThreshold: 80.6 }).widthThreshold).toBe(81);
+  });
+});
+
+describe('parseOutlineWidth', () => {
+  it('reads the fixed mode, and falls back to scaled for anything else', () => {
+    expect(parseOutlineWidth('fixed')).toBe('fixed');
+    expect(parseOutlineWidth('scaled')).toBe('scaled');
+    expect(parseOutlineWidth(undefined)).toBe('scaled');
+    expect(parseOutlineWidth('wide')).toBe('scaled');
+    expect(parseOutlineWidth(3)).toBe('scaled');
   });
 });

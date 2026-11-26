@@ -152,6 +152,7 @@
   "settings.input.help": "For the Finger mode: one contact draws at a time, and a contact as wide as a palm is ignored. Changes apply the next time the sketchbook opens.",
   "settings.input.widthFilter": "Ignore contacts as wide as a palm",
   "settings.input.widthThreshold": "Widest contact that still draws (px)",
+  "settings.input.fixedOutline": "Coloring outlines as thick on every screen (test)",
   "settings.input.defaults": "Restore the defaults",
   "settings.share": "Share the sketchbook",
   "settings.share.help": "Send the app's link to someone close: they open it and install it on their device.",

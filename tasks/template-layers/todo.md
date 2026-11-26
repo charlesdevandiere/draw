@@ -121,8 +121,8 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] Unit: setting parsing (default, invalid).
-- [ ] e2e: scaled — outline width in screen pixels proportional to the page between a phone and a tablet viewport; fixed — same width ±1 px (Chromium and WebKit).
+- [x] Unit: setting parsing (default, invalid).
+- [x] e2e: scaled — outline width in screen pixels proportional to the page between a phone and a tablet viewport; fixed — same width ±1 px (Chromium and WebKit).
 
 **Verification:** `npx vitest run src/store`; `npx playwright test e2e/template-layers.spec.ts e2e/settings.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -134,6 +134,6 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 ## Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–7 met
-- [ ] Device check: deferred to the final test campaign
-- [ ] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress
+- [x] Spec success criteria 1–7 met
+- [ ] Device check (deferred to the final test campaign): deferred to the final test campaign
+- [x] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress

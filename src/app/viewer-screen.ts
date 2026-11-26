@@ -17,6 +17,8 @@ export interface ViewerOptions {
   /** Canvases of the template layers, under and above the drawing canvas. */
   background: HTMLCanvasElement;
   overlay: HTMLCanvasElement;
+  /** Overlay outline width kept constant (CSS pixels), or null to scale it. */
+  fixedOutline?: () => number | null;
   progress: HTMLElement;
   playButton: HTMLButtonElement;
   restartButton: HTMLButtonElement;
@@ -32,6 +34,8 @@ export interface Viewer {
   close(): void;
   /** The drawing last opened. */
   drawing(): Drawing | null;
+  /** Repaints the template layers (a setting changed). */
+  refreshLayers(): void;
 }
 
 export function initViewer(options: ViewerOptions): Viewer {
@@ -42,7 +46,7 @@ export function initViewer(options: ViewerOptions): Viewer {
   const bar = progress.firstElementChild instanceof HTMLElement ? progress.firstElementChild : null;
   const playIcon = playButton.querySelector('.icon');
   const background = createLayerCanvas(options.background);
-  const overlay = createLayerCanvas(options.overlay);
+  const overlay = createLayerCanvas(options.overlay, { fixedOutline: options.fixedOutline });
 
   let drawing: Drawing | null = null;
   let plan: ReplayPlan | null = null;
@@ -208,5 +212,14 @@ export function initViewer(options: ViewerOptions): Viewer {
     }
   });
 
-  return { open, close, drawing: () => drawing };
+  return {
+    open,
+    close,
+    drawing: () => drawing,
+    refreshLayers() {
+      if (canvas.width === 0) return;
+      background.resize(canvas.width);
+      overlay.resize(canvas.width);
+    },
+  };
 }

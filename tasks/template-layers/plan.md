@@ -41,13 +41,13 @@ A drawing gets up to two locked template layers (background under the strokes, o
 ### Phase 3: Everywhere
 
 - [x] Task 6: Viewer replay with layers; thumbnails, magic PNG image and export / import with layers
-- [ ] Task 7: Outline width modes and the temporary "test" setting
+- [x] Task 7: Outline width modes and the temporary "test" setting
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–7 met
-- [ ] Device check: deferred to the final test campaign (compare the outline modes there)
-- [ ] Fold into `spec/SPEC-mvp.md`, `spec/SPEC-template-layers.md` → `Status: implemented`, progress line in the capability map
+- [x] Spec success criteria 1–7 met
+- [ ] Device check (deferred to the final test campaign, 2026-11-26): deferred to the final test campaign (compare the outline modes there)
+- [x] Fold into `spec/SPEC-mvp.md`, `spec/SPEC-template-layers.md` → `Status: implemented`, progress line in the capability map
 
 ## Risks and Mitigations
 

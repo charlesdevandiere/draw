@@ -1,6 +1,6 @@
 # Spec Delta: Template layers — milestone 2, module 1 of 3
 
-Status: approved (2026-11-26)
+Status: implemented (2026-11-26, folded into `spec/SPEC-mvp.md` C1; device check with the final test campaign)
 
 Module `template-layers` of milestone 2 (`spec/capability-map-milestone-2.md`). Inherits everything from `spec/SPEC-mvp.md` (stack, commands, structure, code style, testing strategy, boundaries).
 

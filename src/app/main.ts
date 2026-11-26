@@ -20,11 +20,14 @@ import {
 } from '../store/db';
 import {
   DEFAULT_INPUT_MODE,
+  FIXED_OUTLINE_PX,
   SETTING_KEYS,
   parseDrawingId,
   parseFingerSettings,
   parseInputModeState,
+  parseOutlineWidth,
   parseToolState,
+  type OutlineWidth,
 } from '../store/settings';
 import { DEFAULT_TOOLS } from '../engine/palette';
 import appHtml from './app.html?raw';
@@ -212,8 +215,22 @@ async function startNewPage(): Promise<void> {
   if (history.strokes.length === 0) await writeSetting(SETTING_KEYS.lastDrawingId, current.id);
 }
 
+/** Test setting: overlay outlines scaled with the page, or of a fixed width. */
+let outlineWidth: OutlineWidth = 'scaled';
+const fixedOutline = (): number | null => (outlineWidth === 'fixed' ? FIXED_OUTLINE_PX : null);
+
+/** Reads the outline width setting; repaints the layers when it changed. */
+async function readOutlineWidth(): Promise<void> {
+  const next = parseOutlineWidth(await readSetting(SETTING_KEYS.outlineWidth).catch(() => null));
+  if (next === outlineWidth) return;
+  outlineWidth = next;
+  drawScreen.refreshLayers();
+  viewer.refreshLayers();
+}
+
 const drawScreen = initDrawScreen({
   canvas,
+  fixedOutline,
   background: requireElement('background-layer', HTMLCanvasElement),
   overlay: requireElement('overlay-layer', HTMLCanvasElement),
   hitArea: requireElement('draw-screen', HTMLElement),
@@ -271,6 +288,7 @@ const viewer = initViewer({
   canvas: requireElement('viewer-layer', HTMLCanvasElement),
   background: requireElement('viewer-background', HTMLCanvasElement),
   overlay: requireElement('viewer-overlay', HTMLCanvasElement),
+  fixedOutline,
   progress: requireElement('viewer-progress', HTMLElement),
   playButton: viewerPlay,
   restartButton: requireElement('viewer-restart', HTMLButtonElement),
@@ -456,7 +474,10 @@ if (window.location.hash === '#gallery') {
 // An installed app is resumed rather than reopened: look for a new version each time it
 // comes back to the foreground (failures, e.g. offline, are silent).
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') checkForUpdate().catch(() => undefined);
+  if (document.visibilityState === 'visible') {
+    checkForUpdate().catch(() => undefined);
+    void readOutlineWidth();
+  }
   // Going to the background may be the last chance to write (the app can be killed).
   else void autosave.flush();
 });
@@ -516,6 +537,7 @@ async function restore(): Promise<void> {
     readSetting(SETTING_KEYS.fingerSettings),
   ]);
   inputFilter.setFingerSettings(parseFingerSettings(fingerValue));
+  await readOutlineWidth();
   // A mode or tool chosen (or a pen switch) while reading wins over the stored one.
   if (!changedBeforeRestore.mode) {
     const mode = parseInputModeState(modeValue);
