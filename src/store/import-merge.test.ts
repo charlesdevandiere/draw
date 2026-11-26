@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import type { Drawing } from '../engine/types';
 import { mergeImport } from './import-merge';
 
-const drawing = (id: string): Drawing => ({ id, createdAt: 0, updatedAt: 0, strokes: [] });
+const drawing = (id: string): Drawing => ({
+  id,
+  createdAt: 0,
+  updatedAt: 0,
+  strokes: [],
+  templates: [],
+});
 
 describe('mergeImport', () => {
   it('adds new drawings, skips those already there, counts refused files', () => {

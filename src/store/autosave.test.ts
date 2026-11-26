@@ -5,7 +5,7 @@ import { createAutosave } from './autosave';
 const stroke = { tool: 'pen' as const, color: '#000000', width: 8, points: [0, 0, 0] };
 
 function drawing(strokes = [stroke], id = 'a'): Drawing {
-  return { id, createdAt: 0, updatedAt: strokes.length, strokes };
+  return { id, createdAt: 0, updatedAt: strokes.length, strokes, templates: [] };
 }
 
 function target() {

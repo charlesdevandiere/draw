@@ -8,9 +8,9 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] Unit: migration 1 → 2; valid steps parse; each invalid field, each limit and a forbidden SVG (`script`, `foreignObject`, `image`, outside `href`, `on*`, wrong viewBox) refused; unknown slot ignored.
-- [ ] Unit: magic PNG round trip keeps the steps; a schema 1 PNG still decodes.
-- [ ] Every existing test passes (fixtures gain `templates: []` where typed).
+- [x] Unit: migration 1 → 2; valid steps parse; each invalid field, each limit and a forbidden SVG (`script`, `foreignObject`, `image`, outside `href`, `on*`, wrong viewBox) refused; unknown slot ignored.
+- [x] Unit: magic PNG round trip keeps the steps; a schema 1 PNG still decodes.
+- [x] Every existing test passes (fixtures gain `templates: []` where typed).
 
 **Verification:** `npx vitest run src/store src/templates`; `npm run check`, `npm run e2e`
 

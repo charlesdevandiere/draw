@@ -40,6 +40,7 @@ import {
 import { styleFor } from '../engine/palette';
 import type { Drawing } from '../engine/types';
 import { newId } from '../store/id';
+import { newDrawing } from '../store/schema';
 import { requireElement } from './dom';
 import { initDrawScreen } from './draw-screen';
 import { initModeButton } from './mode-button';
@@ -98,6 +99,7 @@ const tools = initTools(
 
 /** The drawing on the slate: its identity, and its strokes in `history`. */
 let current: { id: string; createdAt: number } = { id: newId(), createdAt: Date.now() };
+let templates: Drawing['templates'] = [];
 let history: History = createHistory();
 
 const autosave = createAutosave({
@@ -115,7 +117,11 @@ const autosave = createAutosave({
 });
 
 function currentDrawing(): Drawing {
-  return { ...current, updatedAt: Date.now(), strokes: [...history.strokes] };
+  const count = history.strokes.length;
+  // Undo can drop strokes a template step was placed after; a step's `at` beyond the
+  // strokes would make the saved drawing unreadable (parseDrawing refuses it).
+  const steps = templates.map((step) => (step.at > count ? { ...step, at: count } : step));
+  return { ...current, updatedAt: Date.now(), strokes: [...history.strokes], templates: steps };
 }
 const undoButton = requireElement('undo', HTMLButtonElement);
 const redoButton = requireElement('redo', HTMLButtonElement);
@@ -153,6 +159,7 @@ function setHistory(next: History): void {
 function switchDrawing(drawing: Drawing): Promise<void> {
   const saved = autosave.flush();
   current = { id: drawing.id, createdAt: drawing.createdAt };
+  templates = drawing.templates;
   history = createHistory(drawing.strokes);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();
@@ -162,7 +169,7 @@ function switchDrawing(drawing: Drawing): Promise<void> {
 /** Starts a blank page; the drawing left is already saved (or dropped if empty). */
 async function startNewPage(): Promise<void> {
   const now = Date.now();
-  await switchDrawing({ id: newId(), createdAt: now, updatedAt: now, strokes: [] });
+  await switchDrawing(newDrawing(newId(), now));
   // Strokes already drawn on the new page have saved it (and its id) themselves.
   if (history.strokes.length === 0) await writeSetting(SETTING_KEYS.lastDrawingId, current.id);
 }
@@ -483,6 +490,7 @@ async function restore(): Promise<void> {
   const touched = current.id !== slate || canUndo(history) || canRedo(history);
   if (!record || touched || drawScreen.isDrawing()) return;
   current = { id: record.drawing.id, createdAt: record.drawing.createdAt };
+  templates = record.drawing.templates;
   history = createHistory(record.drawing.strokes);
   drawScreen.setStrokes(history.strokes);
   refreshHistoryButtons();

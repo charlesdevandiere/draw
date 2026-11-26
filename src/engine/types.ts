@@ -23,12 +23,42 @@ export interface Stroke extends StrokeStyle {
   points: number[];
 }
 
+/** Where a template layer sits: under the strokes or above them. */
+export type LayerSlot = 'background' | 'overlay';
+
+export const LAYER_SLOTS: readonly LayerSlot[] = ['background', 'overlay'];
+
+/** A template as placed on a drawing: everything needed to show it without the catalog. */
+export interface TemplateLayer {
+  slot: LayerSlot;
+  /** Catalog id, e.g. 'coloring/fish'; informative: rendering uses `svg`. */
+  template: string;
+  /** Version of that template in the catalog. */
+  version: number;
+  /** Generation parameters ({} for a static template). */
+  params: Record<string, string | number>;
+  /** The SVG, viewBox 0 0 1000 1000 (page units). */
+  svg: string;
+}
+
+/** Adding, replacing or removing (layer null) the template of one slot. */
+export interface TemplateStep {
+  slot: LayerSlot;
+  layer: TemplateLayer | null;
+  /** Number of strokes drawn before this step: orders steps and strokes. */
+  at: number;
+  /** Drawing time of the step (ms, the clock of the stroke points). */
+  t: number;
+}
+
 export interface Drawing {
   id: string;
   /** Epoch milliseconds. */
   createdAt: number;
   updatedAt: number;
   strokes: Stroke[];
+  /** Template steps, in the order they were made. */
+  templates: TemplateStep[];
 }
 
 /** Number of points in a stroke. */

@@ -26,6 +26,7 @@ const drawing: Drawing = {
   id: 'drawing-1',
   createdAt: 1,
   updatedAt: 2,
+  templates: [],
   strokes: [
     { tool: 'pen', color: '#e53935', width: 8, points: [1, 2, 0, 3, 4, 16] },
     { tool: 'eraser', color: '#212121', width: 48, points: [5, 5, 40] },
@@ -44,6 +45,32 @@ async function problem(file: Blob, limits = MAGIC_LIMITS): Promise<string> {
 describe('magic PNG', () => {
   it('round-trips a drawing through the PNG bytes (compressed)', async () => {
     const bytes = await embedDrawing(PNG, drawing);
+    expect(await decodeMagicPng(new Blob([new Uint8Array(bytes)]))).toEqual(drawing);
+  });
+
+  it('round-trips template layers', async () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path d="M0 0L9 9"/></svg>';
+    const layered: Drawing = {
+      ...drawing,
+      templates: [
+        {
+          slot: 'overlay',
+          at: 1,
+          t: 20,
+          layer: { slot: 'overlay', template: 'coloring/fish', version: 1, params: {}, svg },
+        },
+      ],
+    };
+    const bytes = await embedDrawing(PNG, layered);
+    expect(await decodeMagicPng(new Blob([new Uint8Array(bytes)]))).toEqual(layered);
+  });
+
+  it('reads a schema 1 picture (made before template layers)', async () => {
+    const old: Partial<Drawing> = { ...drawing };
+    delete old.templates;
+    const json = encoder.encode(JSON.stringify({ schema: 1, ...old }));
+    const bytes = writeItxt(PNG, MAGIC_KEYWORD, json, false);
     expect(await decodeMagicPng(new Blob([new Uint8Array(bytes)]))).toEqual(drawing);
   });
 

@@ -21,7 +21,7 @@ A drawing gets up to two locked template layers (background under the strokes, o
 
 ### Phase 1: Data (pure)
 
-- [ ] Task 1: Types, schema 2 (migration, limits, SVG checker), magic PNG round trip
+- [x] Task 1: Types, schema 2 (migration, limits, SVG checker), magic PNG round trip
 - [ ] Task 2: History over strokes and template steps; layer of a slot at a stroke count and at a time
 
 ### Checkpoint: Data

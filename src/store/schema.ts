@@ -3,9 +3,18 @@
  * back (database, imported file) goes through `parseDrawing`: nothing unchecked reaches
  * the engine. Older versions are migrated; unknown versions are refused.
  */
-import { POINT_STRIDE, type Drawing, type Stroke } from '../engine/types';
+import {
+  LAYER_SLOTS,
+  POINT_STRIDE,
+  type Drawing,
+  type LayerSlot,
+  type Stroke,
+  type TemplateLayer,
+  type TemplateStep,
+} from '../engine/types';
+import { checkTemplateSvg, utf8Bytes } from '../templates/svg-check';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** A drawing as stored: the engine's Drawing plus its schema version. */
 export interface StoredDrawing extends Drawing {
@@ -18,12 +27,26 @@ export const LIMITS: {
   strokes: number;
   numbers: number;
   maxWidth: number;
+  templateSteps: number;
+  svgBytes: number;
+  drawingSvgBytes: number;
+  textLength: number;
+  params: number;
 } = {
   idLength: 64,
   strokes: 20_000,
   /** Numbers (x, y, t) across the whole drawing: ~3.3 million points. */
   numbers: 10_000_000,
   maxWidth: 500,
+  templateSteps: 200,
+  /** One template SVG. */
+  svgBytes: 256 * 1024,
+  /** Every template SVG of a drawing together. */
+  drawingSvgBytes: 2 * 1024 * 1024,
+  /** Template ids, parameter names and string values. */
+  textLength: 64,
+  /** Parameters per template. */
+  params: 16,
 };
 
 export class DrawingFormatError extends Error {
@@ -37,8 +60,8 @@ export type Migration = (value: Record<string, unknown>) => Record<string, unkno
 
 /** Upgrades a stored value to the current schema, one version at a time (key = from). */
 export const MIGRATIONS: Readonly<Record<number, Migration>> = {
-  // 1 → 2 goes here when the format changes, e.g.:
-  // 1: (value) => ({ ...value, schema: 2, background: null }),
+  // 1 → 2: template layers (milestone 2); schema 1 drawings have none.
+  1: (value) => ({ ...value, schema: 2, templates: [] }),
 };
 
 const COLOR = /^#[0-9a-f]{6}$/i;
@@ -72,6 +95,74 @@ function parseStroke(
   if (budget.numbers < 0) throw new DrawingFormatError('too many points');
   if (!points.every(finite)) return fail('non-numeric point');
   return { tool, color, width, points: [...points] };
+}
+
+function parseParams(value: unknown, limits: typeof LIMITS): Record<string, string | number> {
+  if (!isRecord(value)) throw new DrawingFormatError('bad params');
+  const entries = Object.entries(value);
+  if (entries.length > limits.params) throw new DrawingFormatError('too many params');
+  const params: Record<string, string | number> = {};
+  for (const [key, param] of entries) {
+    const text = typeof param === 'string' && param.length <= limits.textLength;
+    if (key.length > limits.textLength || !(text || finite(param))) {
+      throw new DrawingFormatError('bad params');
+    }
+    params[key] = param;
+  }
+  return params;
+}
+
+function parseLayer(
+  value: unknown,
+  slot: LayerSlot,
+  budget: { svgBytes: number },
+  limits: typeof LIMITS,
+): TemplateLayer {
+  const fail = (reason: string): never => {
+    throw new DrawingFormatError(`template: ${reason}`);
+  };
+  if (!isRecord(value)) return fail('not an object');
+  const { template, version, params, svg } = value;
+  if (value['slot'] !== slot) return fail('slot mismatch');
+  if (typeof template !== 'string' || template.length === 0) return fail('bad id');
+  if (template.length > limits.textLength) return fail('bad id');
+  if (!finite(version) || !Number.isInteger(version) || version < 0) return fail('bad version');
+  if (typeof svg !== 'string') return fail('bad svg');
+  budget.svgBytes -= utf8Bytes(svg);
+  if (budget.svgBytes < 0) throw new DrawingFormatError('too much template data');
+  const problem = checkTemplateSvg(svg, limits.svgBytes);
+  if (problem) return fail(`svg ${problem}`);
+  return { slot, template, version, params: parseParams(params, limits), svg };
+}
+
+/**
+ * Template steps, in order. A step for a slot this version does not know is dropped (a later
+ * version may add kinds of layers); `at` must not go back and stays within the strokes.
+ */
+function parseTemplates(value: unknown, strokes: number, limits: typeof LIMITS): TemplateStep[] {
+  if (!Array.isArray(value)) throw new DrawingFormatError('templates missing');
+  if (value.length > limits.templateSteps) throw new DrawingFormatError('too many templates');
+  const budget = { svgBytes: limits.drawingSvgBytes };
+  const steps: TemplateStep[] = [];
+  let previous = 0;
+  for (const step of value) {
+    if (!isRecord(step)) throw new DrawingFormatError('template step: not an object');
+    const slot = LAYER_SLOTS.find((known) => known === step['slot']);
+    if (!slot) continue;
+    const { at, t, layer } = step;
+    if (!finite(at) || !Number.isInteger(at) || at < previous || at > strokes) {
+      throw new DrawingFormatError('template step: bad position');
+    }
+    if (!finite(t) || t < 0) throw new DrawingFormatError('template step: bad time');
+    previous = at;
+    steps.push({
+      slot,
+      at,
+      t,
+      layer: layer === null ? null : parseLayer(layer, slot, budget, limits),
+    });
+  }
+  return steps;
 }
 
 /** Validates (and migrates) a value read from storage or a file. */
@@ -114,6 +205,7 @@ export function parseDrawing(value: unknown, options: ParseOptions = {}): Drawin
     createdAt,
     updatedAt,
     strokes: strokes.map((stroke, index) => parseStroke(stroke, index, budget, limits)),
+    templates: parseTemplates(current['templates'], strokes.length, limits),
   };
 }
 
@@ -125,10 +217,14 @@ export function toStored(drawing: Drawing): StoredDrawing {
     createdAt: drawing.createdAt,
     updatedAt: drawing.updatedAt,
     strokes: drawing.strokes.map((stroke) => ({ ...stroke, points: [...stroke.points] })),
+    templates: drawing.templates.map((step) => ({
+      ...step,
+      layer: step.layer && { ...step.layer, params: { ...step.layer.params } },
+    })),
   };
 }
 
 /** A new, empty drawing. `id` comes from the caller (newId in the app). */
 export function newDrawing(id: string, now: number): Drawing {
-  return { id, createdAt: now, updatedAt: now, strokes: [] };
+  return { id, createdAt: now, updatedAt: now, strokes: [], templates: [] };
 }

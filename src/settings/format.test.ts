@@ -7,6 +7,7 @@ const drawing = (points: number): Drawing => ({
   id: 'a',
   createdAt: 0,
   updatedAt: 0,
+  templates: [],
   strokes: [
     {
       tool: 'pen',
