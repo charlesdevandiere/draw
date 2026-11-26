@@ -8,8 +8,8 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 **Acceptance criteria:**
 
-- [ ] Unit: every character of each set present, non-empty path, positive advance; metrics present; each file under 60 KB.
-- [ ] `npm run build` passes the notices check with the two font entries.
+- [x] Unit: every character of each set present, non-empty path, positive advance; metrics present; each file under 60 KB.
+- [x] `npm run build` passes the notices check with the two font entries.
 
 **Verification:** `npx vitest run src/templates`; `npm run check`
 

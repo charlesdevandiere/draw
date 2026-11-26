@@ -30,6 +30,35 @@ const SHIPPED = {
   'bootstrap-icons': 'SVG icons (only those used, inlined in the CSS)',
 };
 
+/**
+ * Fonts whose glyph outlines ship (letters to trace, src/templates/glyphs/, extracted by
+ * scripts/glyphs.mjs). Not npm packages: their license text is kept next to the outlines.
+ */
+const FONTS = [
+  {
+    name: 'Andika (glyph outlines)',
+    version: '6.101',
+    license: 'OFL-1.1',
+    homepage: 'https://software.sil.org/andika/',
+    usage: 'outlines of the capitals and digits to trace',
+    file: 'src/templates/glyphs/OFL-Andika.txt',
+  },
+  {
+    name: 'Playwrite FR Moderne (glyph outlines)',
+    version: '1.003',
+    license: 'OFL-1.1',
+    homepage: 'https://github.com/TypeTogether/Playwrite',
+    usage: 'outlines of the cursive letters to trace',
+    file: 'src/templates/glyphs/OFL-PlaywriteFRModerne.txt',
+  },
+];
+
+function fontInfo({ file, ...font }) {
+  // Line endings normalized: the notices must not depend on how the text file was saved.
+  const text = readFileSync(join(ROOT, file), 'utf8').replace(/\r\n?/g, '\n').trim();
+  return { ...font, text };
+}
+
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -79,6 +108,7 @@ function shippedPackages() {
   if (scripts.includes('modulepreload')) {
     packages.push(packageInfo('vite', 'module preload helper injected in the bundle'));
   }
+  packages.push(...FONTS.map(fontInfo));
   // Code-unit order, not localeCompare: the --check output must not depend on the locale.
   return packages.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }

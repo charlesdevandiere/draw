@@ -17,7 +17,7 @@ Background templates generated when added, at a constant physical size: small sq
 
 ### Phase 1: Generators (pure)
 
-- [ ] Task 1: Glyph extraction script, glyph data, notices
+- [x] Task 1: Glyph extraction script, glyph data, notices
 - [ ] Task 2: Lines: small squares and Seyès
 - [ ] Task 3: Letters: layout and SVG for capitals, cursive, digits
 

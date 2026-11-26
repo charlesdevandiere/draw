@@ -22,3 +22,6 @@ npm-debug.log*
 .idea/
 /test-results/
 /playwright-report/
+
+# Font files for scripts/glyphs.mjs (downloaded by hand, see the script)
+/fonts/
