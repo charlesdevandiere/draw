@@ -38,8 +38,8 @@ Source spec: `spec/SPEC-settings.md` (module `settings` of `spec/capability-map.
 ### Checkpoint: Module complete
 
 - [x] Spec success criteria 1–7 met
-- [ ] Device check on the iPad 11 and the Pixel 9a (share sheet, file picker, long press)
-- [ ] Fold into `spec/SPEC-mvp.md` (B2, B3), set `spec/SPEC-settings.md` to `Status: implemented`; capability map: redesign complete
+- [ ] Device check on the iPad 11 and the Pixel 9a (share sheet, file picker, long press) (deferred to the final test campaign, 2026-11-26)
+- [x] Fold into `spec/SPEC-mvp.md` (B2, B3), set `spec/SPEC-settings.md` to `Status: implemented`; capability map: redesign complete
 
 ## Risks and Mitigations
 

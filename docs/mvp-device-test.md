@@ -39,23 +39,25 @@ Pen mode on the iPad with the Metapen; finger elsewhere.
 
 - [ ] Draw, then kill the app (app switcher) right after a stroke and relaunch: the drawing is there, to the last stroke (or the one before it at worst).
 - [ ] Restart the device: drawings are still there.
-- [ ] Gallery: thumbnails newest first; reopen an old drawing and continue it (undo works on its old strokes).
-- [ ] Share from a gallery card: the share sheet opens with a PNG. Save it to **Files** (iPad) / the file manager (Pixel); send one through Messages / WhatsApp and to Photos. Note which ones keep the drawing importable (checked in B).
-- [ ] Size: draw a busy 10-minute drawing, then look at the space used in the parent page (Storage): it should stay well under 0.5 MB per drawing.
+- [ ] Gallery (a wall of tilted drawings, "+" sheet first): newest first; open an old drawing in the viewer, **continue** it (undo works on its old strokes).
+- [ ] Share from the viewer: the share sheet opens with a PNG. Save it to **Files** (iPad) / the file manager (Pixel); send one through Messages / WhatsApp and to Photos. Note which ones keep the drawing importable (checked in B).
+- [ ] Size: draw a busy 10-minute drawing, then look at the size in the settings page (Backup): it should stay well under 0.5 MB per drawing.
 - [ ] Update: after a new push, bring the installed app back to the foreground: it picks up the new version (it may reload once), without losing the drawing in progress.
 
-## B. Replay and parent page
+## B. Viewer, trash and settings page
 
-- [ ] Gallery → play button: the drawing redraws itself stroke by stroke, eraser included; a long drawing takes about 15 s; touching the page stops it; "play again" at the end.
-- [ ] Tapping the **padlock** (top right of the gallery) does nothing; holding it 1.5 s (the button grows and fills from the bottom; a light vibration on Android) opens the parent page.
-- [ ] Parent page: delete a drawing (confirmation dialog); it disappears from the gallery.
-- [ ] Export: "Export" prepares, then **"Share N pictures"** opens the share sheet → save to Files. Delete everything, then **Import** the saved pictures: every drawing comes back, replayable. Import a photo: refused.
+- [ ] Viewer: the drawing redraws itself stroke by stroke, eraser included; a long drawing takes about 15 s; touching the page pauses, play resumes, restart starts over; play at the end replays.
+- [ ] Viewer trash pebble: a tap does nothing; a 1.5 s press (fills light red) sends the drawing to the trash and back to the gallery.
+- [ ] Tapping the **gear** (top right of the gallery) does nothing; holding it 1.5 s (the button grows and fills from the bottom; a light vibration on Android) opens the settings page; its back pebble returns to the gallery.
+- [ ] Settings, Trash: the trashed drawing is listed ("Deleted today"); Restore brings it back to the gallery; trash another one, then hold "Empty the trash" 1.5 s (iPad: no text selection or magnifier).
+- [ ] Export: "Export the drawings" prepares, then **"Share N pictures"** opens the share sheet → save to Files. Trash and empty everything, then **Import** the saved pictures: every drawing comes back, replayable. Import a photo: refused.
 - [ ] Import the picture that went through Messages / Photos (A3): note whether it is still recognized.
-- [ ] Language: switch to English in the parent page, back to the sketchbook: labels (VoiceOver / TalkBack) are in English; switch back to Default.
-- [ ] Storage: "protected from cleanup" says yes on the installed app (iPad, Chrome); otherwise press "Protect the drawings".
+- [ ] "Share the app link": the share sheet opens with the link (or it is copied).
+- [ ] Language: switch to English in the settings page, back to the sketchbook: labels (VoiceOver / TalkBack) are in English; switch back to Default.
+- [ ] Persistence: "Drawings protected from automatic cleanup" on the installed app (iPad, Chrome); otherwise press "Ask again".
 - [ ] Finger settings: turn the palm filter off, back to the sketchbook (it applies at the next opening), check the palm draws again; restore the defaults.
-- [ ] "Check for updates", "Clear cache and reload" and the diagnostic page link work.
+- [ ] "Check for updates" (badge "Up to date"), "Clear cache and reload" and the diagnostic page link work.
 
 ## Child test (criterion 17)
 
-Without explanation, on the iPad and on a phone: the child draws, finds the gallery, reopens a drawing. Note where they hesitate. If possible, open the diagnostic page from the parent page and note the **width** reported for the child's finger and palm (`width` in the pointer panel): it tells whether the 80 px threshold fits a child's hand.
+Without explanation, on the iPad and on a phone: the child draws, finds the gallery, reopens a drawing. Note where they hesitate. If possible, open the diagnostic page from the settings page and note the **width** reported for the child's finger and palm (`width` in the pointer panel): it tells whether the 80 px threshold fits a child's hand.

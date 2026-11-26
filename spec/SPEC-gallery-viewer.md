@@ -1,6 +1,6 @@
 # Spec Delta: Gallery and viewer — redesign module 4 of 5
 
-Status: approved (2026-11-25)
+Status: implemented (2026-11-26, folded into `spec/SPEC-mvp.md`; device check with the final test campaign)
 
 Module `gallery-viewer` of the UI redesign (`spec/capability-map.md`). Inherits everything from `spec/SPEC-mvp.md` (stack, commands, structure, code style, testing strategy, boundaries) and builds on modules `ui-foundation` (pebbles, action colors, long press, haptic tick) and `trash` (`moveToTrash`, trash rules).
 

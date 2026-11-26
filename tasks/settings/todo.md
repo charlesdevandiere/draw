@@ -93,5 +93,5 @@ Plan: `tasks/settings/plan.md`. Spec: `spec/SPEC-settings.md`. End of every task
 ## Checkpoint: Module complete
 
 - [x] Spec success criteria 1–7 met
-- [ ] Device check on the iPad 11 and the Pixel 9a
-- [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-settings.md` to `Status: implemented`
+- [ ] Device check on the iPad 11 and the Pixel 9a (deferred to the final test campaign, 2026-11-26)
+- [x] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-settings.md` to `Status: implemented`

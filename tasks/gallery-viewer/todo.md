@@ -94,5 +94,5 @@ Plan: `tasks/gallery-viewer/plan.md`. Spec: `spec/SPEC-gallery-viewer.md`. End o
 ## Checkpoint: Module complete
 
 - [x] Spec success criteria 1–8 met
-- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations
-- [ ] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-gallery-viewer.md` to `Status: implemented`
+- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations (deferred to the final test campaign, 2026-11-26)
+- [x] Fold into `spec/SPEC-mvp.md`, set `spec/SPEC-gallery-viewer.md` to `Status: implemented`

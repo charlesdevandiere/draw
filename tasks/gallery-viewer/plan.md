@@ -38,8 +38,8 @@ The gallery becomes a wall of tilted, taped drawings with a "+" sheet first; tap
 ### Checkpoint: Module complete
 
 - [x] Spec success criteria 1–8 met
-- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations
-- [ ] Fold into `spec/SPEC-mvp.md` (A6, B1), set `spec/SPEC-gallery-viewer.md` to `Status: implemented`
+- [ ] Device check on the iPad 11 (pen and finger) and the Pixel 9a, both orientations (deferred to the final test campaign, 2026-11-26)
+- [x] Fold into `spec/SPEC-mvp.md` (A6, B1), set `spec/SPEC-gallery-viewer.md` to `Status: implemented`
 
 ## Risks and Mitigations
 

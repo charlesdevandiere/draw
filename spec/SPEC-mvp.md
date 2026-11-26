@@ -88,13 +88,12 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - **Trash** (module `trash`): a deleted drawing can go to the trash first. Its record stays, with `trashedAt` next to the drawing (never in the drawing format or the magic PNG); it leaves the gallery, the parent page list and the export, stays restorable 30 days, and is purged for good at the next app or parent page start after that. A save never takes a drawing out of the trash; importing the PNG of a trashed drawing restores it. Pure rules in `src/store/trash.ts`. The buttons come with modules `gallery-viewer` (move to trash) and `settings` (trash list); until then the parent page's delete stays final.
 - `navigator.storage.persist()` requested on first launch in standalone mode.
 
-**A6 — Gallery and sharing**
+**A6 — Gallery, viewer and sharing** (module `gallery-viewer`, `spec/SPEC-gallery-viewer.md`)
 
-- A button on the drawing screen opens the gallery: grid of thumbnails, newest first.
-- Tapping a thumbnail reopens the drawing to continue it.
-- A "new page" button is also in the gallery.
-- **Share**: a button on the selected thumbnail produces a **magic PNG** (2048 × 2048, white background, vector drawing embedded) and opens the native share sheet (`navigator.share` with a file). Fallback when file sharing is unavailable: download the PNG.
-- No deletion in the child UI (phase B, parent page).
+- A button on the drawing screen opens the gallery, a **wall**: a blank dashed "+" sheet first (a new page), then the drawings newest first, each slightly tilted under a strip of tape (both derived from the drawing id, `src/engine/wall.ts`, never stored). The settings pebble (gear, long press) sits in its header.
+- Tapping a drawing opens the **viewer**: the drawing replays at once (B1) above a progress bar, with play / pause, restart, **continue** (puts it on the slate), **share** and **move to the trash** (long press 1.5 s, light red fill; the drawing on the slate then turns to a blank page). Touching the page toggles pause; Escape goes back.
+- **Share**: a **magic PNG** (2048 × 2048, white background, vector drawing embedded) through the native share sheet (`navigator.share` with a file), encoding started on the tap (iOS user activation). Fallback when file sharing is unavailable: download the PNG.
+- Deleting for good is never in the child UI: the trash keeps a drawing 30 days (A5).
 
 **A7 — Magic PNG**
 
@@ -111,7 +110,7 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
   - select (gender or any variant): `{gender, select, female {…} male {…} other {…}}`.
 - A hand-written formatter (~100 lines, pure, tested) parses this subset; no dependency. If needs ever grow, `intl-messageformat` reads the same syntax: the JSON files would not change.
 - `en.json` is the reference. The build fails if another language misses a key (TypeScript type of `en.json`) and a unit test refuses extra keys and malformed messages.
-- All languages are bundled (a few dozen strings) and the language is chosen at runtime, unlike Angular's per-locale build: one build, and the parent page can switch language without reloading another URL. English is the fallback.
+- All languages are bundled (a few dozen strings) and the language is chosen at runtime, unlike Angular's per-locale build: one build, and the settings page can switch language without reloading another URL. English is the fallback.
 - In the HTML, `data-i18n="key"` (text) and `data-i18n-aria="key"` (accessible label), filled at startup.
 - **One folder per language**: `/draw/en/` and `/draw/fr/`, each with its own HTML entry and its own manifest (name, `lang`, `start_url`, `scope`). Both load the same code, which reads the language from `<html lang>`.
 - The root `/draw/` picks the language from `navigator.languages` and redirects to `/draw/fr/` or `/draw/en/`. The app is installed from there, so its name under the icon is in the right language.
@@ -120,32 +119,31 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 
 **A9 — PWA**
 
-- Installable, works offline (drawing screen, gallery, diagnostic; parent page in phase B).
+- Installable, works offline (drawing screen, gallery, viewer, settings, diagnostic).
 - Update check every time the app returns to the foreground. When a new version installs, the page reloads **only if no stroke is in progress** (otherwise on the next return to the foreground), after saving.
 - The current temporary home page is replaced by the language redirect.
 
 ### Phase B — the magic and the parent
 
-**B1 — Replay**
+**B1 — Replay** (in the viewer, A6)
 
-- From the gallery, a "play" button on the selected thumbnail replays the drawing stroke by stroke, eraser included, on a full-screen page.
+- The drawing redraws itself stroke by stroke, eraser included, on its page, with a progress bar; play / pause and restart through a pure clock (`src/engine/replay-clock.ts`); play at the end starts again.
 - **Speed**: inside a stroke, real time is kept (a finger held still more than 1 s mid-stroke is shortened to 1 s); every pause between strokes is shortened to 300 ms at most; if the result still exceeds **15 s**, everything is sped up uniformly to fit 15 s.
-- Touching the screen during replay stops it and returns to the gallery. A "play again" button at the end.
 
-**B2 — Parent access**
+**B2 — Settings access**
 
-- A small padlock icon in the gallery, a **long press** (`LONG_PRESS_MS` = 1.5 s, the same for every long press): while held the button grows and fills from the bottom with a darker shade of its color; on completion a light haptic tick (Android; none on iPad, DF-12), then the parent page opens (`parent.html`, in the same language folder); releasing earlier cancels.
+- The gear pebble in the gallery's header, a **long press** (`LONG_PRESS_MS` = 1.5 s, the same for every long press): while held the button grows and fills from the bottom with a darker shade of its color; on completion a light haptic tick (Android; none on iPad, DF-12), then the settings page opens (`settings.html`, in the same language folder); releasing earlier cancels. `parent.html` redirects there for one version.
 
-**B3 — Parent page** (Bootstrap, translated)
+**B3 — Settings page** (module `settings`, `spec/SPEC-settings.md`; Bootstrap in the paper look, translated)
 
-- **Drawings**: list with thumbnails, multiple selection, delete after confirmation.
-- **Export**: the selected drawings (or all of them) as magic PNGs, through the share sheet ("Save to Files" in a folder of one's choice on iPad, file manager on Android) or as downloads.
-- **Import**: pick one or several PNGs. Only magic PNGs with a valid chunk and a known schema version are accepted; other images are refused with a clear message. Merge by id: a drawing already present is not duplicated. Size limit per file.
+- **Backup**: "N drawings, X MB."; export every drawing outside the trash as magic PNGs (share sheet or downloads); **import** magic PNGs only (valid chunk, known schema), merged by id, a trashed id is restored; size limit per file.
+- **Share the sketchbook**: the app's link through the share sheet, or copied to the clipboard.
+- **Trash**: rows newest first (thumbnail, "Deleted yesterday", Restore); empty it with a 1.5 s press.
+- **Update**: version (short SHA) and build date, "Check for updates" with a badge, "Clear cache and reload".
 - **Language**: override the UI language (otherwise the folder's language).
-- **Storage**: persistence status, space used, button to request persistence again.
-- **Input**: width filter threshold (or off).
-- **App**: version (`APP_VERSION`), "Check for updates", "Clear cache and reload", link to the diagnostic page.
-- "Back to the sketchbook" button.
+- **Finger drawing**: palm width filter switch and threshold, defaults.
+- **Persistence** line (protected or not, ask again) and a link to the diagnostic page.
+- One column on phones, three on wide windows; the back pebble returns to the gallery (`./#gallery`).
 
 ## Tech Stack
 
@@ -336,7 +334,7 @@ const catalogs: Record<Language, Messages> = { en, fr };
   - **Constant physical size for writing templates.** The page is about 6.5 cm wide on the Pixel 9a and 13 cm on the iPad 11: a letter scaled with the page would be twice as small on the phone. Lines and letters are therefore **generated when added**, at a fixed height in CSS pixels (e.g. 110 px ≈ 2 cm), converted to page units at the page scale of that device: fewer lines per page on a phone, the same letter height in cm everywhere. The web has no physical size API (CSS `cm` is fixed at 37.8 px), but the CSS pixel keeps a nearly constant physical size on handheld devices (spec-sheet estimates, in CSS px per real cm: iPad 11 ≈ 52, Pixel 9a ≈ 62, iPhone 8 ≈ 63), about ±10 %: enough for letters, no calibration. If a device strays too far, add a "letter size" setting in the settings page rather than a calibration step. The alphabet continues on the next page when a page is full.
   - **The generated template is stored with the drawing**: its SVG in page units plus its parameters (kind, id and version, line height, letters), in IndexedDB and in the magic PNG's metadata. A drawing reopened on another device keeps its original template (scaled with the page), and a PNG imported into a version that does not know that template still shows it. The PNG image itself is rendered from all layers.
 - **Milestone 3**: cursive, replay export as video / GIF.
-- **Before release 1.0.0 (required)**: freeze a stable, extensible format for the stroke history stored in magic PNGs and IndexedDB, so a picture made with any earlier version still imports in every later one. At least: a documented format spec (`docs/`), forward-compatible rules (unknown fields kept or ignored, new tools / stroke kinds degrade gracefully), a migration for each schema version, and a test corpus of PNGs from each released version that must keep importing. Until then the MVP format (schema 1) may still change. The frozen format must already carry what milestone 2 and the redesign need: a generic list of template layers (kind background / overlay, template id and version, parameters, embedded SVG, drawing time added; an unknown kind is ignored by older versions), an optional start zone per stroke (overflow protection), and the time a drawing was moved to the trash.
+- **Before release 1.0.0 (required)**: freeze a stable, extensible format for the stroke history stored in magic PNGs and IndexedDB, so a picture made with any earlier version still imports in every later one. At least: a documented format spec (`docs/`), forward-compatible rules (unknown fields kept or ignored, new tools / stroke kinds degrade gracefully), a migration for each schema version, and a test corpus of PNGs from each released version that must keep importing. Until then the MVP format (schema 1) may still change. Order decided 2026-11-26: milestone 2 first, to learn what the format needs, then freeze it before 1.0.0. The frozen format must already carry what milestone 2 and the redesign need: a generic list of template layers (kind background / overlay, template id and version, parameters, embedded SVG, drawing time added; an unknown kind is ignored by older versions), an optional start zone per stroke (overflow protection), and the time a drawing was moved to the trash.
 - **Design phase (with Claude Design)**: reduce energy use. A pure black background was mocked up and dropped (2026-11-22): once the page, the color box and the tools fill the screen, little black is left to save power on the Pixel's OLED (the iPad 11 is LCD), and the original paper background is friendlier. Energy is saved by doing no work when nothing moves: no animation frame loop at rest, no background work.
 - **Synced folder**: automatically writing magic PNGs to a chosen folder (`showDirectoryPicker`). Chrome Android ≥ 155 and desktop only; impossible on iOS Safari. To check on the Pixel first.
 - More European languages: one dictionary and one folder each, after the MVP.
