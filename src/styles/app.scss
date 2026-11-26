@@ -28,13 +28,15 @@
   --app-page: #{$page};
   // DF-01, DF-03: docs/device-fixes.md
   // Shrinks on narrow phones (iPhone 8: 375 px) so 6 tools still fit a row; the 16 px
-  // gutter and 5 gaps are subtracted. Rounded down to an even pixel count, so the fixed
-  // 24 px icon lands on whole pixels in the middle of the button and stays sharp.
+  // gutter, 4 tool gaps, the 12 px grid gap between actions and pages and the pages
+  // group's separator (8 px padding, 2 px line) are subtracted (30 px + 5 tool gaps): six
+  // 48 px tools still fit a 360 px Android phone. Rounded down to an even pixel count, so
+  // the fixed 24 px icon lands on whole pixels in the middle of the button and stays sharp.
   // Without CSS round() (Chrome before 125), a plain clamp with 4 px of rounding slack:
   // an invalid custom property would otherwise collapse every button to its 48 px minimum.
   --app-tool-size: clamp(
     #{$target-min},
-    (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap} - 4px) / #{$tools-per-row},
+    (100vmin - 30px - #{($tools-per-row - 1) * $tool-gap} - 4px) / #{$tools-per-row},
     #{$tool-size}
   );
 
@@ -43,7 +45,7 @@
       down,
       clamp(
         #{$target-min},
-        (100vmin - 16px - #{($tools-per-row - 1) * $tool-gap}) / #{$tools-per-row},
+        (100vmin - 30px - #{($tools-per-row - 1) * $tool-gap}) / #{$tools-per-row},
         #{$tool-size}
       ),
       2px
@@ -417,7 +419,7 @@ body {
 .tools-pages {
   grid-area: pages;
   justify-self: end;
-  padding-left: 12px;
+  padding-left: 8px;
   border-left: 2px solid rgb(43 43 43 / 15%);
 }
 
@@ -446,12 +448,17 @@ body {
     flex-direction: column;
   }
 
+  // Four actions: two columns of two, over the pages (the height is short in landscape).
   .tools-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, var(--app-tool-size));
+    gap: var(--app-tool-gap);
     align-self: end;
     justify-self: auto;
   }
 
   .tools-pages {
+    flex-direction: row;
     align-self: start;
     justify-self: auto;
     padding: 12px 0 0;
@@ -556,7 +563,7 @@ body {
     justify-content: center;
   }
 
-  // Undo, redo, mode in two columns.
+  // Undo, redo, mode and templates in two columns.
   .tools-secondary {
     display: grid;
     grid-template-columns: repeat(2, var(--app-tool-size));
@@ -826,7 +833,8 @@ body {
 }
 
 // Tape colors, by index (engine/wall.ts, TAPE_COUNT).
-$tape-colors: map.values($action-colors);
+// The templates color is not a tape: TAPE_COUNT colors only.
+$tape-colors: map.values(map.remove($action-colors, 'templates'));
 
 @for $index from 1 through list.length($tape-colors) {
   .gallery-card[data-tape='#{$index - 1}'] {
@@ -851,5 +859,60 @@ $tape-colors: map.values($action-colors);
   .icon {
     width: 48px;
     height: 48px;
+  }
+}
+
+// Templates panel (spec/SPEC-template-layers.md): sections of thumbnails in the "all colors"
+// dialog's look; a pictogram heads each section, the current template has the ring.
+.templates-dialog {
+  max-width: calc(100vw - 32px);
+
+  .templates-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 8px 8px;
+  }
+
+  .templates-heading .icon {
+    color: $hold-icon;
+  }
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 12px;
+    width: min(472px, calc(100vw - 64px));
+  }
+
+  .template-tile {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    min-width: 48px;
+    padding: 4px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--app-page);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+    touch-action: manipulation;
+
+    &[aria-pressed='true'] {
+      outline: 4px solid $ink;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+    }
+  }
+
+  .template-thumbnail {
+    width: 100%;
+    height: 100%;
+  }
+
+  .template-none .icon {
+    color: $hold-icon;
   }
 }

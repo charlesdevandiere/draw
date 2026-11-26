@@ -31,6 +31,7 @@ import appHtml from './app.html?raw';
 import {
   canRedo,
   canUndo,
+  commitStep,
   commitStroke,
   createHistory,
   redo,
@@ -38,7 +39,9 @@ import {
   type History,
 } from '../engine/history';
 import { styleFor } from '../engine/palette';
-import type { Drawing } from '../engine/types';
+import type { Drawing, LayerSlot, TemplateLayer } from '../engine/types';
+import { currentLayers } from '../engine/layers';
+import { initTemplatesPanel } from './templates-panel';
 import { newId } from '../store/id';
 import { newDrawing } from '../store/schema';
 import { requireElement } from './dom';
@@ -151,6 +154,24 @@ function setHistory(next: History): void {
   refreshHistoryButtons();
   autosave.changed(currentDrawing());
 }
+
+/**
+ * Places a template on the slate (null removes the slot's template), as a history step.
+ * Waits for strokes in progress to end, as the history buttons do.
+ */
+function placeTemplate(slot: LayerSlot, layer: TemplateLayer | null): void {
+  if (drawScreen.isDrawing()) return;
+  setHistory(commitStep(history, { slot, layer, t: drawScreen.drawingTime() }));
+}
+
+initTemplatesPanel({
+  // With the actions: the row of the eraser has no room left on phones.
+  container: requireElement('tools-secondary', HTMLElement),
+  t: translator.t,
+  current: () => currentLayers(history.templates),
+  onPick: placeTemplate,
+  haptic,
+});
 
 /**
  * Puts another drawing on the slate (a blank page, or one reopened from the gallery). The

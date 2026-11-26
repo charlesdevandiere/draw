@@ -79,6 +79,7 @@ export default defineConfig({
         'src/app/magic-image.ts',
         'src/app/template-image.ts',
         'src/app/layer-canvas.ts',
+        'src/app/templates-panel.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

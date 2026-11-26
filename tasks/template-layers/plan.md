@@ -32,11 +32,11 @@ A drawing gets up to two locked template layers (background under the strokes, o
 
 - [x] Task 3: Catalog, two test coloring pages, `docs/templates.md`
 - [x] Task 4: Layers rendered on the slate, undo / redo of steps, saved and reopened (e2e through seeded drawings)
-- [ ] Task 5: Templates pebble and panel (add, replace, remove), layout in every window shape
+- [x] Task 5: Templates pebble and panel (add, replace, remove), layout in every window shape
 
 ### Checkpoint: Slate
 
-- [ ] `npm run check` and `npm run e2e` pass; a child can put a coloring page and color it
+- [x] `npm run check` and `npm run e2e` pass; a child can put a coloring page and color it
 
 ### Phase 3: Everywhere
 

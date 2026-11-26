@@ -101,6 +101,8 @@ test('on the iPhone SE, in portrait and in landscape, every control fits', async
   for (const size of [
     { width: 375, height: 667 },
     { width: 667, height: 375 },
+    // The narrowest common Android phones.
+    { width: 360, height: 740 },
   ]) {
     await page.setViewportSize(size);
     await page.goto('en/');

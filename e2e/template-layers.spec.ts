@@ -109,3 +109,57 @@ test('undo and redo take the coloring page away and back; it stays after a reloa
   await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/house');
   expect(isColor(await pagePixel(page, ground), BLACK)).toBe(true);
 });
+
+test('the templates panel places, replaces and removes a coloring page', async ({ page }) => {
+  await page.goto('en/');
+  const open = page.getByRole('button', { name: 'Templates' });
+  const dialog = page.getByRole('dialog', { name: 'Templates' });
+  await open.click();
+  await expect(dialog).toBeVisible();
+  // Nothing to remove yet.
+  await expect(dialog.getByRole('button', { name: 'No coloring page' })).toBeDisabled();
+  await page.screenshot({ path: test.info().outputPath('templates-panel.png') });
+  await dialog.getByRole('button', { name: 'Coloring page: fish' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/fish');
+
+  // A stroke on it, then the house replaces the fish: undo goes back step by step.
+  await drawStrokes(page, [
+    {
+      points: line(await pagePoint(page, 0.3, 0.5), await pagePoint(page, 0.6, 0.5)),
+      pointerType: 'pen',
+    },
+  ]);
+  await open.click();
+  await expect(dialog.getByRole('button', { name: 'Coloring page: fish' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await dialog.getByRole('button', { name: 'Coloring page: house' }).click();
+  await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/house');
+  const undo = page.getByRole('button', { name: 'Undo' });
+  await undo.click();
+  await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/fish');
+  await undo.click();
+  await undo.click();
+  await expect(overlay(page)).toHaveAttribute('data-template', '');
+  await expect(undo).toBeDisabled();
+  await page.getByRole('button', { name: 'Redo' }).click();
+
+  // The blank tile removes it; Escape closes the panel without a change.
+  await open.click();
+  await dialog.getByRole('button', { name: 'No coloring page' }).click();
+  await expect(overlay(page)).toHaveAttribute('data-template', '');
+  await open.click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(overlay(page)).toHaveAttribute('data-template', '');
+});
+
+test('the panel speaks French in the French app', async ({ page }) => {
+  await page.goto('fr/');
+  await page.getByRole('button', { name: 'Modèles' }).click();
+  await expect(page.getByRole('button', { name: 'Coloriage : poisson' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Coloriages' })).toBeVisible();
+});

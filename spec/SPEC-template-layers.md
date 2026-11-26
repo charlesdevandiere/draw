@@ -69,7 +69,7 @@ export interface Drawing {
 
 ### Templates panel
 
-- A **templates pebble** (icon `layers`, theme of the drawing tools) next to the eraser opens a dialog (the same dialog component as the phone's "all colors" dialog): one section per kind, a pictogram as its heading, thumbnails as buttons with an accessible name from the catalogs ("Coloring page: fish"). This module has one section, **coloring pages**, whose first tile is a **blank tile** (remove the coloring page; disabled when there is none). The current template has the selected ring.
+- A **templates pebble** (icon `layers-fill`, its own teal action color `templates`) with the actions (undo, redo, mode: the eraser's row has no room left on phones; in landscape on phones the actions go in two columns) opens a dialog (the same dialog component as the phone's "all colors" dialog): one section per kind, a pictogram as its heading, thumbnails as buttons with an accessible name from the catalogs ("Coloring page: fish"). This module has one section, **coloring pages**, whose first tile is a **blank tile** (remove the coloring page; disabled when there is none). The current template has the selected ring.
 - Picking a tile closes the dialog and adds the step; picking the current template does nothing. No confirmation: undo covers mistakes. Haptic tick as for the other tools.
 - Layout checks in the six window shapes of `e2e/gallery-viewer-layout.spec.ts`: the pebble on screen, ≥ 48 px, out of the edge margins (DF-02).
 

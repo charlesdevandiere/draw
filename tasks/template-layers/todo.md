@@ -79,12 +79,12 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 ## Task 5: Templates pebble and panel
 
-**Description:** A pebble (icon `layers`) next to the eraser opens a `<dialog>`: the coloring pages section (pictogram heading, blank tile, thumbnails from the catalog, selected ring). Picking adds / replaces / removes through a history step and closes the dialog; the current one does nothing; haptic tick. Icon added to `_icons.scss`.
+**Description:** A pebble (icon `layers`) with the actions (no room by the eraser on phones) opens a `<dialog>`: the coloring pages section (pictogram heading, blank tile, thumbnails from the catalog, selected ring). Picking adds / replaces / removes through a history step and closes the dialog; the current one does nothing; haptic tick. Icon added to `_icons.scss`.
 
 **Acceptance criteria:**
 
-- [ ] e2e: pick a coloring page, draw, undo (stroke), undo (page), redo; the blank tile removes it (disabled when none); accessible names in en and fr; Escape closes.
-- [ ] e2e: the pebble in every window shape (layout test of `e2e/app-shell.spec.ts` extended), ≥ 48 px, out of the edge margins.
+- [x] e2e: pick a coloring page, draw, undo (stroke), undo (page), redo; the blank tile removes it (disabled when none); accessible names in en and fr; Escape closes.
+- [x] e2e: the pebble in every window shape (layout test of `e2e/app-shell.spec.ts` extended), ≥ 48 px, out of the edge margins.
 
 **Verification:** `npx playwright test e2e/template-layers.spec.ts e2e/app-shell.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -96,7 +96,7 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 ## Checkpoint: Slate
 
-- [ ] `npm run check` and `npm run e2e` pass; a coloring page can be added, colored, undone
+- [x] `npm run check` and `npm run e2e` pass; a coloring page can be added, colored, undone
 
 ## Task 6: Viewer, thumbnails, export
 

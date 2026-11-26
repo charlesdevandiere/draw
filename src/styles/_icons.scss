@@ -30,6 +30,9 @@ $icons: (
   'back': 'arrow-left',
   'palette': 'palette-fill',
   'close': 'x-lg',
+  'templates': 'layers-fill',
+  'no-template': 'ban',
+  'coloring': 'brush-fill',
 );
 
 @function icon-url($file) {
