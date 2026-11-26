@@ -104,6 +104,22 @@ const tools = initTools(
 let current: { id: string; createdAt: number } = { id: newId(), createdAt: Date.now() };
 let history: History = createHistory();
 
+/**
+ * A thumbnail, or null as soon as the page goes hidden: decoding a template image or
+ * encoding the PNG may stall in the background, and the vectors must not wait for it.
+ */
+function unlessHidden(thumbnail: Promise<Blob | null>): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const onHidden = (): void => {
+      if (document.visibilityState === 'hidden') resolve(null);
+    };
+    document.addEventListener('visibilitychange', onHidden);
+    void thumbnail.then(resolve).finally(() => {
+      document.removeEventListener('visibilitychange', onHidden);
+    });
+  });
+}
+
 const autosave = createAutosave({
   async save(drawing) {
     // The vectors come first: a thumbnail that fails, or that a hidden page (going to the
@@ -111,7 +127,7 @@ const autosave = createAutosave({
     const thumbnail =
       document.visibilityState === 'hidden'
         ? null
-        : await renderThumbnail(drawing.strokes).catch(() => null);
+        : await unlessHidden(renderThumbnail(drawing).catch(() => null));
     await saveDrawing(drawing, thumbnail);
     await writeSetting(SETTING_KEYS.lastDrawingId, drawing.id);
   },
@@ -253,6 +269,8 @@ function showGallery(): void {
 
 const viewer = initViewer({
   canvas: requireElement('viewer-layer', HTMLCanvasElement),
+  background: requireElement('viewer-background', HTMLCanvasElement),
+  overlay: requireElement('viewer-overlay', HTMLCanvasElement),
   progress: requireElement('viewer-progress', HTMLElement),
   playButton: viewerPlay,
   restartButton: requireElement('viewer-restart', HTMLButtonElement),
@@ -378,7 +396,7 @@ const gallery = initGallery({
     const records = await listDrawings();
     for (const [index, record] of records.entries()) {
       if (record.thumbnail) continue;
-      const thumbnail = await renderThumbnail(record.drawing.strokes).catch(() => null);
+      const thumbnail = await renderThumbnail(record.drawing).catch(() => null);
       records[index] = { ...record, thumbnail };
     }
     return records;

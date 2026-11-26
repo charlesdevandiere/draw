@@ -104,8 +104,8 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] e2e: the viewer shows strokes drawn before the coloring page without it, then with it; at the end everything.
-- [ ] e2e: the gallery thumbnail shows the outlines; export / import round trip keeps the layer (Chromium and WebKit).
+- [x] e2e: the viewer shows strokes drawn before the coloring page without it, then with it; at the end everything.
+- [x] e2e: the gallery thumbnail shows the outlines; export / import round trip keeps the layer (Chromium and WebKit).
 
 **Verification:** `npx playwright test e2e/viewer.spec.ts e2e/transfer.spec.ts e2e/template-layers.spec.ts`; `npm run check`, `npm run e2e`
 

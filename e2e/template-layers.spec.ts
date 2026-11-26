@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePixel, pagePoint, pixelAt } from './helpers/canvas';
 import { drawStrokes, line } from './helpers/pointer';
-import { seedDatabase } from './helpers/storage';
+import { clearDrawings, seedDatabase } from './helpers/storage';
 import { pickColor, setSize } from './helpers/tools';
 
 /** Template layers on the slate (spec/SPEC-template-layers.md). */
@@ -162,4 +162,113 @@ test('the panel speaks French in the French app', async ({ page }) => {
   await page.getByRole('button', { name: 'Modèles' }).click();
   await expect(page.getByRole('button', { name: 'Coloriage : poisson' })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Coloriages' })).toBeVisible();
+});
+
+/** The pixel at a fraction of an image (an <img> or a PNG's bytes), drawn in the page. */
+async function imagePixel(page: Page, source: string | number[], fx: number, fy: number) {
+  return page.evaluate(
+    async ({ source, fx, fy }) => {
+      const url =
+        typeof source === 'string'
+          ? source
+          : URL.createObjectURL(new Blob([Uint8Array.from(source)], { type: 'image/png' }));
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('No 2D context');
+      context.drawImage(image, 0, 0);
+      const x = Math.floor(fx * canvas.width);
+      const y = Math.floor(fy * canvas.height);
+      return [...context.getImageData(x, y, 1, 1).data];
+    },
+    { source, fx, fy },
+  );
+}
+
+test('the viewer shows the coloring page when it was placed', async ({ page }) => {
+  // A line drawn over 4 s, then the coloring page.
+  await seedDatabase(page, [
+    {
+      id: 'later',
+      updatedAt: Date.now(),
+      lineAt: 150,
+      durationMs: 4000,
+      templates: [{ ...houseStep, t: 4100 }],
+    },
+  ]);
+  await page.goto('en/');
+  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page.getByRole('button', { name: /Open the drawing/ }).click();
+  const viewerOverlay = page.locator('#viewer-overlay');
+  // While the line replays: no coloring page yet.
+  await expect(page.locator('#viewer-play')).toHaveAttribute('aria-label', 'Pause');
+  await expect(viewerOverlay).toHaveAttribute('data-template', '');
+  // At the end: the coloring page over the line.
+  await expect(page.locator('#viewer-play')).toHaveAttribute('aria-label', 'Play', {
+    timeout: 15_000,
+  });
+  await expect(viewerOverlay).toHaveAttribute('data-template', 'coloring/house');
+  const ground = await pagePoint(page, GROUND.x, GROUND.y, '#viewer-page');
+  expect(isColor(await pagePixel(page, ground, '#viewer-page'), BLACK)).toBe(true);
+  // Restart: gone again.
+  await page.locator('#viewer-restart').click();
+  await expect(viewerOverlay).toHaveAttribute('data-template', '');
+});
+
+test('thumbnails and exported pictures carry the coloring page; import brings it back', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    const captured: File[] = [];
+    (window as unknown as { captured: File[] }).captured = captured;
+    const create = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = (object: Blob | MediaSource) => {
+      if (object instanceof File) captured.push(object);
+      return create(object);
+    };
+  });
+  await seedDatabase(page, [
+    { id: 'house', updatedAt: Date.now(), lineAt: 150, templates: [houseStep] },
+  ]);
+  await page.goto('en/');
+  await page.getByRole('button', { name: 'My drawings' }).click();
+  const thumbnail = page.locator('.gallery-card img');
+  await expect(thumbnail).toHaveAttribute('src', /^blob:/, { timeout: 20_000 });
+  const src = (await thumbnail.getAttribute('src')) ?? '';
+  expect(isColor(await imagePixel(page, src, GROUND.x, GROUND.y), BLACK)).toBe(true);
+
+  await page.goto('en/settings.html');
+  await page.getByRole('button', { name: 'Export the drawings' }).click();
+  await page.getByRole('button', { name: 'Share 1 picture' }).click();
+  await expect(page.locator('#transfer-status')).toHaveText('1 drawing exported.');
+  const [file] = await page.evaluate(async () =>
+    Promise.all(
+      (window as unknown as { captured: File[] }).captured.map(async (file) => [
+        ...new Uint8Array(await file.arrayBuffer()),
+      ]),
+    ),
+  );
+  if (!file) throw new Error('Nothing exported');
+  expect(isColor(await imagePixel(page, file, GROUND.x, GROUND.y), BLACK)).toBe(true);
+
+  await clearDrawings(page);
+  await page.reload();
+  await page.evaluate((bytes) => {
+    const input = document.getElementById('import-files') as HTMLInputElement;
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([Uint8Array.from(bytes)], 'house.png', { type: 'image/png' }));
+    input.files = transfer.files;
+    input.dispatchEvent(new Event('change'));
+  }, file);
+  await expect(page.locator('#backup-summary')).toHaveText(/^1 drawing/);
+  await page.goto('en/');
+  await page.getByRole('button', { name: 'My drawings' }).click();
+  await page.getByRole('button', { name: /Open the drawing/ }).click();
+  await page.getByRole('button', { name: 'Continue this drawing' }).click();
+  await expect(overlay(page)).toHaveAttribute('data-template', 'coloring/house');
 });

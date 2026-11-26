@@ -16,11 +16,6 @@ export function currentLayers(templates: readonly TemplateStep[]): Layers {
   return apply(templates);
 }
 
-/** The layers at drawing time `t` of the replay: the steps made at or before it. */
-export function layersAtTime(templates: readonly TemplateStep[], t: number): Layers {
-  return apply(templates.filter((step) => step.t <= t));
-}
-
 /** The layer a slot had when stroke number `index` started (the steps made before it). */
 export function layerBeforeStroke(
   templates: readonly TemplateStep[],

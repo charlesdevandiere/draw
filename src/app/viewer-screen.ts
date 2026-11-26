@@ -6,13 +6,17 @@
  */
 import { backingSize, pageToBacking } from '../engine/page-transform';
 import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
-import { planReplay, visiblePoints, type ReplayPlan } from '../engine/replay';
+import { layersAtReplayTime, planReplay, visiblePoints, type ReplayPlan } from '../engine/replay';
 import { createReplayClock, type ReplayClock } from '../engine/replay-clock';
 import { PAGE_SIZE, POINT_STRIDE, type Drawing } from '../engine/types';
 import type { Translator } from '../i18n/i18n';
+import { createLayerCanvas } from './layer-canvas';
 
 export interface ViewerOptions {
   canvas: HTMLCanvasElement;
+  /** Canvases of the template layers, under and above the drawing canvas. */
+  background: HTMLCanvasElement;
+  overlay: HTMLCanvasElement;
   progress: HTMLElement;
   playButton: HTMLButtonElement;
   restartButton: HTMLButtonElement;
@@ -37,6 +41,8 @@ export function initViewer(options: ViewerOptions): Viewer {
   const context = contextOrNull;
   const bar = progress.firstElementChild instanceof HTMLElement ? progress.firstElementChild : null;
   const playIcon = playButton.querySelector('.icon');
+  const background = createLayerCanvas(options.background);
+  const overlay = createLayerCanvas(options.overlay);
 
   let drawing: Drawing | null = null;
   let plan: ReplayPlan | null = null;
@@ -57,13 +63,24 @@ export function initViewer(options: ViewerOptions): Viewer {
       canvas.width = backing;
       canvas.height = backing;
     }
+    background.resize(backing);
+    overlay.resize(backing);
     renderDrawing(context, [], pageToBacking(backing), PAGE_SIZE);
     painted = plan ? plan.strokes.map(() => 0) : [];
     paintedUntil = 0;
   }
 
+  /** The template layers placed by replay time `elapsed`. */
+  function showLayers(elapsed: number): void {
+    if (!plan) return;
+    const layers = layersAtReplayTime(plan, elapsed);
+    background.set(layers.background);
+    overlay.set(layers.overlay);
+  }
+
   function paintTo(elapsed: number): void {
     if (!plan || !drawing) return;
+    showLayers(elapsed);
     if (elapsed < paintedUntil) clearCanvas();
     if (elapsed >= plan.duration) {
       // Simultaneous strokes were painted interleaved, frame by frame (as when drawn): end
@@ -135,10 +152,12 @@ export function initViewer(options: ViewerOptions): Viewer {
   function open(next: Drawing): void {
     stopFrames();
     drawing = next;
-    plan = planReplay(next.strokes);
+    plan = planReplay(next.strokes, {}, next.templates);
     clock = createReplayClock(plan.duration);
     shownPercent = -1;
     shownPlaying = null;
+    // The layers of this drawing at the start, never the last drawing's.
+    showLayers(0);
     clearCanvas();
     const now = performance.now();
     clock.play(now);

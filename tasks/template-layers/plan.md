@@ -40,7 +40,7 @@ A drawing gets up to two locked template layers (background under the strokes, o
 
 ### Phase 3: Everywhere
 
-- [ ] Task 6: Viewer replay with layers; thumbnails, magic PNG image and export / import with layers
+- [x] Task 6: Viewer replay with layers; thumbnails, magic PNG image and export / import with layers
 - [ ] Task 7: Outline width modes and the temporary "test" setting
 
 ### Checkpoint: Module complete

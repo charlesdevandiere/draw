@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { currentLayers, layerBeforeStroke, layersAtTime } from './layers';
+import { currentLayers, layerBeforeStroke } from './layers';
 import type { LayerSlot, TemplateLayer, TemplateStep } from './types';
 
 const layer = (slot: LayerSlot, template: string): TemplateLayer => ({
@@ -29,14 +29,6 @@ describe('layers', () => {
   it('the slate shows the last step of each slot', () => {
     expect(currentLayers(steps)).toEqual({ background: grid, overlay: null });
     expect(currentLayers(steps.slice(0, 3))).toEqual({ background: grid, overlay: house });
-  });
-
-  it('the replay shows the steps made at or before a time', () => {
-    expect(layersAtTime(steps, -1)).toEqual({ background: null, overlay: null });
-    expect(layersAtTime(steps, 0)).toEqual({ background: null, overlay: fish });
-    expect(layersAtTime(steps, 150)).toEqual({ background: grid, overlay: fish });
-    expect(layersAtTime(steps, 250)).toEqual({ background: grid, overlay: house });
-    expect(layersAtTime(steps, 1000)).toEqual({ background: grid, overlay: null });
   });
 
   it('a stroke sees the layers placed before it', () => {

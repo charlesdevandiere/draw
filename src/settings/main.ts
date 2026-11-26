@@ -58,7 +58,7 @@ async function refreshBackup(): Promise<void> {
 const trash = initTrashSection({
   translator,
   list: listTrash,
-  thumbnail: (record) => renderThumbnail(record.drawing.strokes),
+  thumbnail: (record) => renderThumbnail(record.drawing),
   restore: restoreFromTrash,
   empty: emptyTrash,
   haptic: initHaptic(),
@@ -81,8 +81,7 @@ const transfer = initTransferSection({
   restore: restoreFromTrash,
   // Thumbnail rendered now, so the gallery shows it (null if it fails: the gallery then
   // renders one).
-  save: async (drawing) =>
-    saveDrawing(drawing, await renderThumbnail(drawing.strokes).catch(() => null)),
+  save: async (drawing) => saveDrawing(drawing, await renderThumbnail(drawing).catch(() => null)),
   onImported: () => {
     void refreshBackup().catch(() => undefined);
     // An import may bring a drawing back from the trash.

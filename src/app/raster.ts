@@ -1,10 +1,15 @@
 /**
  * Renders a drawing to an image (DOM): gallery thumbnails and shared PNGs. Strokes are
  * painted on a transparent layer first (the eraser clears that layer), then laid over the
- * white page.
+ * white page and its background template; the overlay template goes on top.
  */
+import { currentLayers } from '../engine/layers';
 import { renderDrawing } from '../engine/render';
-import { PAGE_SIZE, type Stroke } from '../engine/types';
+import { PAGE_SIZE, type Drawing, type TemplateLayer } from '../engine/types';
+import { templateImage } from './template-image';
+
+/** What an image of a drawing shows. */
+export type DrawingPicture = Pick<Drawing, 'strokes' | 'templates'>;
 
 const PAGE_COLOR = '#ffffff';
 
@@ -14,12 +19,23 @@ function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   return context;
 }
 
+/** A template decoded at `size` pixels, or null (none, or an SVG this engine refuses). */
+async function templateAt(layer: TemplateLayer | null, size: number) {
+  if (!layer) return null;
+  return templateImage(layer.svg, { size }).catch(() => null);
+}
+
 /** A square canvas of `size` pixels showing the drawing on its white page. */
-export function rasterize(strokes: readonly Stroke[], size: number): HTMLCanvasElement {
+export async function rasterize(drawing: DrawingPicture, size: number): Promise<HTMLCanvasElement> {
+  const layers = currentLayers(drawing.templates);
+  const [background, overlay] = await Promise.all([
+    templateAt(layers.background, size),
+    templateAt(layers.overlay, size),
+  ]);
   const layer = document.createElement('canvas');
   layer.width = size;
   layer.height = size;
-  renderDrawing(context2d(layer), strokes, size / PAGE_SIZE, PAGE_SIZE);
+  renderDrawing(context2d(layer), drawing.strokes, size / PAGE_SIZE, PAGE_SIZE);
 
   const page = document.createElement('canvas');
   page.width = size;
@@ -27,7 +43,9 @@ export function rasterize(strokes: readonly Stroke[], size: number): HTMLCanvasE
   const context = context2d(page);
   context.fillStyle = PAGE_COLOR;
   context.fillRect(0, 0, size, size);
+  if (background) context.drawImage(background, 0, 0, size, size);
   context.drawImage(layer, 0, 0);
+  if (overlay) context.drawImage(overlay, 0, 0, size, size);
   release(layer);
   return page;
 }
@@ -55,6 +73,6 @@ export function canvasToPng(canvas: HTMLCanvasElement): Promise<Blob> {
 /** Gallery thumbnail: small, 2x for sharp display. */
 export const THUMBNAIL_SIZE = 320;
 
-export function renderThumbnail(strokes: readonly Stroke[]): Promise<Blob> {
-  return canvasToPng(rasterize(strokes, THUMBNAIL_SIZE));
+export async function renderThumbnail(drawing: DrawingPicture): Promise<Blob> {
+  return canvasToPng(await rasterize(drawing, THUMBNAIL_SIZE));
 }

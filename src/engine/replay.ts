@@ -7,8 +7,12 @@
  * - a finger held still inside a stroke (a gap longer than `maxHoldMs` while a stroke is
  *   in progress) is shortened to `maxHoldMs`;
  * - if the result is still longer than `maxDurationMs`, everything is sped up uniformly.
+ *
+ * Template steps (coloring pages...) are instants on the same timeline: each shows at its
+ * drawing time `t`, compressed like the points around it.
  */
-import { POINT_STRIDE, pointCount, type Stroke } from './types';
+import { currentLayers, type Layers } from './layers';
+import { POINT_STRIDE, pointCount, type Stroke, type TemplateStep } from './types';
 
 export const REPLAY_MAX_PAUSE_MS = 300;
 /** A finger held still longer than this inside a stroke is shortened to it. */
@@ -21,8 +25,17 @@ export interface ReplayStroke {
   times: number[];
 }
 
+/** A template step and when it shows in the replay. */
+export interface ReplayStep {
+  step: TemplateStep;
+  /** Replay time (ms from the start). */
+  time: number;
+}
+
 export interface ReplayPlan {
   strokes: ReplayStroke[];
+  /** Template steps, in order; each one shows at its time (spec/SPEC-template-layers.md). */
+  steps: ReplayStep[];
   duration: number;
 }
 
@@ -56,7 +69,11 @@ function busyPeriods(spans: readonly [number, number][]): [number, number][] {
 }
 
 // DF-07: docs/device-fixes.md
-export function planReplay(strokes: readonly Stroke[], options: ReplayOptions = {}): ReplayPlan {
+export function planReplay(
+  strokes: readonly Stroke[],
+  options: ReplayOptions = {},
+  templates: readonly TemplateStep[] = [],
+): ReplayPlan {
   const maxPause = options.maxPauseMs ?? REPLAY_MAX_PAUSE_MS;
   const maxDuration = options.maxDurationMs ?? REPLAY_MAX_DURATION_MS;
   const maxHold = options.maxHoldMs ?? REPLAY_MAX_HOLD_MS;
@@ -66,10 +83,14 @@ export function planReplay(strokes: readonly Stroke[], options: ReplayOptions = 
     const count = pointCount(stroke);
     if (count > 0) raw.push({ stroke, times: strokeTimes(stroke, count) });
   }
-  if (raw.length === 0) return { strokes: [], duration: 0 };
+  if (raw.length === 0 && templates.length === 0) return { strokes: [], steps: [], duration: 0 };
 
-  // Compressed time of every drawing time stamp, walking them in order.
-  const stamps = [...new Set(raw.flatMap(({ times }) => times))].sort((a, b) => a - b);
+  // Compressed time of every drawing time stamp (points and template steps), in order. A
+  // step is an instant: the time around it is a pause unless a stroke is in progress.
+  const stepTimes = templates.map((step) => Math.max(0, step.t));
+  const stamps = [...new Set([...raw.flatMap(({ times }) => times), ...stepTimes])].sort(
+    (a, b) => a - b,
+  );
   const busy = busyPeriods(raw.map(({ times }) => [times[0] ?? 0, times[times.length - 1] ?? 0]));
   const compressed = new Map<number, number>();
   let period = 0;
@@ -92,6 +113,10 @@ export function planReplay(strokes: readonly Stroke[], options: ReplayOptions = 
       stroke,
       times: times.map((time) => (compressed.get(time) ?? 0) * factor),
     })),
+    steps: templates.map((step, index) => ({
+      step,
+      time: (compressed.get(stepTimes[index] ?? 0) ?? 0) * factor,
+    })),
     duration,
   };
 }
@@ -106,4 +131,10 @@ export function visiblePoints(times: readonly number[], time: number): number {
     else high = middle;
   }
   return low;
+}
+
+/** The template layers shown at replay time `time`: the steps placed by then. */
+export function layersAtReplayTime(plan: ReplayPlan, time: number): Layers {
+  const shown = time >= plan.duration ? plan.steps : plan.steps.filter((s) => s.time <= time);
+  return currentLayers(shown.map(({ step }) => step));
 }
