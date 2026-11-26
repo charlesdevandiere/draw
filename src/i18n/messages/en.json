@@ -101,6 +101,8 @@
   "tools.undo": "Undo",
   "tools.redo": "Redo",
   "tools.newPage": "New page",
+  "templates.coloring.fish": "Coloring page: fish",
+  "templates.coloring.house": "Coloring page: house",
   "gallery.open": "Open the drawing of {date}",
   "viewer.drawing": "This drawing",
   "viewer.back": "Back to my drawings",

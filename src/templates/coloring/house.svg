@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none" stroke="#000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+  <title>House</title>
+  <path d="M0 800 L1000 800"/>
+  <rect x="250" y="450" width="400" height="350"/>
+  <path d="M220 450 L450 250 L680 450 Z"/>
+  <path d="M560 352 L560 260 L620 260 L620 404"/>
+  <rect x="410" y="620" width="90" height="180"/>
+  <rect x="290" y="510" width="90" height="80"/>
+  <rect x="530" y="510" width="90" height="80"/>
+  <circle cx="830" cy="170" r="70"/>
+  <circle class="hint" cx="450" cy="380" r="16" fill="#e53935" stroke="none"/>
+  <circle class="hint" cx="330" cy="700" r="16" fill="#fdd835" stroke="none"/>
+  <circle class="hint" cx="455" cy="710" r="14" fill="#6d4c41" stroke="none"/>
+  <circle class="hint" cx="830" cy="170" r="16" fill="#ffa726" stroke="none"/>
+  <circle class="hint" cx="590" cy="290" r="12" fill="#6d4c41" stroke="none"/>
+  <circle class="hint" cx="500" cy="900" r="16" fill="#66bb6a" stroke="none"/>
+</svg>

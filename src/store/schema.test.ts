@@ -157,6 +157,14 @@ describe('template steps (schema 2)', () => {
     expect(parsed.templates[0]?.layer?.params).toEqual(params);
   });
 
+  it('keeps a parameter named __proto__ as a plain parameter', () => {
+    const params = JSON.parse('{"__proto__": "x"}') as Record<string, string>;
+    const parsed = parseDrawing(withSteps(step({ layer: layer({ params }) })));
+    const kept = parsed.templates[0]?.layer?.params ?? {};
+    expect(Object.getPrototypeOf(kept)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(kept, '__proto__')?.value).toBe('x');
+  });
+
   it('drops a step for a slot this version does not know', () => {
     const parsed = parseDrawing(withSteps({ ...step(), slot: 'sticker' }, step()));
     expect(parsed.templates).toHaveLength(1);

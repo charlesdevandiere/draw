@@ -101,15 +101,14 @@ function parseParams(value: unknown, limits: typeof LIMITS): Record<string, stri
   if (!isRecord(value)) throw new DrawingFormatError('bad params');
   const entries = Object.entries(value);
   if (entries.length > limits.params) throw new DrawingFormatError('too many params');
-  const params: Record<string, string | number> = {};
   for (const [key, param] of entries) {
     const text = typeof param === 'string' && param.length <= limits.textLength;
     if (key.length > limits.textLength || !(text || finite(param))) {
       throw new DrawingFormatError('bad params');
     }
-    params[key] = param;
   }
-  return params;
+  // fromEntries defines own properties: a `__proto__` key is kept, not taken as the prototype.
+  return Object.fromEntries(entries) as Record<string, string | number>;
 }
 
 function parseLayer(
@@ -128,10 +127,11 @@ function parseLayer(
   if (template.length > limits.textLength) return fail('bad id');
   if (!finite(version) || !Number.isInteger(version) || version < 0) return fail('bad version');
   if (typeof svg !== 'string') return fail('bad svg');
-  budget.svgBytes -= utf8Bytes(svg);
-  if (budget.svgBytes < 0) throw new DrawingFormatError('too much template data');
+  // Checked first: it refuses an oversized SVG on its length, before encoding it.
   const problem = checkTemplateSvg(svg, limits.svgBytes);
   if (problem) return fail(`svg ${problem}`);
+  budget.svgBytes -= utf8Bytes(svg);
+  if (budget.svgBytes < 0) throw new DrawingFormatError('too much template data');
   return { slot, template, version, params: parseParams(params, limits), svg };
 }
 

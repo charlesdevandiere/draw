@@ -101,6 +101,8 @@
   "tools.undo": "Annuler",
   "tools.redo": "Rétablir",
   "tools.newPage": "Nouvelle page",
+  "templates.coloring.fish": "Coloriage : poisson",
+  "templates.coloring.house": "Coloriage : maison",
   "gallery.open": "Ouvrir le dessin du {date}",
   "viewer.drawing": "Ce dessin",
   "viewer.back": "Retour à mes dessins",

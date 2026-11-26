@@ -48,8 +48,8 @@ Plan: `tasks/template-layers/plan.md`. Spec: `spec/SPEC-template-layers.md`. End
 
 **Acceptance criteria:**
 
-- [ ] Unit: every catalog SVG passes the checker, is ≤ 64 KB, has black outlines only, hints only as `class="hint"` circles in palette colors; ids unique.
-- [ ] Catalog names in en and fr.
+- [x] Unit: every catalog SVG passes the checker, is ≤ 64 KB, has black outlines only, hints only as `class="hint"` circles in palette colors; ids unique.
+- [x] Catalog names in en and fr.
 
 **Verification:** `npx vitest run src/templates`; `npm run check`
 

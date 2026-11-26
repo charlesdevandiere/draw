@@ -30,7 +30,7 @@ A drawing gets up to two locked template layers (background under the strokes, o
 
 ### Phase 2: On the slate
 
-- [ ] Task 3: Catalog, two test coloring pages, `docs/templates.md`
+- [x] Task 3: Catalog, two test coloring pages, `docs/templates.md`
 - [ ] Task 4: Layers rendered on the slate, undo / redo of steps, saved and reopened (e2e through seeded drawings)
 - [ ] Task 5: Templates pebble and panel (add, replace, remove), layout in every window shape
 
