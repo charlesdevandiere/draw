@@ -5,6 +5,9 @@ import { pickColor, setSize } from './helpers/tools';
 
 /** Writing templates (spec/SPEC-writing-templates.md): ruled paper and letters to trace. */
 test.use({ locale: 'en-US' });
+// Headless WebKit paints the large layers (1901 px at 3×) in software: near the default
+// timeout alone, past it under load.
+test.slow(({ browserName }) => browserName === 'webkit', 'Large layers painted in software');
 
 const background = (page: Page) => page.locator('#background-layer');
 const PHONE = { width: 375, height: 667 };

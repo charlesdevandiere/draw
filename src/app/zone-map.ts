@@ -129,6 +129,11 @@ export function loadZoneMaps(templates: readonly TemplateStep[]): Promise<void> 
   return Promise.all([...svgs].map(loadZoneMap)).then(() => undefined);
 }
 
+/** True when the zone map of an overlay is ready. */
+export function zoneMapReady(svg: string): boolean {
+  return maps.has(svg);
+}
+
 /** True when every zone map a drawing needs is ready. */
 export function zoneMapsReady(templates: readonly TemplateStep[]): boolean {
   return templates.every(

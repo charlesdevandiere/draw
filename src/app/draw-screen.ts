@@ -12,7 +12,7 @@ import {
   type PageTransform,
   strokeStart,
 } from '../engine/page-transform';
-import { renderStroke, setPageScale } from '../engine/render';
+import { setPageScale } from '../engine/render';
 import {
   createDrawingClock,
   startStroke,
@@ -22,7 +22,25 @@ import {
 import { currentLayers } from '../engine/layers';
 import { drawingDuration, type Stroke, type StrokeStyle, type TemplateStep } from '../engine/types';
 import { createLayerCanvas, type LayerCanvas } from './layer-canvas';
-import { loadZoneMaps, paintDrawing, zoneMapsReady } from './zone-map';
+import {
+  loadZoneMap,
+  loadZoneMaps,
+  paintDrawing,
+  paintStroke,
+  startZone,
+  zoneMapReady,
+  zoneMapsReady,
+  zoneMaskFor,
+  type ZoneMask,
+} from './zone-map';
+
+/**
+ * The mask a stroke in progress is clipped to. Looked up at each paint: a mask dropped from
+ * the cache (memory) is made again.
+ */
+function maskOf(entry: ActiveStroke): ZoneMask | null {
+  return entry.overlay === null ? null : zoneMaskFor(entry.builder.stroke, 0, [], entry.overlay);
+}
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
@@ -63,6 +81,11 @@ export interface DrawScreenOptions {
   overlay?: HTMLCanvasElement;
   /** Overlay outline width kept constant (CSS pixels), or null to scale it. */
   fixedOutline?: () => number | null;
+  /**
+   * Overflow protection on (spec/SPEC-overflow-protection.md): with a coloring page on the
+   * slate, a stroke records its start zone and stays inside it. Default: on.
+   */
+  protection?: () => boolean;
 }
 
 export interface DrawScreen {
@@ -87,6 +110,8 @@ interface ActiveStroke {
   drawn: number;
   /** Where the contact landed (page units), before being pulled onto the page edge. */
   origin: [number, number];
+  /** The coloring page whose zone the stroke is clipped to (overflow protection), or null. */
+  overlay: string | null;
 }
 
 export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
@@ -115,7 +140,9 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
   function repaint(): void {
     paintDrawing(context, strokes, templates, pixelsPerUnit);
     setPageScale(context, pixelsPerUnit);
-    for (const entry of active.values()) entry.drawn = renderStroke(context, entry.builder.stroke);
+    for (const entry of active.values()) {
+      entry.drawn = paintStroke(context, entry.builder.stroke, 0, pixelsPerUnit, maskOf(entry));
+    }
   }
 
   function resize(): void {
@@ -130,17 +157,35 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     repaint();
   }
 
+  /**
+   * Shows the template layers. A coloring page shows once its zone map is ready: a stroke
+   * started on it is then always protected (reopened drawing, undo bringing it back).
+   */
   function showLayers(): void {
     const layers = currentLayers(templates);
     background?.set(layers.background);
-    overlay?.set(layers.overlay);
+    const shown = layers.overlay;
+    if (!shown || zoneMapReady(shown.svg)) {
+      overlay?.set(shown);
+      return;
+    }
+    overlay?.set(null);
+    const waited = templates;
+    void loadZoneMap(shown.svg).then(() => {
+      if (templates === waited) overlay?.set(shown);
+    });
   }
 
   function paintFrame(): void {
     frameRequested = false;
-    setPageScale(context, pixelsPerUnit);
     for (const entry of active.values()) {
-      entry.drawn = renderStroke(context, entry.builder.stroke, entry.drawn);
+      entry.drawn = paintStroke(
+        context,
+        entry.builder.stroke,
+        entry.drawn,
+        pixelsPerUnit,
+        maskOf(entry),
+      );
     }
   }
 
@@ -175,8 +220,7 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     const entry = active.get(pointerId);
     if (!entry) return;
     // Paint what the last frames have not painted yet, then hand the stroke over.
-    setPageScale(context, pixelsPerUnit);
-    renderStroke(context, entry.builder.stroke, entry.drawn);
+    paintStroke(context, entry.builder.stroke, entry.drawn, pixelsPerUnit, maskOf(entry));
     active.delete(pointerId);
     // Strokes are stored in the order they end. Simultaneous overlapping strokes may stack
     // differently after a repaint than they did live: rare, and accepted for the MVP.
@@ -221,10 +265,16 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     }
     const [x, y] = start;
     const landing = sampleOf(event, transform);
+    const builder = startStroke(options.style(), { ...landing, x, y });
+    // Overflow protection: the stroke keeps a point of the zone it starts in.
+    const overlay = currentLayers(templates).overlay;
+    const zone = overlay && (options.protection?.() ?? true) ? startZone(overlay.svg, x, y) : null;
+    if (zone) builder.stroke.zone = zone;
     active.set(event.pointerId, {
-      builder: startStroke(options.style(), { ...landing, x, y }),
+      builder,
       drawn: 0,
       origin: [landing.x, landing.y],
+      overlay: overlay && zone ? overlay.svg : null,
     });
     requestFrame();
   });

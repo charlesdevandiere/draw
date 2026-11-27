@@ -45,6 +45,7 @@ import { styleFor } from '../engine/palette';
 import type { Drawing, LayerSlot, TemplateLayer } from '../engine/types';
 import { currentLayers } from '../engine/layers';
 import { initTemplatesPanel } from './templates-panel';
+import { loadZoneMap } from './zone-map';
 import { newId } from '../store/id';
 import { newDrawing } from '../store/schema';
 import { requireElement } from './dom';
@@ -178,7 +179,15 @@ function setHistory(next: History): void {
  * Places a template on the slate (null removes the slot's template), as a history step.
  * Waits for strokes in progress to end, as the history buttons do.
  */
-function placeTemplate(slot: LayerSlot, layer: TemplateLayer | null): void {
+let templatePicks = 0;
+async function placeTemplate(slot: LayerSlot, layer: TemplateLayer | null): Promise<void> {
+  templatePicks += 1;
+  const pick = templatePicks;
+  const drawingId = current.id;
+  // A coloring page shows once its zones are known: the first stroke on it is protected.
+  if (slot === 'overlay' && layer) await loadZoneMap(layer.svg);
+  // While it loaded, a later pick or another drawing (new page, gallery) wins over this one.
+  if (pick !== templatePicks || current.id !== drawingId) return;
   if (drawScreen.isDrawing()) return;
   setHistory(commitStep(history, { slot, layer, t: drawScreen.drawingTime() }));
 }
@@ -188,7 +197,7 @@ initTemplatesPanel({
   container: requireElement('tools-secondary', HTMLElement),
   t: translator.t,
   current: () => currentLayers(history.templates),
-  onPick: placeTemplate,
+  onPick: (slot, layer) => void placeTemplate(slot, layer),
   pageWidth: () => requireElement('page', HTMLElement).getBoundingClientRect().width,
   haptic,
 });

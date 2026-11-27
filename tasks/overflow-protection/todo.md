@@ -63,9 +63,9 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 **Acceptance criteria:**
 
-- [ ] e2e: a thick stroke drawn from inside an area across its outline: no ink beyond; same after reload; strokes drawn before the coloring page unchanged.
-- [ ] e2e: multi-finger, two strokes in two areas at once, each clipped to its own.
-- [ ] e2e: a long stroke keeps up (no dropped segments, timing logged).
+- [x] e2e: a thick stroke drawn from inside an area across its outline: no ink beyond; same after reload; strokes drawn before the coloring page unchanged.
+- [x] e2e: multi-finger, two strokes in two areas at once, each clipped to its own.
+- [x] e2e: a long stroke keeps up (no dropped segments, timing logged).
 
 **Verification:** `npx playwright test e2e/overflow-protection.spec.ts`; `npm run check`, `npm run e2e`
 

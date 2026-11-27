@@ -41,7 +41,8 @@ test('a coloring page stays above the strokes; the eraser never removes it', asy
   const ground = await pagePoint(page, GROUND.x, GROUND.y);
   expect(isColor(await pixelAt(overlay(page), ground), BLACK)).toBe(true);
 
-  // A thick red stroke across the ground line: red around it, the line still black on top.
+  // A thick red stroke across the ground line: red where it started, the line still black on
+  // top (overflow protection keeps the stroke above the line).
   await pickColor(page, 'Red');
   await setSize(page, 5);
   await drawStrokes(page, [
@@ -52,7 +53,8 @@ test('a coloring page stays above the strokes; the eraser never removes it', asy
   ]);
   expect(isColor(await pagePixel(page, await pagePoint(page, 0.1, 0.75)), RED)).toBe(true);
   expect(isColor(await pagePixel(page, ground), BLACK)).toBe(true);
-  expect(isColor(await pixelAt(page.locator('#drawing-layer'), ground), RED)).toBe(true);
+  const above = await pagePoint(page, 0.1, 0.75);
+  expect(isColor(await pixelAt(page.locator('#drawing-layer'), above), RED)).toBe(true);
 
   // A white stroke across it does not hide the outline either.
   await pickColor(page, 'White');
@@ -72,7 +74,7 @@ test('a coloring page stays above the strokes; the eraser never removes it', asy
       pointerType: 'pen',
     },
   ]);
-  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), ground))).toBe(true);
+  expect(isBlank(await pixelAt(page.locator('#drawing-layer'), above))).toBe(true);
   expect(isColor(await pagePixel(page, ground), BLACK)).toBe(true);
 });
 

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { isBlank, isColor, pagePoint, pixelAt } from './helpers/canvas';
-import { seedDatabase } from './helpers/storage';
+import { drawStrokes, line } from './helpers/pointer';
+import { savedStrokeCounts, seedDatabase } from './helpers/storage';
+import { pickColor, setSize } from './helpers/tools';
 
 /** Overflow protection (spec/SPEC-overflow-protection.md): strokes clipped to their zone. */
 test.use({ locale: 'en-US' });
@@ -29,10 +31,10 @@ const layer = (page: Page) => page.locator('#drawing-layer');
 const inkAt = async (page: Page, x: number, selector = '#page', canvas = layer(page)) =>
   pixelAt(canvas, await pagePoint(page, x, 0.6, selector));
 
-async function open(page: Page, strokes: unknown[]): Promise<void> {
+async function open(page: Page, strokes: unknown[], step: unknown = houseStep): Promise<void> {
   await seedDatabase(
     page,
-    [{ id: 'house', updatedAt: Date.now(), lineAt: 0, templates: [houseStep], strokes }],
+    [{ id: 'house', updatedAt: Date.now(), lineAt: 0, templates: [step], strokes }],
     { lastDrawingId: 'house' },
   );
   await page.goto('en/');
@@ -96,4 +98,81 @@ test('the viewer and the exported picture clip the same way', async ({ page }) =
     .poll(async () => isColor(await inkAt(page, 0.45, '#viewer-page', viewer), RED))
     .toBe(true);
   expect(isBlank(await inkAt(page, 0.15, '#viewer-page', viewer))).toBe(true);
+});
+
+test('drawn live: the stroke stops at the outline, and stays so after a reload', async ({
+  page,
+}) => {
+  await open(page, []);
+  await pickColor(page, 'Red');
+  await setSize(page, 5);
+  await drawStrokes(page, [
+    {
+      points: line(await pagePoint(page, 0.4, 0.6), await pagePoint(page, 0.9, 0.6)),
+      pointerType: 'pen',
+    },
+  ]);
+  expect(isColor(await inkAt(page, 0.5), RED)).toBe(true);
+  expect(isBlank(await inkAt(page, 0.8))).toBe(true);
+  await expect.poll(async () => (await savedStrokeCounts(page))['house']).toBe(1);
+  await page.reload();
+  await expect.poll(async () => isColor(await inkAt(page, 0.5), RED)).toBe(true);
+  expect(isBlank(await inkAt(page, 0.8))).toBe(true);
+});
+
+test('several fingers: each stroke keeps to its own zone', async ({ page }) => {
+  await seedDatabase(
+    page,
+    [{ id: 'house', updatedAt: Date.now(), lineAt: 0, templates: [houseStep], strokes: [] }],
+    { lastDrawingId: 'house', inputMode: { mode: 'multi', chosenByHand: true } },
+  );
+  await page.goto('en/');
+  await expect(page.locator('#overlay-layer')).toHaveAttribute('data-template', 'coloring/house');
+  await pickColor(page, 'Red');
+  await setSize(page, 5);
+  // One from inside the walls going right, one from outside going into the walls.
+  await drawStrokes(page, [
+    {
+      points: line(await pagePoint(page, 0.4, 0.6), await pagePoint(page, 0.9, 0.6)),
+      pointerType: 'touch',
+      pointerId: 1,
+    },
+    {
+      points: line(await pagePoint(page, 0.1, 0.7), await pagePoint(page, 0.5, 0.7)),
+      pointerType: 'touch',
+      pointerId: 2,
+    },
+  ]);
+  const at = async (x: number, y: number) => pixelAt(layer(page), await pagePoint(page, x, y));
+  expect(isColor(await at(0.5, 0.6), RED)).toBe(true);
+  expect(isBlank(await at(0.8, 0.6))).toBe(true);
+  expect(isColor(await at(0.15, 0.7), RED)).toBe(true);
+  expect(isBlank(await at(0.4, 0.7))).toBe(true);
+});
+
+test('a long stroke on a coloring page keeps up', async ({ page }) => {
+  await open(page, []);
+  await setSize(page, 5);
+  // Back and forth inside the walls, 600 points (the page's box read once).
+  const [left, top] = await pagePoint(page, 0, 0);
+  const [right, bottom] = await pagePoint(page, 1, 1);
+  const points: [number, number][] = [];
+  for (let i = 0; i < 600; i += 1) {
+    const fx = 0.3 + 0.3 * Math.abs(Math.sin(i / 20));
+    const fy = 0.5 + (0.25 * i) / 600;
+    points.push([left + (right - left) * fx, top + (bottom - top) * fy]);
+  }
+  const started = Date.now();
+  await drawStrokes(page, [{ points, pointerType: 'pen' }]);
+  console.log(`600-point clipped stroke: ${Date.now() - started} ms`);
+  await expect.poll(async () => (await savedStrokeCounts(page))['house']).toBe(1);
+  expect(isBlank(await inkAt(page, 0.15))).toBe(true);
+});
+
+test('a stroke drawn before the coloring page was placed stays as it was', async ({ page }) => {
+  // The stroke first (no zone), then the coloring page after it (at: 1).
+  await open(page, [across('pen')], { ...houseStep, at: 1, t: 1000 });
+  await expect.poll(async () => isColor(await inkAt(page, 0.15), RED)).toBe(true);
+  expect(isColor(await inkAt(page, 0.45), RED)).toBe(true);
+  expect(isColor(await inkAt(page, 0.8), RED)).toBe(true);
 });
