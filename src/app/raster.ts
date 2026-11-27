@@ -4,9 +4,9 @@
  * white page and its background template; the overlay template goes on top.
  */
 import { currentLayers } from '../engine/layers';
-import { renderDrawing } from '../engine/render';
 import { PAGE_SIZE, type Drawing, type TemplateLayer } from '../engine/types';
 import { templateImage } from './template-image';
+import { loadZoneMaps, paintDrawing, releaseScratch } from './zone-map';
 
 /** What an image of a drawing shows. */
 export type DrawingPicture = Pick<Drawing, 'strokes' | 'templates'>;
@@ -31,11 +31,14 @@ export async function rasterize(drawing: DrawingPicture, size: number): Promise<
   const [background, overlay] = await Promise.all([
     templateAt(layers.background, size),
     templateAt(layers.overlay, size),
+    // Strokes clipped to a coloring page's zones need its zone map.
+    loadZoneMaps(drawing.templates),
   ]);
   const layer = document.createElement('canvas');
   layer.width = size;
   layer.height = size;
-  renderDrawing(context2d(layer), drawing.strokes, size / PAGE_SIZE, PAGE_SIZE);
+  paintDrawing(context2d(layer), drawing.strokes, drawing.templates, size / PAGE_SIZE);
+  releaseScratch();
 
   const page = document.createElement('canvas');
   page.width = size;

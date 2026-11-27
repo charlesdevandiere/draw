@@ -27,7 +27,7 @@ The zones of a coloring page come from filling a 1000 px rendering of its outlin
 
 ### Phase 2: Clipping
 
-- [ ] Task 3: Zone maps and clipped rendering of stored strokes (slate, viewer, raster)
+- [x] Task 3: Zone maps and clipped rendering of stored strokes (slate, viewer, raster)
 - [ ] Task 4: Live: zone resolved on pointerdown, stroke in progress clipped, several fingers
 - [ ] Task 5: Protection pebble; CLAUDE.md constraint updated
 

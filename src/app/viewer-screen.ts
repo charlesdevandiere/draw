@@ -5,12 +5,13 @@
  * page toggles pause. The other actions (back, continue, share, trash) are wired by main.
  */
 import { backingSize, pageToBacking } from '../engine/page-transform';
-import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
+import { renderDrawing } from '../engine/render';
 import { layersAtReplayTime, planReplay, visiblePoints, type ReplayPlan } from '../engine/replay';
 import { createReplayClock, type ReplayClock } from '../engine/replay-clock';
 import { PAGE_SIZE, POINT_STRIDE, type Drawing } from '../engine/types';
 import type { Translator } from '../i18n/i18n';
 import { createLayerCanvas } from './layer-canvas';
+import { loadZoneMaps, paintDrawing, paintStroke, zoneMapsReady, zoneMaskFor } from './zone-map';
 
 export interface ViewerOptions {
   canvas: HTMLCanvasElement;
@@ -89,21 +90,25 @@ export function initViewer(options: ViewerOptions): Viewer {
     if (elapsed >= plan.duration) {
       // Simultaneous strokes were painted interleaved, frame by frame (as when drawn): end
       // on the drawing exactly as stored, so an eraser among them leaves the same result.
-      renderDrawing(context, drawing.strokes, pageToBacking(canvas.width), PAGE_SIZE);
+      paintDrawing(context, drawing.strokes, drawing.templates, pageToBacking(canvas.width));
       painted = plan.strokes.map(({ times }) => times.length);
       paintedUntil = elapsed;
       return;
     }
-    setPageScale(context, pageToBacking(canvas.width));
+    const pixelsPerUnit = pageToBacking(canvas.width);
+    const shown = drawing;
     plan.strokes.forEach(({ stroke, times }, index) => {
       const visible = visiblePoints(times, elapsed);
       const done = painted[index] ?? 0;
       if (visible <= done) return;
-      // Paint the newly visible part, joined to what is already there.
-      renderStroke(
+      // Paint the newly visible part, joined to what is already there (clipped to its zone).
+      const mask = zoneMaskFor(stroke, shown.strokes.indexOf(stroke), shown.templates);
+      paintStroke(
         context,
         { ...stroke, points: stroke.points.slice(0, visible * POINT_STRIDE) },
         done,
+        pixelsPerUnit,
+        mask,
       );
       painted[index] = visible;
     });
@@ -162,6 +167,14 @@ export function initViewer(options: ViewerOptions): Viewer {
     shownPlaying = null;
     // The layers of this drawing at the start, never the last drawing's.
     showLayers(0);
+    // Clipped strokes need the zone maps: start over once they are built.
+    if (!zoneMapsReady(next.templates)) {
+      void loadZoneMaps(next.templates).then(() => {
+        if (drawing !== next || !clock) return;
+        clearCanvas();
+        tick(performance.now());
+      });
+    }
     clearCanvas();
     const now = performance.now();
     clock.play(now);

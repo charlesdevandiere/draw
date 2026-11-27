@@ -80,6 +80,7 @@ export default defineConfig({
         'src/app/template-image.ts',
         'src/app/layer-canvas.ts',
         'src/app/templates-panel.ts',
+        'src/app/zone-map.ts',
         'src/app-version.ts',
         'src/pwa/app-update.ts',
         'src/vite-env.d.ts',

@@ -46,8 +46,8 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 **Acceptance criteria:**
 
-- [ ] e2e (seeded drawing: test coloring page, a thick stroke with a zone crossing an outline): ink inside the zone, none beyond the outline; the same in the viewer at the end and in the exported PNG; a stroke without zone crosses.
-- [ ] e2e: a seeded eraser stroke with a zone erases only inside its zone.
+- [x] e2e (seeded drawing: test coloring page, a thick stroke with a zone crossing an outline): ink inside the zone, none beyond the outline; the same in the viewer at the end and in the exported PNG; a stroke without zone crosses.
+- [x] e2e: a seeded eraser stroke with a zone erases only inside its zone.
 
 **Verification:** `npx playwright test e2e/overflow-protection.spec.ts`; `npm run check`, `npm run e2e`
 

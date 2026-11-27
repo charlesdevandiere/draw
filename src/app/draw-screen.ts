@@ -12,7 +12,7 @@ import {
   type PageTransform,
   strokeStart,
 } from '../engine/page-transform';
-import { renderDrawing, renderStroke, setPageScale } from '../engine/render';
+import { renderStroke, setPageScale } from '../engine/render';
 import {
   createDrawingClock,
   startStroke,
@@ -20,14 +20,9 @@ import {
   type StrokeBuilder,
 } from '../engine/stroke-builder';
 import { currentLayers } from '../engine/layers';
-import {
-  PAGE_SIZE,
-  drawingDuration,
-  type Stroke,
-  type StrokeStyle,
-  type TemplateStep,
-} from '../engine/types';
+import { drawingDuration, type Stroke, type StrokeStyle, type TemplateStep } from '../engine/types';
 import { createLayerCanvas, type LayerCanvas } from './layer-canvas';
+import { loadZoneMaps, paintDrawing, zoneMapsReady } from './zone-map';
 
 /** Pause inserted in drawing time when a reopened drawing is continued. */
 const RESUME_PAUSE_MS = 500;
@@ -118,7 +113,8 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
   let pixelsPerUnit = 1;
 
   function repaint(): void {
-    renderDrawing(context, strokes, pixelsPerUnit, PAGE_SIZE);
+    paintDrawing(context, strokes, templates, pixelsPerUnit);
+    setPageScale(context, pixelsPerUnit);
     for (const entry of active.values()) entry.drawn = renderStroke(context, entry.builder.stroke);
   }
 
@@ -277,6 +273,16 @@ export function initDrawScreen(options: DrawScreenOptions): DrawScreen {
     setTemplates(next) {
       templates = next;
       showLayers();
+      // Strokes clipped to a coloring page's zones need its zone map: repaint once it is
+      // built (the first paint showed them unclipped), or now if the history changed them.
+      const clipped = strokes.some((stroke) => stroke.zone);
+      if (zoneMapsReady(next)) {
+        if (clipped) repaint();
+        return;
+      }
+      void loadZoneMaps(next).then(() => {
+        if (clipped && templates === next) repaint();
+      });
     },
     drawingTime() {
       // Without a running clock, no clock is started: time spent in a panel that ends up

@@ -125,8 +125,10 @@ export interface SeededDrawing {
   trashedAt?: number;
   /** Drawing time of the line, left to right, in 50 points (default: 100 ms, 2 points). */
   durationMs?: number;
-  /** Template steps (stored as schema 2); absent: a schema 1 record. */
+  /** Template steps (stored as schema 3); absent: a schema 1 record. */
   templates?: unknown[];
+  /** Strokes as stored, instead of the seeded line. */
+  strokes?: unknown[];
 }
 
 /** Points `[x, y, t]` of a seeded line. */
@@ -163,12 +165,12 @@ export async function seedDatabase(
           const transaction = db.transaction(['drawings', 'settings'], 'readwrite');
           for (const { drawing, points } of drawings) {
             transaction.objectStore('drawings').put({
-              schema: drawing.templates ? 2 : 1,
+              schema: drawing.templates ? 3 : 1,
               ...(drawing.templates ? { templates: drawing.templates } : {}),
               id: drawing.id,
               createdAt: drawing.updatedAt,
               updatedAt: drawing.updatedAt,
-              strokes: [
+              strokes: drawing.strokes ?? [
                 {
                   tool: 'pen',
                   color: '#202020',
