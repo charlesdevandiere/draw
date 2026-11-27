@@ -21,6 +21,12 @@ export interface Stroke extends StrokeStyle {
    * since the drawing started. A stroke with a single point is a dot.
    */
   points: number[];
+  /**
+   * Overflow protection (spec/SPEC-overflow-protection.md): a page point inside the zone of
+   * the coloring page this stroke started in; the stroke is clipped to that zone. Absent:
+   * not clipped.
+   */
+  zone?: [number, number];
 }
 
 /** Where a template layer sits: under the strokes or above them. */

@@ -19,11 +19,11 @@ The zones of a coloring page come from filling a 1000 px rendering of its outlin
 ### Phase 1: Pure
 
 - [x] Task 1: `labelZones`, `zoneAt`
-- [ ] Task 2: Schema 3 (`zone`), overlay of a stroke
+- [x] Task 2: Schema 3 (`zone`), overlay of a stroke
 
 ### Checkpoint: Pure
 
-- [ ] `npm run check` passes
+- [x] `npm run check` passes
 
 ### Phase 2: Clipping
 

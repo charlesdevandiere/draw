@@ -5,6 +5,7 @@
  */
 import {
   LAYER_SLOTS,
+  PAGE_SIZE,
   POINT_STRIDE,
   type Drawing,
   type LayerSlot,
@@ -14,7 +15,7 @@ import {
 } from '../engine/types';
 import { checkTemplateSvg, utf8Bytes } from '../templates/svg-check';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** A drawing as stored: the engine's Drawing plus its schema version. */
 export interface StoredDrawing extends Drawing {
@@ -62,6 +63,8 @@ export type Migration = (value: Record<string, unknown>) => Record<string, unkno
 export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   // 1 → 2: template layers (milestone 2); schema 1 drawings have none.
   1: (value) => ({ ...value, schema: 2, templates: [] }),
+  // 2 → 3: the optional start zone of a stroke (overflow protection); nothing to add.
+  2: (value) => ({ ...value, schema: 3 }),
 };
 
 const COLOR = /^#[0-9a-f]{6}$/i;
@@ -94,7 +97,14 @@ function parseStroke(
   budget.numbers -= points.length;
   if (budget.numbers < 0) throw new DrawingFormatError('too many points');
   if (!points.every(finite)) return fail('non-numeric point');
-  return { tool, color, width, points: [...points] };
+  const stroke: Stroke = { tool, color, width, points: [...points] };
+  const { zone } = value;
+  if (zone !== undefined) {
+    const onPage = (n: unknown) => finite(n) && n >= 0 && n <= PAGE_SIZE;
+    if (!Array.isArray(zone) || zone.length !== 2 || !zone.every(onPage)) return fail('bad zone');
+    stroke.zone = [zone[0] as number, zone[1] as number];
+  }
+  return stroke;
 }
 
 function parseParams(value: unknown, limits: typeof LIMITS): Record<string, string | number> {
@@ -216,7 +226,11 @@ export function toStored(drawing: Drawing): StoredDrawing {
     id: drawing.id,
     createdAt: drawing.createdAt,
     updatedAt: drawing.updatedAt,
-    strokes: drawing.strokes.map((stroke) => ({ ...stroke, points: [...stroke.points] })),
+    strokes: drawing.strokes.map((stroke) => ({
+      ...stroke,
+      points: [...stroke.points],
+      ...(stroke.zone ? { zone: [...stroke.zone] as [number, number] } : {}),
+    })),
     templates: drawing.templates.map((step) => ({
       ...step,
       layer: step.layer && { ...step.layer, params: { ...step.layer.params } },

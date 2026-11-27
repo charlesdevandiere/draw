@@ -207,3 +207,34 @@ describe('template steps (schema 2)', () => {
     expect(() => parseDrawing(withSteps(step()), { limits: small })).toThrow(/too-large/);
   });
 });
+
+describe('stroke zones (schema 3)', () => {
+  it('reads a start zone back, and strokes without one', () => {
+    const value = strokeWith({ zone: [120.5, 30] });
+    const parsed = parseDrawing(JSON.parse(JSON.stringify(value)));
+    expect(parsed.strokes[0]?.zone).toEqual([120.5, 30]);
+    expect(parseDrawing(stored()).strokes[0]?.zone).toBeUndefined();
+    expect(parseDrawing(toStored(parsed))).toEqual(parsed);
+  });
+
+  it('copies the zone instead of sharing it', () => {
+    const [first] = drawing.strokes;
+    if (!first) throw new Error('no stroke');
+    const withZone = { ...drawing, strokes: [{ ...first, zone: [1, 2] as [number, number] }] };
+    expect(toStored(withZone).strokes[0]?.zone).not.toBe(withZone.strokes[0]?.zone);
+  });
+
+  it('migrates schema 2 drawings as they are', () => {
+    expect(parseDrawing({ ...stored(), schema: 2 })).toEqual(drawing);
+  });
+
+  it.each([
+    ['not a pair', [1]],
+    ['off the page', [1001, 5]],
+    ['negative', [-1, 5]],
+    ['not numbers', ['1', 5]],
+    ['an object', { x: 1, y: 2 }],
+  ])('refuses a zone %s', (_, zone) => {
+    expect(() => parseDrawing(strokeWith({ zone }))).toThrow(/bad zone/);
+  });
+});

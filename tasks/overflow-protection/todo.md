@@ -21,12 +21,12 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 ## Task 2: Schema 3, overlay of a stroke
 
-**Description:** `Stroke.zone?: [x, y]`; schema 3 with an identity migration from 2; parsing checks the pair (numbers within the page). Pure `overlayForStroke(templates, index)` in `src/engine/layers.ts`.
+**Description:** `Stroke.zone?: [x, y]`; schema 3 with an identity migration from 2; parsing checks the pair (numbers within the page). The overlay of a stroke: `layerBeforeStroke(templates, 'overlay', index)` (`src/engine/layers.ts`, written and tested with `template-layers`).
 
 **Acceptance criteria:**
 
-- [ ] Unit: `zone` parsed (valid, absent, out of the page, wrong type refused); schema 2 drawings migrate; magic PNG round trip keeps `zone`.
-- [ ] Unit: `overlayForStroke` with an overlay added, replaced and removed around strokes.
+- [x] Unit: `zone` parsed (valid, absent, out of the page, wrong type refused); schema 2 drawings migrate; magic PNG round trip keeps `zone`.
+- [x] Unit: the overlay of a stroke with an overlay added, replaced and removed around strokes (`layerBeforeStroke`, covered in `src/engine/layers.test.ts`).
 
 **Verification:** `npx vitest run src/store src/engine`; `npm run check`
 
@@ -38,7 +38,7 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 ## Checkpoint: Pure
 
-- [ ] `npm run check` passes
+- [x] `npm run check` passes
 
 ## Task 3: Clipped rendering of stored strokes
 

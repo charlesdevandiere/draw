@@ -66,6 +66,14 @@ describe('magic PNG', () => {
     expect(await decodeMagicPng(new Blob([new Uint8Array(bytes)]))).toEqual(layered);
   });
 
+  it('round-trips the start zone of a stroke', async () => {
+    const [first, second] = drawing.strokes;
+    if (!first || !second) throw new Error('strokes missing');
+    const zoned: Drawing = { ...drawing, strokes: [{ ...first, zone: [12.5, 40] }, second] };
+    const bytes = await embedDrawing(PNG, zoned);
+    expect(await decodeMagicPng(new Blob([new Uint8Array(bytes)]))).toEqual(zoned);
+  });
+
   it('reads a schema 1 picture (made before template layers)', async () => {
     const old: Partial<Drawing> = { ...drawing };
     delete old.templates;
