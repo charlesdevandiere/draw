@@ -8,8 +8,8 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 **Acceptance criteria:**
 
-- [ ] Unit: two zones split by a line; a ring and its hole; the outside is a zone; a 1-pixel gap joins two zones; `zoneAt` on a barrier picks the nearest, none beyond 12 units; out-of-page points.
-- [ ] Unit: a 1000 × 1000 mask labels in reasonable time (no recursion).
+- [x] Unit: two zones split by a line; a ring and its hole; the outside is a zone; a 1-pixel gap joins two zones; `zoneAt` on a barrier picks the nearest, none beyond 12 units; out-of-page points.
+- [x] Unit: a 1000 × 1000 mask labels in reasonable time (no recursion).
 
 **Verification:** `npx vitest run src/engine/zones.test.ts`; `npm run check`
 

@@ -19,7 +19,7 @@ After `template-layers`: a coloring page is an overlay above the strokes; stroke
 ### Zones
 
 - The **zones** of a coloring page are found by **filling** rather than by its paths: the overlay's outlines (color hints with `class="hint"` left out) are rendered at 1000 × 1000 pixels (one pixel per page unit), every pixel at least half opaque is a barrier, and the connected regions of the other pixels (4-connected) are the zones; the outside of the picture is a zone too. Any SVG that follows the authoring rules works, whatever its paths look like (no need for one closed path per area).
-- Pure: `src/engine/zones.ts`, `labelZones(mask, size)` returns a label per pixel; `zoneAt(labels, x, y)` returns the zone of a page point, or the nearest zone within 12 units when the point is on a barrier, or none.
+- Pure: `src/engine/zones.ts`, `labelZones(mask, size)` returns a label per pixel; `zoneAt(labels, size, x, y)` returns the zone of a page point, or the nearest zone within 12 units when the point is on a barrier, or none.
 - The zone map of an overlay is computed when the layer is added or the drawing is opened, before the layer shows (a few tens of ms), and cached per layer.
 
 ### Strokes
