@@ -176,3 +176,59 @@ test('a stroke drawn before the coloring page was placed stays as it was', async
   expect(isColor(await inkAt(page, 0.45), RED)).toBe(true);
   expect(isColor(await inkAt(page, 0.8), RED)).toBe(true);
 });
+
+test('the protection pebble: off, a stroke crosses; on again, the next one is clipped', async ({
+  page,
+}) => {
+  await open(page, []);
+  const protection = page.getByRole('button', { name: 'Stay inside the lines' });
+  await expect(protection).toHaveAttribute('aria-pressed', 'true');
+  await pickColor(page, 'Red');
+  await setSize(page, 5);
+  const stroke = async (y: number) => ({
+    points: line(await pagePoint(page, 0.4, y), await pagePoint(page, 0.9, y)),
+    pointerType: 'pen' as const,
+  });
+
+  await protection.click();
+  await expect(protection).toHaveAttribute('aria-pressed', 'false');
+  await drawStrokes(page, [await stroke(0.6)]);
+  expect(isColor(await inkAt(page, 0.8), RED)).toBe(true);
+
+  await protection.click();
+  await expect(protection).toHaveAttribute('aria-pressed', 'true');
+  await drawStrokes(page, [await stroke(0.7)]);
+  expect(isColor(await pixelAt(layer(page), await pagePoint(page, 0.5, 0.7)), RED)).toBe(true);
+  expect(isBlank(await pixelAt(layer(page), await pagePoint(page, 0.8, 0.7)))).toBe(true);
+
+  // Off, then the coloring page brought back by undo / redo: on again.
+  await protection.click();
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(protection).toBeHidden();
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect(protection).toHaveAttribute('aria-pressed', 'true');
+
+  // Off, then another drawing comes on the slate: on again.
+  await protection.click();
+  await page.getByRole('button', { name: 'New page' }).click();
+  await expect(protection).toBeHidden();
+  await page.getByRole('button', { name: 'Templates' }).click();
+  await page.getByRole('button', { name: 'Coloring page: house' }).click();
+  await expect(protection).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the protection pebble shows only with a coloring page, named in French', async ({ page }) => {
+  await page.goto('fr/');
+  const protection = page.getByRole('button', { name: 'Ne pas dépasser' });
+  await expect(protection).toBeHidden();
+  await page.getByRole('button', { name: 'Modèles' }).click();
+  await page.getByRole('button', { name: 'Petits carreaux' }).click();
+  await expect(protection).toBeHidden();
+  await page.getByRole('button', { name: 'Modèles' }).click();
+  await page.getByRole('button', { name: 'Coloriage : maison' }).click();
+  await expect(protection).toBeVisible();
+  await page.getByRole('button', { name: 'Annuler' }).click();
+  await expect(protection).toBeHidden();
+});

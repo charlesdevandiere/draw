@@ -111,6 +111,39 @@ test('on the iPhone SE, in portrait and in landscape, every control fits', async
   }
 });
 
+test('with a coloring page, the protection pebble fits beside the eraser everywhere', async ({
+  page,
+}) => {
+  // Five window sizes, each with the full layout check: longer than the default on WebKit.
+  test.setTimeout(60_000);
+  await page.goto('en/');
+  await page.getByRole('button', { name: 'Templates' }).click();
+  await page.getByRole('button', { name: 'Coloring page: house' }).click();
+  const protection = page.getByRole('button', { name: 'Stay inside the lines' });
+  await expect(protection).toBeVisible();
+  for (const size of [
+    { width: 375, height: 667 },
+    { width: 667, height: 375 },
+    { width: 360, height: 740 },
+    { width: 820, height: 1180 },
+    { width: 1180, height: 820 },
+  ]) {
+    await page.setViewportSize(size);
+    await expect(protection).toBeVisible();
+    await expectDrawingLayout(page);
+    // Portrait: the pebble stays on the row of the eraser and the slider.
+    if (size.height > size.width) {
+      const tops = new Set<number>();
+      for (const button of await page.locator('#tools-primary button:visible').all()) {
+        const rect = await button.boundingBox();
+        if (rect) tops.add(Math.round(rect.y + rect.height / 2));
+      }
+      expect(tops.size).toBe(1);
+    }
+    await page.screenshot({ path: test.info().outputPath(`protection-${size.width}.png`) });
+  }
+});
+
 test('turned a quarter, the layout follows the window and keeps its drawing', async ({ page }) => {
   await page.goto('en/');
   await drawStrokes(page, [{ points: [await pagePoint(page, 0.3, 0.5)], pointerType: 'pen' }]);

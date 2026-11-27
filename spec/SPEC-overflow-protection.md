@@ -1,6 +1,6 @@
 # Spec Delta: Overflow protection — milestone 2, module 3 of 3
 
-Status: approved (2026-11-26)
+Status: implemented (2026-11-27, folded into `spec/SPEC-mvp.md` C3; device check with the final test campaign)
 
 Module `overflow-protection` of milestone 2 (`spec/capability-map-milestone-2.md`). Inherits `spec/SPEC-mvp.md` and builds on `template-layers` (coloring overlays, steps, rendering, storage).
 
@@ -32,7 +32,7 @@ After `template-layers`: a coloring page is an overlay above the strokes; stroke
 
 ### Switch
 
-- A **protection pebble** in the drawing tools (icon `magic`, pressed state with `aria-pressed`), shown only while a coloring page is on the drawing. On by default, on again each time a coloring page is added and when a drawing is opened. Not stored: what each stroke did is in its `zone`.
+- A **protection pebble** in the drawing tools, beside the eraser (icon `magic`, pressed state with `aria-pressed`), shown only while a coloring page is on the drawing. On by default, on again each time a coloring page is added and when a drawing is opened. Not stored: what each stroke did is in its `zone`.
 
 ## Success Criteria
 

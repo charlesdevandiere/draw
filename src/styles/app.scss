@@ -408,6 +408,20 @@ body {
 
 .tools-primary {
   grid-area: size;
+  // Pebbles beside the slider: the palette (phones) and the eraser, and the protection
+  // pebble with a coloring page.
+  --pebbles: 2;
+
+  &:has(.protection-button:not([hidden])) {
+    --pebbles: 3;
+
+    // Portrait: a shorter slider leaves room for it in the row (360 px phones).
+    @media not all and (min-aspect-ratio: 1/1) {
+      .size-control {
+        min-width: 150px;
+      }
+    }
+  }
 }
 
 .tools-secondary {
@@ -424,7 +438,8 @@ body {
 }
 
 @media (min-aspect-ratio: 1/1) {
-  // Phones: the page, the column of the pebble, eraser and slider, then actions over pages.
+  // Phones: the page, the column of the pebbles (palette, eraser, protection) and slider,
+  // then actions over pages.
   .draw-screen {
     grid-template:
       'page size actions' minmax(0, 1fr)
@@ -466,14 +481,14 @@ body {
     border-left: 0;
   }
 
-  // The slider stands vertical under the eraser (board 2), after the palette pebble.
+  // The slider stands vertical under the pebbles (board 2): palette, eraser, protection.
   .size-control {
     order: 1;
     flex: none;
     flex-direction: column;
     width: var(--app-tool-size);
     min-width: 0;
-    height: min(200px, 100cqh - 2 * var(--app-tool-size) - 2 * var(--app-tool-gap));
+    height: min(200px, 100cqh - var(--pebbles) * (var(--app-tool-size) + var(--app-tool-gap)));
     padding: 4px 0 12px;
 
     // The range turned a quarter: its box is laid out across, then rotated in place.
@@ -487,7 +502,9 @@ body {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: calc(min(200px, 100cqh - 2 * var(--app-tool-size) - 2 * var(--app-tool-gap)) - 72px);
+      width: calc(
+        min(200px, 100cqh - var(--pebbles) * (var(--app-tool-size) + var(--app-tool-gap))) - 72px
+      );
       translate: -50% -50%;
       rotate: -90deg;
     }

@@ -146,6 +146,31 @@ function currentDrawing(): Drawing {
     templates: [...history.templates],
   };
 }
+/**
+ * Overflow protection (spec/SPEC-overflow-protection.md): a pebble beside the eraser,
+ * shown only with a coloring page. On by default, and on again when a coloring page is
+ * added (or brought back by undo / redo) or another drawing comes on the slate; off, new
+ * strokes get no zone.
+ */
+let protection = true;
+const protectionButton = document.createElement('button');
+protectionButton.type = 'button';
+protectionButton.className = 'btn btn-solid btn-pebble theme-templates protection-button';
+protectionButton.setAttribute('aria-label', translator.t('tools.protection'));
+protectionButton.innerHTML = '<span class="icon icon-protection" aria-hidden="true"></span>';
+protectionButton.hidden = true;
+protectionButton.addEventListener('click', () => {
+  haptic();
+  setProtection(!protection);
+});
+toolsContainer.append(protectionButton);
+
+function setProtection(on: boolean): void {
+  protection = on;
+  protectionButton.setAttribute('aria-pressed', String(on));
+}
+setProtection(true);
+
 const undoButton = requireElement('undo', HTMLButtonElement);
 const redoButton = requireElement('redo', HTMLButtonElement);
 const newPageButton = requireElement('new-page', HTMLButtonElement);
@@ -155,8 +180,13 @@ function refreshHistoryButtons(): void {
   undoButton.disabled = !canUndo(history);
   redoButton.disabled = !canRedo(history);
   newPageButton.disabled = !canUndo(history);
-  // A focused button that gets disabled drops the focus to the body: keep it in the tool bar.
-  if (focused instanceof HTMLButtonElement && focused.disabled) {
+  protectionButton.hidden = !currentLayers(history.templates).overlay;
+  // A focused button that gets disabled (or the protection pebble, hidden when the coloring
+  // page goes) drops the focus to the body: keep it in the tool bar.
+  if (
+    focused instanceof HTMLButtonElement &&
+    (focused === protectionButton ? focused.hidden : focused.disabled)
+  ) {
     // The new page button keeps the focus in its own group (pages), on the gallery button.
     const fallback =
       focused === newPageButton
@@ -168,7 +198,11 @@ function refreshHistoryButtons(): void {
 
 /** Shows a new history (undo, redo, new page): the canvas is repainted from its vectors. */
 function setHistory(next: History): void {
+  const overlayBefore = currentLayers(history.templates).overlay;
   history = next;
+  // A coloring page added, or brought back by undo / redo: the protection is on again.
+  const overlay = currentLayers(history.templates).overlay;
+  if (overlay && overlay !== overlayBefore) setProtection(true);
   drawScreen.setStrokes(history.strokes);
   drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();
@@ -211,6 +245,7 @@ function switchDrawing(drawing: Drawing): Promise<void> {
   const saved = autosave.flush();
   current = { id: drawing.id, createdAt: drawing.createdAt };
   history = createHistory(drawing.strokes, drawing.templates);
+  setProtection(true);
   drawScreen.setStrokes(history.strokes);
   drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();
@@ -241,6 +276,7 @@ async function readOutlineWidth(): Promise<void> {
 const drawScreen = initDrawScreen({
   canvas,
   fixedOutline,
+  protection: () => protection,
   background: requireElement('background-layer', HTMLCanvasElement),
   overlay: requireElement('overlay-layer', HTMLCanvasElement),
   hitArea: requireElement('draw-screen', HTMLElement),
@@ -565,6 +601,7 @@ async function restore(): Promise<void> {
   if (!record || touched || drawScreen.isDrawing()) return;
   current = { id: record.drawing.id, createdAt: record.drawing.createdAt };
   history = createHistory(record.drawing.strokes, record.drawing.templates);
+  setProtection(true);
   drawScreen.setStrokes(history.strokes);
   drawScreen.setTemplates(history.templates);
   refreshHistoryButtons();

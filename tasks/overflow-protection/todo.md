@@ -81,8 +81,8 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 **Acceptance criteria:**
 
-- [ ] e2e: protection off → the stroke crosses; on again → the next one is clipped; hidden without a coloring page; accessible names in en and fr.
-- [ ] e2e: the pebble on screen, ≥ 48 px, out of the edge margins, in every window shape.
+- [x] e2e: protection off → the stroke crosses; on again → the next one is clipped; hidden without a coloring page; accessible names in en and fr.
+- [x] e2e: the pebble on screen, ≥ 48 px, out of the edge margins, in every window shape.
 
 **Verification:** `npx playwright test e2e/overflow-protection.spec.ts e2e/app-shell.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -94,6 +94,6 @@ Plan: `tasks/overflow-protection/plan.md`. Spec: `spec/SPEC-overflow-protection.
 
 ## Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–6 met
+- [x] Spec success criteria 1–6 met
 - [ ] Device check: deferred to the final test campaign
-- [ ] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map: milestone 2 complete
+- [x] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map: milestone 2 complete

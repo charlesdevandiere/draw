@@ -159,6 +159,12 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - Background templates generated when picked, at a constant physical size (`NOMINAL_PX_PER_CM` = 55 CSS px per cm, from the page's width on screen), stored with their size (`params.unitsPerCm`) and only scaled afterwards: **small squares** (5 mm), **French ruled paper** (Seyès, 8 mm squares, thin lines every 2 mm), and one character repeated in whole copies to fill the page: **capitals** and **digits** (2 cm high, on a baseline and a cap line), **cursive** letters (French school cursive, 4 mm x-height on an enlarged Seyès ruling). Glyph outlines extracted from two SIL OFL fonts (Andika, Playwrite FR Moderne) by `scripts/glyphs.mjs`; licenses in the third-party notices.
 - The panel has three sections: lines (blank tile, small squares, Seyès), letters (tabs capitals / cursive / digits, then the characters), coloring pages. A white stroke covers the lines; the eraser shows them again.
 
+**C3 — Overflow protection** (module `overflow-protection`, `spec/SPEC-overflow-protection.md`)
+
+- The **zones** of a coloring page are found by filling: its outlines (hints left out) rendered at 1000 × 1000 px, every pixel at least half opaque a barrier, the connected regions of the others the zones (`src/engine/zones.ts`); computed when the page is added or the drawing opened, before it shows.
+- With the protection on, every stroke (pen and eraser) started on a coloring page records a point of its **start zone** (`zone`, schema 3) and is clipped to that zone of the page on the drawing when it started: live, in the replay, when reopened and in exported pictures. Strokes without a zone (before the page, protection off, started on an outline with no zone within 12 units) are never clipped.
+- The **protection pebble** (teal, icon `magic`, `aria-pressed`) beside the eraser, shown only with a coloring page: on by default, on again when a coloring page is added or a drawing opened; not stored.
+
 ## Tech Stack
 
 - **Node 24**, npm, **Vite 8** + **TypeScript 6** (`strict`), no UI framework.

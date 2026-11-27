@@ -29,13 +29,13 @@ The zones of a coloring page come from filling a 1000 px rendering of its outlin
 
 - [x] Task 3: Zone maps and clipped rendering of stored strokes (slate, viewer, raster)
 - [x] Task 4: Live: zone resolved on pointerdown, stroke in progress clipped, several fingers
-- [ ] Task 5: Protection pebble; CLAUDE.md constraint updated
+- [x] Task 5: Protection pebble; CLAUDE.md constraint updated
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–6 met
+- [x] Spec success criteria 1–6 met
 - [ ] Device check (performance of the scratch canvas with a marker on the iPad and the Pixel): deferred to the final test campaign
-- [ ] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map: milestone 2 complete
+- [x] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map: milestone 2 complete
 
 ## Risks and Mitigations
 
