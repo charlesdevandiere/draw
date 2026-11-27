@@ -23,7 +23,7 @@ After `template-layers`: an overlay slot with static coloring pages; the backgro
   - `lines/seyes`: French ruled paper ("grands carreaux", Seyès): 8 mm squares, three thin lines every 2 mm between the thick horizontal lines; violet / light blue as French exercise books. No margin line.
 - **Letters**, one character chosen, repeated along a row and on the next rows until the page is full:
   - `letters/capitals`: A–Z, light grey filled glyphs between two guide lines (baseline and cap line), cap height 2 cm;
-  - `letters/cursive`: a–z, French school cursive, light grey filled glyphs on Seyès ruling enlarged for young children (interval 4 mm, x-height one interval), letters not joined;
+  - `letters/cursive`: a–z, French school cursive, light grey filled glyphs on Seyès ruling enlarged for young children (interval 4 mm, x-height one interval), letters not joined; the ruling is shifted so the first baseline (on a thick line) leaves the ascenders a margin from the top edge, the same rows for every letter;
   - `letters/digits`: 0–9, as the capitals.
   - Spacing: advance width plus 0.5 cm; at least 0.5 cm from the page edges; rows centered; a row only if a whole letter fits (no cut letter).
 - One background at a time: picking a template replaces the current one (one history step), the blank tile removes it.
@@ -36,7 +36,7 @@ After `template-layers`: an overlay slot with static coloring pages; the backgro
 ### Generation (pure)
 
 - `src/templates/writing.ts`: `linesSvg(kind, unitsPerCm)` and `lettersSvg(set, char, unitsPerCm)` return the SVG text, deterministic (same input, same text), compact (a glyph defined once in `<defs>`, then `<use>`), within the template limits.
-- Glyph outlines come from `src/templates/glyphs/{capitals,cursive,digits}.json` (path data in font units, advance width, metrics), extracted once by a dev script (`scripts/glyphs.mjs`, `opentype.js` as a dev dependency) from two SIL OFL fonts: **Andika** (capitals and digits, made for early readers) and **Playwrite FR Moderne** (French school cursive). The font files are not shipped; their license goes into `public/THIRD-PARTY-NOTICES.txt`.
+- Glyph outlines come from `src/templates/glyphs/{capitals,cursive,digits}.json` (path data in font units, advance width, metrics), extracted once by a dev script (`scripts/glyphs.mjs`, `opentype.js` as a dev dependency) from the SIL OFL font **Marelle**, the cursive taught in French schools (Ministère de l'Éducation nationale, `marelle.forge.apps.education.fr`): **Marelle** for the cursive letters, its variant **Marelle Bâton** for the capitals and digits (changed 2026-11-27 from Andika and Playwrite FR Moderne at the user's request). Marelle is drawn on the Seyès ruling: x-height one interval, ascenders three, descenders two, capitals two. The font files are not shipped; their license goes into `public/THIRD-PARTY-NOTICES.txt`.
 
 ### Panel
 
@@ -67,6 +67,6 @@ After `template-layers`: an overlay slot with static coloring pages; the backgro
 
 Answered 2026-11-26 (approved as proposed):
 
-1. **Fonts**: Andika (capitals, digits) and Playwrite FR Moderne (cursive), through `opentype.js` as a dev dependency.
+1. **Fonts**: Andika (capitals, digits) and Playwrite FR Moderne (cursive), through `opentype.js` as a dev dependency. Replaced on 2026-11-27 by Marelle (cursive) and Marelle Bâton (capitals, digits), the fonts of the French national education.
 2. **Sizes**: capitals and digits 2 cm; cursive on Seyès with a 4 mm interval; small squares 5 mm; Seyès 8 mm; tuned on the devices if needed.
 3. **Look of letters**: light grey filled, all the same.

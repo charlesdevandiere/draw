@@ -1,23 +1,24 @@
 /**
  * Extracts the glyph outlines of the letters to trace (spec/SPEC-writing-templates.md) from
- * two SIL OFL fonts into src/templates/glyphs/*.json. Run it by hand when a font or a set
- * changes; the JSON is committed, the fonts are not.
+ * the SIL OFL font Marelle into src/templates/glyphs/*.json. Run it by hand when a font or a
+ * set changes; the JSON is committed, the fonts are not.
  *
- *   node scripts/glyphs.mjs fonts/Andika-Regular.ttf fonts/PlaywriteFRModerne.ttf
+ *   node scripts/glyphs.mjs fonts/Marelle-Regular.ttf fonts/MarelleBaton-Regular.ttf
  *
- * Fonts (Google Fonts repository, github.com/google/fonts):
- * - ofl/andika/Andika-Regular.ttf: capitals and digits (made for early readers);
- * - ofl/playwritefrmoderne/PlaywriteFRModerne[wght].ttf: French school cursive (default
- *   weight).
+ * Fonts: Marelle, the cursive taught in French schools (Ministère de l'Éducation nationale,
+ * marelle.forge.apps.education.fr, package marelle-ttf.zip, v1.005), drawn on the Seyès
+ * ruling (x-height one interval, capitals two):
+ * - Marelle-Regular.ttf: cursive lowercase letters;
+ * - MarelleBaton-Regular.ttf ("Marelle Bâton"): block capitals, and the digits.
  * Outlines are in font units, y down, baseline at 0, rounded to whole units, every contour
  * closed (opentype.js 2 emits TrueType contours without a close command).
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import opentype from 'opentype.js';
 
-const [andikaPath, playwritePath] = process.argv.slice(2);
-if (!andikaPath || !playwritePath) {
-  console.error('Usage: node scripts/glyphs.mjs <Andika-Regular.ttf> <PlaywriteFRModerne.ttf>');
+const [cursivePath, batonPath] = process.argv.slice(2);
+if (!cursivePath || !batonPath) {
+  console.error('Usage: node scripts/glyphs.mjs <Marelle-Regular.ttf> <MarelleBaton-Regular.ttf>');
   process.exit(1);
 }
 
@@ -27,9 +28,9 @@ const range = (from, to) =>
   );
 
 const SETS = [
-  { name: 'capitals', family: 'Andika', font: andikaPath, chars: range('A', 'Z') },
-  { name: 'digits', family: 'Andika', font: andikaPath, chars: range('0', '9') },
-  { name: 'cursive', family: 'Playwrite FR Moderne', font: playwritePath, chars: range('a', 'z') },
+  { name: 'capitals', family: 'Marelle Bâton', font: batonPath, chars: range('A', 'Z') },
+  { name: 'digits', family: 'Marelle Bâton', font: batonPath, chars: range('0', '9') },
+  { name: 'cursive', family: 'Marelle', font: cursivePath, chars: range('a', 'z') },
 ];
 
 /** Parses a font file; the Buffer may sit at an offset in a larger shared ArrayBuffer. */

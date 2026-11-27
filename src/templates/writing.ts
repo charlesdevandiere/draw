@@ -58,11 +58,21 @@ function strokePath(d: string, color: string, width: number): string {
   return d ? `<path d="${d}" fill="none" stroke="${color}" stroke-width="${round(width)}"/>` : '';
 }
 
-/** Seyès ruling with `interval` between lines (thick every 4), vertical lines every 4. */
-export function seyesPaths(interval: number): string {
-  const lines = every(interval);
-  const thick = lines.filter((_, index) => (index + 1) % 4 === 0);
-  const thin = lines.filter((_, index) => (index + 1) % 4 !== 0);
+/**
+ * Seyès ruling with `interval` between lines (thick every 4), vertical lines every 4. The
+ * thick lines go through `offset` (from the top edge), every 4 intervals.
+ */
+export function seyesPaths(interval: number, offset = 0): string {
+  if (!(interval > 0) || !Number.isFinite(interval)) return '';
+  // First line inside the page: a negative offset, or one a float error away from a
+  // multiple of the interval, never puts a line above or on the top edge.
+  const phase = ((offset % interval) + interval) % interval;
+  const first = phase > 0.05 ? phase : phase + interval;
+  // Index of the first line from a thick one: the thick lines are where it is 0 (mod 4).
+  const start = Math.round((first - offset) / interval);
+  const lines = every(interval, first);
+  const thick = lines.filter((_, index) => (((start + index) % 4) + 4) % 4 === 0);
+  const thin = lines.filter((_, index) => (((start + index) % 4) + 4) % 4 !== 0);
   const width = interval / 12;
   return (
     strokePath(horizontal(thin), SEYES_THIN, width) +
@@ -189,11 +199,15 @@ export function letterGrid(set: LetterSet, char: string, unitsPerCm: number): Le
     const interval = CURSIVE_INTERVAL_CM * unitsPerCm;
     scale = interval / data.xHeight;
     height = interval;
-    // Thick lines every 4 intervals; a row needs 3 intervals above (ascenders) and 2 below,
-    // its descender kept a margin away from the bottom edge.
-    const below = Math.max(2 * interval, (ink.maxY + pad) * scale + space);
+    // Baselines 8 intervals apart, on thick lines of the ruling (lettersSvg shifts it); a
+    // row has ascenders 3 intervals high (Marelle is drawn on the Seyès ruling) and
+    // descenders 2 low, the ink kept a margin away from the edges. The first baseline is
+    // the same for every letter: the rows of all letters line up.
+    const first = Math.max(4 * interval, 3 * interval + pad * scale + space);
+    // The lowest descender of the set: every letter gets the same rows.
+    const below = Math.max(2 * interval, (setInk('cursive').bottom + pad) * scale + space);
     baselines = [];
-    for (let y = 4 * interval; y + below <= PAGE_SIZE; y += 8 * interval) {
+    for (let y = first; y + below <= PAGE_SIZE; y += 8 * interval) {
       baselines.push(round(y));
     }
   } else {
@@ -225,7 +239,7 @@ export function lettersSvg(set: LetterSet, char: string, unitsPerCm: number): st
   if (!layout || !glyph) return `${SVG_OPEN}</svg>`;
   const guides =
     set === 'cursive'
-      ? seyesPaths(CURSIVE_INTERVAL_CM * unitsPerCm)
+      ? seyesPaths(CURSIVE_INTERVAL_CM * unitsPerCm, layout.baselines[0] ?? 0)
       : strokePath(
           horizontal(layout.baselines.flatMap((y) => [round(y - layout.height), y])),
           GRID_COLOR,
@@ -248,7 +262,7 @@ export function lettersSvg(set: LetterSet, char: string, unitsPerCm: number): st
 }
 
 /** Version of the writing templates; bumped when their look changes. */
-export const WRITING_VERSION = 1;
+export const WRITING_VERSION = 2;
 
 /** The background layer of ruled paper, generated for this device. */
 export function linesLayer(kind: LinesKind, unitsPerCm: number): TemplateLayer {

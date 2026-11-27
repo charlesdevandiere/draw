@@ -14,6 +14,7 @@ import {
   letterGrid,
   lettersSvg,
   linesSvg,
+  seyesPaths,
   unitsPerCmFor,
 } from './writing';
 
@@ -75,6 +76,20 @@ describe('linesSvg', () => {
     }
   });
 
+  it('Seyès shifted: thick lines through the offset, no line above or on the top edge', () => {
+    for (const offset of [-35, 0, 20, 20.0000000001, 19.9999999999, 47.5]) {
+      const lines = horizontalLines(`<svg>${seyesPaths(10, offset)}</svg>`);
+      const all = Object.values(lines).flat();
+      expect(Math.min(...all), `offset ${offset}`).toBeGreaterThan(0.05);
+      const thick = lines['#8f7fd6'] ?? [];
+      expect(thick.length).toBeGreaterThan(0);
+      for (const y of thick) {
+        const phase = (((y - offset) % 40) + 40) % 40;
+        expect(Math.min(phase, 40 - phase), `offset ${offset}`).toBeLessThan(0.15);
+      }
+    }
+  });
+
   it('draws nothing, rather than hanging, for a meaningless size', () => {
     for (const unitsPerCm of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(linesSvg('small-squares', unitsPerCm)).not.toContain('<path');
@@ -129,16 +144,29 @@ describe('letterGrid', () => {
   });
 
   it('cursive: a 4 mm x-height, baselines on every other thick Seyès line', () => {
-    for (const unitsPerCm of [PHONE, TABLET]) {
+    for (const unitsPerCm of [PHONE, TABLET, 21, 40, 54, 65, 81, 110]) {
       const layout = letterGrid('cursive', 'm', unitsPerCm);
       if (!layout) throw new Error('no layout');
       const interval = 0.4 * unitsPerCm;
       expect(layout.height).toBeCloseTo(interval, 0);
+      const first = layout.baselines[0] ?? 0;
       for (const [index, y] of layout.baselines.entries()) {
-        expect(y / interval).toBeCloseTo(4 + 8 * index, 1);
+        expect((y - first) / interval).toBeCloseTo(8 * index, 1);
         expect(y + 2 * interval).toBeLessThanOrEqual(1000);
       }
+      // Ascenders (3 intervals) a margin away from the top edge; every letter on the same rows.
+      expect(first - 3 * interval).toBeGreaterThanOrEqual(0.5 * unitsPerCm);
+      for (const char of LETTER_SETS.cursive) {
+        expect(letterGrid('cursive', char, unitsPerCm)?.baselines, char).toEqual(layout.baselines);
+      }
       expect(layout.baselines.length).toBeGreaterThanOrEqual(2);
+      // The ruling has a thick line on each baseline.
+      const svg = lettersSvg('cursive', 'm', unitsPerCm);
+      const thickPath = /<path d="([^"]*)" fill="none" stroke="#8f7fd6"/.exec(svg)?.[1] ?? '';
+      const thick = [...thickPath.matchAll(/M0 (-?[\d.]+)H/g)].map((match) => Number(match[1]));
+      for (const y of layout.baselines) {
+        expect(thick.some((line) => Math.abs(line - y) <= 0.15)).toBe(true);
+      }
     }
   });
 

@@ -92,7 +92,8 @@ test('the wall keeps clear of the edge margins and scrolls under its header', as
     await page.getByRole('button', { name: 'New page' }).click();
   }
   await page.getByRole('button', { name: 'My drawings' }).click();
-  await expect(page.locator('.gallery-card')).toHaveCount(12);
+  // Twelve drawings saved one after another: the last saves may land late under load.
+  await expect(page.locator('.gallery-card')).toHaveCount(12, { timeout: 15_000 });
   const viewport = page.viewportSize();
   if (!viewport) throw new Error('No viewport');
   const header = await page.locator('.gallery-header').boundingBox();

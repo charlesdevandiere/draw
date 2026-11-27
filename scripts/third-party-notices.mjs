@@ -36,20 +36,13 @@ const SHIPPED = {
  */
 const FONTS = [
   {
-    name: 'Andika (glyph outlines)',
-    version: '6.101',
+    name: 'Marelle (glyph outlines)',
+    version: '1.005',
     license: 'OFL-1.1',
-    homepage: 'https://software.sil.org/andika/',
-    usage: 'outlines of the capitals and digits to trace',
-    file: 'src/templates/glyphs/OFL-Andika.txt',
-  },
-  {
-    name: 'Playwrite FR Moderne (glyph outlines)',
-    version: '1.003',
-    license: 'OFL-1.1',
-    homepage: 'https://github.com/TypeTogether/Playwrite',
-    usage: 'outlines of the cursive letters to trace',
-    file: 'src/templates/glyphs/OFL-PlaywriteFRModerne.txt',
+    homepage: 'https://marelle.forge.apps.education.fr/',
+    usage:
+      'outlines of the cursive letters (Marelle), capitals and digits (Marelle Bâton) to trace',
+    file: 'src/templates/glyphs/OFL-Marelle.txt',
   },
 ];
 
