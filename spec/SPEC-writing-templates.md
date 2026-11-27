@@ -1,6 +1,6 @@
 # Spec Delta: Writing templates — milestone 2, module 2 of 3
 
-Status: approved (2026-11-26)
+Status: implemented (2026-11-27, folded into `spec/SPEC-mvp.md` C2; device check with the final test campaign)
 
 Module `writing-templates` of milestone 2 (`spec/capability-map-milestone-2.md`). Inherits `spec/SPEC-mvp.md` and builds on `template-layers` (layer model, steps, panel, rendering, storage).
 

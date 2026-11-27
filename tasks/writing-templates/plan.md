@@ -27,13 +27,13 @@ Background templates generated when added, at a constant physical size: small sq
 
 ### Phase 2: In the app
 
-- [ ] Task 4: Lines and letters sections in the panel, generated at the device's physical size
+- [x] Task 4: Lines and letters sections in the panel, generated at the device's physical size
 
 ### Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–6 met
-- [ ] Device check (sizes in cm on the iPad 11 and the Pixel 9a): deferred to the final test campaign
-- [ ] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress
+- [x] Spec success criteria 1–6 met
+- [ ] Device check (sizes in cm on the iPad 11 and the Pixel 9a): deferred (2026-11-27) to the final test campaign
+- [x] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress
 
 ## Risks and Mitigations
 

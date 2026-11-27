@@ -5,6 +5,11 @@ import digits from './glyphs/digits.json';
 import { checkTemplateSvg } from './svg-check';
 import {
   LETTER_SETS,
+  WRITING_VERSION,
+  glyphPreviewSvg,
+  lettersLayer,
+  linesLayer,
+  templateKey,
   NOMINAL_PX_PER_CM,
   letterGrid,
   lettersSvg,
@@ -203,5 +208,35 @@ describe('lettersSvg', () => {
 
   it('an unknown character gives an empty page', () => {
     expect(lettersSvg('capitals', '?', TABLET)).not.toContain('<use');
+  });
+});
+
+describe('layers', () => {
+  it('ruled paper goes in the background with its size', () => {
+    const layer = linesLayer('seyes', TABLET);
+    expect(layer).toEqual({
+      slot: 'background',
+      template: 'lines/seyes',
+      version: WRITING_VERSION,
+      params: { unitsPerCm: TABLET },
+      svg: linesSvg('seyes', TABLET),
+    });
+    expect(templateKey(layer)).toBe('lines/seyes');
+  });
+
+  it('a letter carries its character and size', () => {
+    const layer = lettersLayer('cursive', 'f', PHONE);
+    expect(layer.params).toEqual({ char: 'f', unitsPerCm: PHONE });
+    expect(layer.template).toBe('letters/cursive');
+    expect(layer.svg).toBe(lettersSvg('cursive', 'f', PHONE));
+    expect(templateKey(layer)).toBe('letters/cursive:f');
+  });
+
+  it('previews one character framed by its ink', () => {
+    const preview = glyphPreviewSvg('capitals', 'J');
+    expect(preview).toMatch(/^<svg [^>]*viewBox="-?[\d.]+ -?[\d.]+ [\d.]+ [\d.]+">/);
+    expect(preview.match(/<path /g)).toHaveLength(1);
+    expect(glyphPreviewSvg('cursive', 'a')).toContain('stroke-width');
+    expect(glyphPreviewSvg('digits', 'x')).not.toContain('<path');
   });
 });

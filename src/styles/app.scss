@@ -867,6 +867,28 @@ $tape-colors: map.values(map.remove($action-colors, 'templates'));
 .templates-dialog {
   max-width: calc(100vw - 32px);
 
+  // Three sections: taller than a phone held sideways, the content scrolls.
+  .palette-dialog-body {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  // The characters of a set: smaller tiles, many per row.
+  .templates-grid.templates-letters {
+    grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+    gap: 8px;
+  }
+
+  .template-letter,
+  .template-tab {
+    padding: 8px;
+  }
+
+  .templates-grid.templates-tabs {
+    grid-template-columns: repeat(3, minmax(52px, 72px));
+  }
+
   .templates-section {
     display: flex;
     flex-direction: column;

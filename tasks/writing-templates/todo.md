@@ -62,9 +62,9 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 **Acceptance criteria:**
 
-- [ ] e2e: small-squares spacing in CSS px the same (±1 px) on a phone and a tablet viewport; after a resize, it scales with the page.
-- [ ] e2e: "J" repeated several times; reload keeps it; replacing lines by letters is one undo step.
-- [ ] e2e: a white stroke hides the lines, the eraser shows them again; tiles reachable in every window shape.
+- [x] e2e: small-squares spacing in CSS px the same (±1 px) on a phone and a tablet viewport; after a resize, it scales with the page.
+- [x] e2e: "J" repeated several times; reload keeps it; replacing lines by letters is one undo step.
+- [x] e2e: a white stroke hides the lines, the eraser shows them again; tiles reachable in every window shape.
 
 **Verification:** `npx playwright test e2e/writing-templates.spec.ts`; `npm run check`, `npm run e2e`
 
@@ -76,6 +76,6 @@ Plan: `tasks/writing-templates/plan.md`. Spec: `spec/SPEC-writing-templates.md`.
 
 ## Checkpoint: Module complete
 
-- [ ] Spec success criteria 1–6 met
+- [x] Spec success criteria 1–6 met
 - [ ] Device check: deferred to the final test campaign
-- [ ] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress
+- [x] Fold into `spec/SPEC-mvp.md`; spec status implemented; capability map progress

@@ -154,6 +154,11 @@ A button always visible on the drawing screen, with 3 pictograms. The choice is 
 - The **templates pebble** (teal, with the actions) opens a panel: a blank tile, then the coloring pages (`src/templates/catalog.ts`; authoring rules for new pages in `docs/templates.md`).
 - **Coloring pages**: black outlines on a transparent square, optional color hints (`class="hint"` dots). Outline width: scaled with the page, or 3 CSS px on every screen through the **test** switch of the settings' finger card (`outlineWidth`), to decide on the devices.
 
+**C2 — Writing templates** (module `writing-templates`, `spec/SPEC-writing-templates.md`)
+
+- Background templates generated when picked, at a constant physical size (`NOMINAL_PX_PER_CM` = 55 CSS px per cm, from the page's width on screen), stored with their size (`params.unitsPerCm`) and only scaled afterwards: **small squares** (5 mm), **French ruled paper** (Seyès, 8 mm squares, thin lines every 2 mm), and one character repeated in whole copies to fill the page: **capitals** and **digits** (2 cm high, on a baseline and a cap line), **cursive** letters (French school cursive, 4 mm x-height on an enlarged Seyès ruling). Glyph outlines extracted from two SIL OFL fonts (Andika, Playwrite FR Moderne) by `scripts/glyphs.mjs`; licenses in the third-party notices.
+- The panel has three sections: lines (blank tile, small squares, Seyès), letters (tabs capitals / cursive / digits, then the characters), coloring pages. A white stroke covers the lines; the eraser shows them again.
+
 ## Tech Stack
 
 - **Node 24**, npm, **Vite 8** + **TypeScript 6** (`strict`), no UI framework.

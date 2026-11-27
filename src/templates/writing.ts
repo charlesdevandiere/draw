@@ -4,7 +4,7 @@
  * page units in one centimeter on the device that adds the template; the SVG is stored and
  * only scaled afterwards, never generated again.
  */
-import { PAGE_SIZE } from '../engine/types';
+import { PAGE_SIZE, type TemplateLayer } from '../engine/types';
 import capitals from './glyphs/capitals.json';
 import cursive from './glyphs/cursive.json';
 import digits from './glyphs/digits.json';
@@ -244,5 +244,75 @@ export function lettersSvg(set: LetterSet, char: string, unitsPerCm: number): st
   return (
     `${SVG_OPEN}${guides}<defs><path id="g" d="${glyph.d}" transform="scale(${scale})"/></defs>` +
     `<g fill="${LETTER_COLOR}"${thicken}>${copies}</g></svg>`
+  );
+}
+
+/** Version of the writing templates; bumped when their look changes. */
+export const WRITING_VERSION = 1;
+
+/** The background layer of ruled paper, generated for this device. */
+export function linesLayer(kind: LinesKind, unitsPerCm: number): TemplateLayer {
+  return {
+    slot: 'background',
+    template: `lines/${kind}`,
+    version: WRITING_VERSION,
+    params: { unitsPerCm },
+    svg: linesSvg(kind, unitsPerCm),
+  };
+}
+
+/** The background layer of one character to trace, generated for this device. */
+export function lettersLayer(set: LetterSet, char: string, unitsPerCm: number): TemplateLayer {
+  return {
+    slot: 'background',
+    template: `letters/${set}`,
+    version: WRITING_VERSION,
+    params: { char, unitsPerCm },
+    svg: lettersSvg(set, char, unitsPerCm),
+  };
+}
+
+/** What a layer shows, to compare with a tile of the panel: the template, and its letter. */
+export function templateKey(layer: Pick<TemplateLayer, 'template' | 'params'>): string {
+  const { char } = layer.params;
+  return typeof char === 'string' ? `${layer.template}:${char}` : layer.template;
+}
+
+const setInks = new Map<LetterSet, { top: number; bottom: number }>();
+
+/**
+ * Vertical extent of the ink of a whole set (font units): its characters share one frame.
+ * Computed once per set (every tile of the panel asks for it).
+ */
+function setInk(set: LetterSet): { top: number; bottom: number } {
+  let ink = setInks.get(set);
+  if (!ink) {
+    const boxes = LETTER_SETS[set].map((char) => inkBox(GLYPHS[set].glyphs[char]?.d ?? ''));
+    ink = {
+      top: Math.min(...boxes.map((box) => box.minY)),
+      bottom: Math.max(...boxes.map((box) => box.maxY)),
+    };
+    setInks.set(set, ink);
+  }
+  return ink;
+}
+
+/**
+ * One character alone, dark: the tile of the panel. Every character of a set is drawn at
+ * the same scale, on the same baseline, centered across.
+ */
+export function glyphPreviewSvg(set: LetterSet, char: string): string {
+  const glyph = Object.hasOwn(GLYPHS[set].glyphs, char) ? GLYPHS[set].glyphs[char] : undefined;
+  if (!glyph) return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"></svg>';
+  const box = inkBox(glyph.d);
+  const { top, bottom } = setInk(set);
+  const size = (bottom - top) * 1.15;
+  const x = round((box.minX + box.maxX - size) / 2);
+  const y = round((top + bottom - size) / 2);
+  const thicken =
+    set === 'cursive' ? ` stroke="#2b2b2b" stroke-width="${round(2 * CURSIVE_HALF_STROKE)}"` : '';
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${round(size)} ${round(size)}">` +
+    `<path d="${glyph.d}" fill="#2b2b2b"${thicken} stroke-linejoin="round"/></svg>`
   );
 }

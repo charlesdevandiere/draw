@@ -33,6 +33,8 @@ $icons: (
   'templates': 'layers-fill',
   'no-template': 'ban',
   'coloring': 'brush-fill',
+  'lines': 'grid-3x3',
+  'letters': 'fonts',
 );
 
 @function icon-url($file) {

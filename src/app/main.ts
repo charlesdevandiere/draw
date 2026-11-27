@@ -189,6 +189,7 @@ initTemplatesPanel({
   t: translator.t,
   current: () => currentLayers(history.templates),
   onPick: placeTemplate,
+  pageWidth: () => requireElement('page', HTMLElement).getBoundingClientRect().width,
   haptic,
 });
 
